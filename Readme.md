@@ -194,8 +194,8 @@ working on Win 7](https://www.python.org/downloads/windows/), but not able to ru
 on Windows XP.
 
 ## Dependencies
-While it is extremely popular to use all libraries available to get functions
-performed !(https://regmedia.co.uk/2008/07/02/fig3.gif) independent of the
+While it is extremely popular to use all [libraries available to get functions
+performed](https://regmedia.co.uk/2008/07/02/fig3.gif) independent of the
 library size, it is critical for a good code to use only as much as needed.
 To write a simple import or export function, do not load a library except
 if: 1.) provides an important functionality; 2.) it provides it in a minimal

@@ -101,8 +101,172 @@ In order to publish data, the content of the database has to be extracted and
 packaged togeher is such manner that the database of the archive can handle it,
 or it can be used as a self-consistent / self-contained archive file, extracted
 into a folder tree.
+
 This means specific plugins and filter programs doing this job. The output
 formats are not well defined, can spread from MS EXCEL tables to simple text,
 or what would be worse, any binary proprietary formats.
 
+# Project idea
+So, how about the following?
+
+First, let us distribute the load. Have tools on the client side which
+help managing storage and content.
+
+Second, we can achieve a local copy of all data in a structured manner,
+uploaded / synchronized to the ELN or data repository server.
+
+## folder tree
+Research data management starts at the file system level ([see for example
+here](https://datamanagement.hms.harvard.edu/collect/directory-structure) or
+[here](https://dmeg.cessda.eu/Data-Management-Expert-Guide/2.-Organise-Document/File-naming-and-folder-structure)).
+If data is stored in a well defined folder tree and using some, also well
+defined common file names and types, we already have a half document database.
+
+Thus, a simple tool that ensures folder trees are generated according to
+templates also enables maintaining a uniform structure across institutes.
+
+## common content
+Recording experiments, project ideas, summaries, etc. is a common task in
+scientific work. Many turn for such cases to tools like MS WORD or MS EXCEL
+which are not really target specific, and still produce proprieary data.
+
+Much of the related data can be easily stored in text documents employing
+some kind of markdown language.
+
+Especially for experiments, the life of a user can be much improved if
+we collect templates, and provide a simple interface to fill out a table
+or other GUI widget, which then takes care of storing the data in a both
+human and machine readable way.
+
+## templates
+Templates are made to simplify data collection, and also to ensure uniformity.
+We can use them to:
+  * define what fields can exist, unify field names
+  * ensure values for mandatory fields
+  * provide a way to translate the collected data to other standards
+
+## server side
+If our data is collected on the client in a well structured way, we should
+write interfaces to upload this data to the server.
+
+What server is utilized is flexible:
+  * backup to USB drives
+  * cloud based backup solution (e.g. rsync)
+  * Own Cloud, Next Cloud, Drop Box synchronization
+  * an ELN with API
+
+Such synching take the folders necessary for the specific type of storage.
+Multiple storage tools are available, e.g. ELN and backup simultaneously.
+
+## archiving
+is not more complicated than providing a backup of a part of the whole set.
+
+## distributing the load
+Because the data is stored locally, and only parts are uploaded, we can
+provide relative links to archives or backups for large data sets.
+
+# Software development
+## Targeted platforms
+in an ideal case, the tools should work on the three main operating systems:
+  * Windows
+  * Linux
+  * Mac OS
+
+It shall be a challenge, but doable.
+
+## Language
+Well, a challenge, because good code that is small and quite fast is best
+written in C/C++.
+
+However, the conceptual ideas can be first demonstrated e.g. in python to see
+how all can work together.
+
+Thus, the project has both languages at hand:
+  * C/C++
+  * python
+
+An important limiting factor in institutes: many experimental system still
+have old Windows installs, probably down to Windows XP (let us stop there). Thus,
+the programs should be tested down to that line.
+
+Python does not support anything below win 10 for a while, python [3.7 was the last
+working on Win 7](https://www.python.org/downloads/windows/), but not able to run
+on Windows XP.
+
+## Dependencies
+While it is extremely popular to use all libraries available to get functions
+performed !(https://regmedia.co.uk/2008/07/02/fig3.gif) independent of the
+library size, it is critical for a good code to use only as much as needed.
+To write a simple import or export function, do not load a library except
+if: 1.) provides an important functionality; 2.) it provides it in a minimal
+manner. Thus, for reading a CSV do not pull in python pandas, except if you
+are loading a 100 MB file, where it may provide a speed advantage.
+
+### JSON
+JSON is a standard way of sending and receiving data between javascript and server
+APIs. Thus, we will need it to talk to ELNs or archiving solutions which do not
+provide their own synchronization tools.
+
+It is possible to handle JSON manually, but it is prone to throw errors with
+users who do not have enough experience. And for those who have the experience
+it still can be somewhat tedious.
+
+### YAML
+Again a structured text, but way more human readable. It may have a higher load
+on the computer side of things, but saves much on the user experience.
+Using standard library may be of help translating the structure to and from files.
+
+#### configuration files
+As a starting idea:
+User readable configuration would be written in YAML. It can be still stored as
+JSON, to be uploaded and distributed between installations using a server.
+
+Furthermore, YAML / JSON can describe the GUI interfaces for various
+experiments, forms, folder trees, etc.
+
+### GUI?
+One the one hand the KISS principle is often related to command line tools, which
+are powerful and light weight. However, in this project user input is a very
+critical part. Thus, we need graphical user interface elements to collect the
+input, and present structured output.
+Still, a program can be at least relatively small. It is to be expected that
+programs change from a 20 kB command line tool to a 13 MB mini GUI, but it is
+still way better than my browser will request to pop up a simple javascript
+form.
+
+### FLTK
+For a start, it is a useful, fast and light weight C/C++ library to build
+GUI interfaces. Especially, it is easy to get I/O widgets to communicate between
+the user and the software.
+
+### Tcl/Tk, Tkinter
+Are a default install on Windows, so we can rely on them trying out concepts in
+python.
+
+### Gtk 3 or QT 6
+If we run into very complex problems, it may be necessary to use these, but it
+would be best to avoid them. The result has quite large depencencies, which
+contradicts the KISS concept in our case.
+So, just to put it plain: **NO!**
+
+## Coding standard
+In Python it is to be expected to keep the pylint happy. Though it is often
+a hassle, it will be a coding standard one can follow.
+**Except** allow using counters as single syllabi variables, when it is clear
+and simple. Like i, j, k, l for indexing, N for length of an array on short term.
+
+In C, clear tabulation of code blocks and a clear comment before every function
+clarifying what the function does, its input and output are a must. Much like
+[a nice code in PHP](https://www.tutorialspoint.com/php/php_coding_standard.htm).
+
+
+## first steps
+### folder generator
+a small script that picks a string, e.g. project name, and create a bunch of
+folders underneath according to a simple text configuration file.
+
+### YAML to GUI
+  * Define a YAML variable set to describe GUI elements
+  * a GUI that can display them
+  * export the input information to a YAML with keys from the GUI fields
 

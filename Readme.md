@@ -211,10 +211,27 @@ It is possible to handle JSON manually, but it is prone to throw errors with
 users who do not have enough experience. And for those who have the experience
 it still can be somewhat tedious.
 
+The [json-c](https://github.com/json-c/json-c) library on GITHUB seems to do a
+a good job in reading and generating JSON text content.
+
 ### YAML
 Again a structured text, but way more human readable. It may have a higher load
 on the computer side of things, but saves much on the user experience.
 Using standard library may be of help translating the structure to and from files.
+
+The [libyaml](https://github.com/yaml/libyaml) is not so trivial to use at the
+first glance, mostly because the documentation is not really friendly to
+beginners. E.g. it is somewhat tricky to figure out how to generate key/value
+pairs from entries. The signaling system is consistent, but the rules are not
+spelled out clearly.
+Thus, it takes some experimenting but works.
+
+Our aim is to be able to parse:
+ * simple key/value pairs
+ * lists of elements
+ * sub-trees, which can be key/value pairs or lists
+
+Based on the examples, the event model seem to work fine.
 
 #### configuration files
 As a starting idea:
@@ -237,7 +254,7 @@ form.
 ### FLTK
 For a start, it is a useful, fast and light weight C/C++ library to build
 GUI interfaces. Especially, it is easy to get I/O widgets to communicate between
-the user and the software.
+the user and the software. [It has a reasonable documentation](https://www.fltk.org/documentation.php).
 
 ### Tcl/Tk, Tkinter
 Are a default install on Windows, so we can rely on them trying out concepts in
@@ -270,3 +287,12 @@ folders underneath according to a simple text configuration file.
   * a GUI that can display them
   * export the input information to a YAML with keys from the GUI fields
 
+## Information representation
+The lists.c file contains a set of functions to build a list of records, each
+comprising of a key/value pair. Values can be strings or other lists.
+Keys can be strings or NULL.
+A type field allows to indicate if we have strings or lists, but also if the
+given value should be numeric or multiline text.
+
+It is a simple approach, but works quite nice, and YAML documents can be
+parsed into it.

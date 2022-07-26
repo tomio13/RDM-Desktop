@@ -1,0 +1,518 @@
+/* Define here the necessary string struct and functions for:
+ * allocation, freeing
+ * copying
+ * trimming
+ * replacing characters
+ */
+
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+#include "lists.h"
+
+/** new_string()
+ * allocate a new string and clear up the memory
+ * length is without the closing '\0'
+ *
+ * parameter length integer length of string
+ *
+ * return
+ * a pointer or NULL upon error
+ */
+r_string_t* new_string(size_t length) {
+    int i;
+    r_string_t *res;
+
+    if (length < 1) {
+        printf("Invalid length requested: %u\n", (uint)length);
+        return(NULL);
+    }
+
+    if ((res = (r_string_t *)malloc(sizeof(r_string_t))) == NULL) {
+        fputs("Unable to allocate string array!\n", stderr);
+        return(NULL);
+    }
+    if ((res->value = (char*)malloc((length+1)*sizeof(char))) == NULL) {
+        fputs("Unable to allocate value string!\n", stderr);
+        free(res);
+        return(NULL);
+    }
+    res->length = length;
+
+    for (i=0; i < (length+1); i++) *(res->value + i) = '\0';
+
+    return(res);
+}
+
+
+/** new_string_from_text()
+ * make a new string and fill it up with the provided
+ * text.
+ * Do everything at low level, not calling new_string
+ * Assume that length does NOT include the closing '\0'
+ *
+ * parameters
+ * char* text   the text to copy in
+ * int length   the length of text
+ *
+ * return
+ * r_string_t* new pointer
+ */
+r_string_t* new_string_from_text(char* text, int length) {
+    r_string_t *res;
+
+    res = new_string(length);
+    if (text != NULL && length > 0) {
+        strncpy(res->value, text, length);
+    }
+    res->length = length > 0 ? length:0;
+
+    return(res);
+}
+
+
+/** delete_string()
+ * take a string, clean it up and release the memory
+ *
+ * parameter pointer to an r_string_t structure
+ *
+ * return nothing
+ */
+void delete_string(r_string_t *text){
+
+    int i;
+
+    if (text == NULL){
+        return;
+    }
+    if (text -> value != NULL) {
+        for (i=0; i< text->length; i++) *(text->value +i) = '\0';
+
+        free(text->value);
+        text->length = 0;
+    }
+    free(text);
+    return;
+}
+
+
+/** new_record()
+ * allocate a simple record for futher use
+ *
+ * parameters: none
+ * return: a pointer to the new record
+ */
+record_t* new_record(void){
+    record_t *res;
+
+    if ((res = (record_t*)malloc(sizeof(record_t))) == NULL) {
+        fputs("Unable to allocate new record!\n", stderr);
+        return(NULL);
+    }
+    res->key = NULL;
+    res->value= NULL;
+    res->type = RECORD_EMPTY;
+    /* standing alone: */
+    res->previous = NULL;
+    res->next = NULL;
+
+    /*
+    * printf(".... Allocated new record %p\n", res);
+    */
+    return(res);
+}
+
+
+/* clear_record()
+ * clean out the content of a record deleting the strings,
+ * but keeping the record_t* pointer
+ *
+ * parameter: rec a pointer to a record_t structure
+ * return None
+ */
+void clear_record(record_t *rec) {
+    if (rec != NULL){
+        delete_string(rec->key);
+        /* what we free up, depends on
+         * what we have here...
+         */
+        switch(rec->type) {
+            case RECORD_EMPTY:
+                return;
+            /* these are all stored as string:
+             */
+            case RECORD_STRING:
+            case RECORD_NUMERIC:
+            case RECORD_MULTILINE_STRING:
+                delete_string((r_string_t*)(rec->value));
+                break;
+            /* if we have a child here, we may
+             * have to clean it up!
+             */
+            case RECORD_CHILD_LIST:
+                delete_list((record_t*)(rec->value));
+                break;
+            default:
+                fputs("Unknown record type in clear_record!\n", stderr);
+            }
+        rec->type= RECORD_EMPTY;
+    }
+    /* if we pulled this element from a list,
+     * we have to close the hole
+     * either we are between next and previous
+     * or at one end, where either next or
+     * previous are not NULL
+     */
+    if (rec->next != NULL && rec->previous != NULL) {
+        (rec->next)->previous = rec->previous;
+        (rec->previous)->next = rec->next;
+    } else if (rec->next != NULL) {
+        /* we are at the front */
+        (rec->next)->previous = NULL;
+    } else if (rec->previous != NULL) {
+        /* we are at the end */
+        (rec->previous)->next= NULL;
+    }
+    rec->next= NULL;
+    rec->previous= NULL;
+
+    return;
+}
+
+
+/** delete_record()
+ * delete the record content and release the memory
+ *
+ * parameter: record_t* rec
+ *
+ * return: None
+ */
+void delete_record(record_t *rec) {
+    if(rec != NULL){
+        clear_record(rec);
+        free(rec);
+    }
+    return;
+}
+
+/** end_list()
+ * go to the end of a list
+ *
+ * parameters:
+ * record_t *list an element of the list
+ *
+ * return:
+ * record_t *end   the last element of the list
+ */
+
+record_t *end_list(record_t *list) {
+    record_t *curr;
+
+    curr= list;
+    while(curr->next != NULL) {
+        curr = curr->next;
+    }
+
+    return(curr);
+}
+
+/** start_list()
+ * go to the beginning of a list
+ *
+ * parameters:
+ * record_t *list an element of the list
+ *
+ * return:
+ * record_t *end   the last element of the list
+ */
+
+record_t *start_list(record_t *list) {
+    record_t *curr;
+
+    curr= list;
+    while(curr->previous != NULL) {
+        curr = curr->previous;
+    }
+
+    return(curr);
+}
+
+/** append_record()
+ * append a record to an existing list
+ * the list is represented by one of its members, we append
+ * recort to the end of the list
+ *
+ * parameters:
+ * result_t list a list indicated with one of its members
+ * record_t record what to append
+ *
+ * return the address of the new element
+ */
+
+record_t* append_record(record_t *list, record_t *record) {
+    record_t *curr_element= NULL;
+
+    if (record == NULL) {
+        fputs("Request to add no record!\n", stderr);
+        return(list);
+    }
+    if (list != NULL) {
+        /* go to the end of the list */
+        /*
+         * printf("Start list from: %p\n", list);
+         */
+        curr_element = end_list(list);
+        /*
+         * printf("End of list reached: %p\n", curr_element);
+         */
+        /* and now, append updating the references */
+        curr_element->next = record;
+        record->previous = curr_element;
+        /* record->next = NULL;
+         * but leaving this out means we can
+         * merge two lists if record is the first
+         * in that one...
+         */
+    }
+
+    /*
+     * printf("called append with %p / %p\n", list, record);
+     */
+    return(record);
+}
+
+
+/** delete_list()
+ * delete an entire list, clearing the memory
+ *
+ * parameters: record_t *list
+ *
+ * return: None
+ */
+void delete_list(record_t *list) {
+    record_t *current;
+
+    if (list == NULL) {
+        return;
+    }
+    /* a single element only? */
+    if (list->next == NULL && list->previous == NULL) {
+        delete_record(list);
+        return;
+    }
+    /* go to the beginning of the list */
+    current = start_list(list);
+
+    /* we walk upwards, and kill the
+     * one before the current one */
+    while(current->next != NULL) {
+        /*
+        printf("deleting: %p\n", current);
+        printf("has previous: %p\n", current->previous);
+        */
+        current = current->next;
+        delete_record(current->previous);
+    }
+    /* now, only one is left and destroyed */
+    delete_record(current);
+    return;
+}
+
+/** list_find()
+ * Find the first record in a list
+ * where key matches a requested string
+ * Go from the provided record, thus if one uses it
+ * iteratively, every element with a specific key can be
+ * collected
+ *
+ * parameters:
+ * record_t *list  a list element, we walk this list
+ * r_string_t *key      a string to search for
+ *
+ * return:
+ * record_t *result     a pointer to the matching record or NULL
+ */
+
+record_t* list_find(record_t *list, r_string_t *key) {
+
+    record_t *this;
+    int hit =0;
+
+    if (list == NULL) {
+        return(NULL);
+    }
+    /* start where we are: */
+    this = list;
+
+    /* at least check this element then all next */
+    do {
+        /* we use this to hold the record address */
+        if (this->key->length == key->length && \
+                strncmp(this->key->value, key->value, key->length) == 0) {
+            hit= 1;
+            break;
+        }
+    } while(hit <1 && (this= this->next)!= NULL);
+
+    return(this);
+}
+
+/** print_list_indent()
+ * print the content of a list using an indent number of
+ * spaces before each line
+ * It walks recursively through the list increasing the indent
+ * for every subtree
+ *
+ * parameters:
+ * record_t *list   the list to be printed
+ * indent int       number of spaces
+ *
+ * return None
+ */
+void print_list_indent(record_t *list, int indent) {
+    record_t *curr;
+    int i;
+
+    if (indent < 0){
+        indent = 0;
+    }
+
+    curr = list;
+    do {
+        for(i=0; i<indent; i++) {
+            printf("-");
+        }
+        printf(" ");
+        /*
+         * printf("..printing: %p\n", curr);
+         */
+        switch(curr->type) {
+            case RECORD_STRING:
+            case RECORD_NUMERIC:
+            case RECORD_MULTILINE_STRING:
+                if (curr->key != NULL) {
+                    printf("%s: ", curr->key->value);
+                }
+                if (curr->value != NULL) {
+                    printf("%s", ((r_string_t *)(curr->value))->value);
+                }
+                printf("\n");
+                break;
+
+            /* if we have a child here, we may
+             * and it is a list, we have to convert it!
+             * so, we go for recursion
+             */
+
+            case RECORD_CHILD_LIST:
+                /*
+                * printf("calling child with %p\n", curr->value);
+                */
+                if (curr->key != NULL) {
+                    printf("%s:", curr->key->value);
+                }
+                puts("");
+                print_list_indent(start_list((record_t *)(curr->value)), indent+2);
+                break;
+            default:
+                break;
+        }
+    }while((curr= curr->next) != NULL);
+}
+
+
+/* index_list()
+ * find the index of the current position
+ *
+ * parameters
+ * record_t *list   pointer to a list
+ *
+ * return:
+ * int length   the index of the current position
+ *              indexing starts at 0
+ */
+int index_list(record_t *list) {
+    int length = 0;
+    record_t *curr= NULL;
+
+    if (list == NULL) {
+        return(0);
+    }
+    curr = start_list(list);
+
+    do {
+        length ++;
+        /* curr->next should never be NULL,
+         * but check for any case
+         */
+    }while((curr= curr->next) != list && curr != NULL);
+
+    return(length);
+}
+
+
+/* len_list()
+ * the full length of the list
+ *
+ * parameter:
+ * record_t *list   an element of a list
+ *
+ * return:
+ * int length   the length of the list
+ */
+int len_list(record_t *list) {
+    record_t *curr=NULL;
+    int length = 0;
+
+    if (list == NULL) {
+        return(0);
+    }
+
+    curr = start_list(list);
+    do {
+        length ++;
+    } while( (curr = curr->next) != NULL);
+
+    return(length);
+}
+
+/*
+int main(void){
+
+    r_string_t *key, *value;
+    record_t *rec=NULL;
+    record_t *list=NULL;
+
+    key = new_string_from_text("first_key", 10);
+    value = new_string_from_text("Hello world", 12);
+
+    printf("created strings key: %s and value %s\n", key->value, value->value);
+
+    rec = new_record();
+    rec -> key = key;
+    rec -> value = value;
+    rec -> type = RECORD_STRING;
+    list = append_record(list, rec);
+    printf("Current list: %p\n", list);
+
+    rec = new_record();
+    key = new_string_from_text("first_key", 10);
+    value = new_string_from_text("Hello world", 12);
+    rec->value = key;
+    rec->key = value;
+    rec -> type = RECORD_STRING;
+    list = append_record(list, rec);
+    printf("Current list: %p\n", list);
+
+
+    printf("We have a record:\nkey: %s\nvalue: %s\n type %d\n", rec->key->value, ((r_string_t*)(rec->value))->value, (int)rec->type);
+
+    printf("****************\n");
+
+    print_list(start_list(list));
+    delete_list(list);
+
+    return(0);
+}
+*/

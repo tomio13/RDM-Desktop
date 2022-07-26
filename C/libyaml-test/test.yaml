@@ -1,0 +1,43 @@
+test_list:
+  - list1
+  - list2
+  - list3
+
+folder: /home/tomio
+title: test for libyaml
+date: 2022-07-19
+
+template_dir: /tmp
+pages:
+  - test_1: help.txt
+  - test_2: hello_world.txt
+  - test_3: another_help.txt
+
+variable_1: 1.4
+subpage:
+  another_list:
+    - element_1: hello
+    - element_2: world
+  variable_2: 3.14
+
+  variable_3:
+    deep_inside:
+      more: 1
+      than: 2
+      one: 3
+    less_deep: inside
+
+and a list:
+  - l1
+  - l2
+  - l3
+  - l4
+
+long_text: |
+  now, let us make a complex text
+  * list 1
+  * list 2
+  * list 3
+  and more text around
+  
+  and more

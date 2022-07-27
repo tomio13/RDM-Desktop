@@ -8,6 +8,8 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+/* for adding timestamp entry */
+#include<time.h>
 
 #include "lists.h"
 
@@ -72,6 +74,26 @@ r_string_t* new_string_from_text(char* text, int length) {
 }
 
 
+/* new_string_timestamp()
+ * create a new string from the current date/time.
+ *
+ * parameters: None
+ * return:
+ * r_string_t *timestamp
+ */
+r_string_t* new_string_timestamp(void) {
+    time_t *now= NULL;
+    char *timestamp= NULL;
+
+    if (time(now) <0) {
+        fputs("Unable to get local time!\n", stderr);
+        return(NULL);
+    }
+    timestamp = ctime((const time_t*)(now));
+    return(new_string_from_text(timestamp, strlen(timestamp)));
+}
+
+
 /** delete_string()
  * take a string, clean it up and release the memory
  *
@@ -87,6 +109,9 @@ void delete_string(r_string_t *text){
         return;
     }
     if (text -> value != NULL) {
+        /* erase the content, so no sensitive information remains
+         * in unallocated memory
+         */
         for (i=0; i< text->length; i++) *(text->value +i) = '\0';
 
         free(text->value);
@@ -476,6 +501,191 @@ int len_list(record_t *list) {
 
     return(length);
 }
+
+
+/* list_array()
+ * convert the list to an array of records
+ * It does not change the actual registration of next and previous
+ * pointers, just lists up the pointers to each elements
+ *
+ * parameters:
+ * record_t *list   a pointer to an element of the list
+ *
+ * return:
+ * a record_t ** pointer for an array of length+1
+ * the last pointer is NULL to indicate the end
+ */
+record_t **list_array(record_t *list) {
+    record_t * curr;
+    record_t **res;
+    int i=0;
+    int length=0;
+
+    if(list == NULL) {
+        fputs("Empty list!\n", stderr);
+        return(NULL);
+    }
+
+    curr= start_list(list);
+    length = len_list(curr);
+    if ((res=(record_t**)malloc((length+1)*sizeof(record_t*)))==NULL) {
+        fputs("Cannot allocate list array!\n", stderr);
+        return(NULL);
+    }
+
+    do{
+        *(res +i) = curr;
+        i++;
+    }while( (curr=curr->next) != NULL && i <length);
+    *(res+i)= NULL;
+
+    return(res);
+}
+
+/* delete_list_array()
+ * free up the list array
+ * but do not free up its content, so the original list
+ * can remain intact.
+ *
+ * parameters:
+ * record_t **array the address of the list array
+ * int length       length of the array
+ *
+ * length of the array is len_list() +1
+ * return None
+ */
+void delete_list_array(record_t** array, int length){
+
+    int i;
+    if (length <1) {
+        return;
+    }
+
+    for(i=0; i<length; i++) {
+        *(array+i) = NULL;
+    }
+    free(array);
+    return;
+}
+
+/* values_array()
+ * make an array of strings from the values in
+ * the list, replace those which are sub-lists with a NULL.
+ *
+ * parameters:
+ * record_t *list   the list to work on
+ *
+ * return:
+ * r_string_t **array
+ *
+ * length of the array is len_list() +1
+ */
+
+r_string_t **values_array(record_t *list) {
+    record_t* curr;
+    r_string_t **res=NULL;
+    int i =0;
+    int length= 0;
+
+    if (list==NULL) {
+        return(NULL);
+    }
+
+    curr = start_list(list);
+    length = len_list(curr);
+
+    if ((res= (r_string_t**)malloc(length*sizeof(r_string_t*))) == NULL) {
+        fputs("Unable to allocate string array!\n", stderr);
+        return(NULL);
+    }
+
+    do {
+        switch(curr->type) {
+            case RECORD_STRING:
+            case RECORD_NUMERIC:
+            case RECORD_MULTILINE_STRING:
+                *(res+i) = curr->value;
+                break;
+            /* if we have a child here, we may
+             * have to clean it up!
+             */
+            case RECORD_EMPTY:
+            case RECORD_CHILD_LIST:
+                *(res+i) = NULL;
+                break;
+            default:
+                fputs("Unknown record type in clear_record!\n", stderr);
+            }
+        i++;
+    } while((curr= curr->next) != NULL && i < length);
+
+    return(res);
+}
+
+
+/* keys_array()
+ * make an array of strings from the keys in
+ * the list, replace those which are sub-lists with a NULL.
+ *
+ * parameters:
+ * record_t *list   the list to work on
+ *
+ * return:
+ * r_string_t **array
+ *
+ * length of the array is len_list() +1
+ */
+
+r_string_t **keys_array(record_t *list) {
+    record_t* curr;
+    r_string_t **res;
+    int i =0;
+    int length= 0;
+
+    if (list==NULL) {
+        return(NULL);
+    }
+
+    curr = start_list(list);
+    length = len_list(curr);
+
+    if ((res= (r_string_t**)malloc(length*sizeof(r_string_t*))) == NULL) {
+        fputs("Unable to allocate string array!\n", stderr);
+        return(NULL);
+    }
+
+    do {
+        *(res+i) = curr->key;
+        i++;
+    } while((curr= curr->next) != NULL && i < length);
+
+    return(res);
+}
+
+/* delete_string_array()
+ * free up the string array, but do not touch the strings
+ *
+ * parameter:
+ * r_string_t **array   a string array made by the above two functions
+ * int length           the length of the array
+ *
+ * return None
+ */
+
+void delete_string_array(r_string_t **array, int length) {
+    int i;
+
+    if(array== NULL || length < 1) {
+        return;
+    }
+    for (i=0; i<length; i++) {
+        *(array+i) = NULL;
+    }
+    free(array);
+
+    return;
+}
+
 
 /*
 int main(void){

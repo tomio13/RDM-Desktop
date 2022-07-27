@@ -9,7 +9,8 @@ structures, which natuarlly do not exist in C.
 But can be reasonably easily done.
 
 ## Key structures
-the following structures are defined in the internal\_types files (C and h).
+the following structures allow building up records and record trees.
+They are defined in the lists.h file:
 
 ### r\_string\_t
 a simple string structure composed of a char\* pointer and an integer length.
@@ -51,4 +52,25 @@ An enum listing the possible values of the record. Possibilities are:
 
 The whole project can build around these structures, since this can be any entry to
 the ELN, information to the GUI, etc.
+
+## Functions on records and strings
+are defined in the lists.c file, declared in lists.h.
+Allocation is done by the new... functions, freeing up memory and erasing structures
+by the delete... functions.
+
+### clearing up content
+The delete\_string, delete\_record, delete\_list functions erase the content of the
+given object and free up the memory.
+
+### array functions
+It is possible to list up the pointer to the list elements or even strings within those
+using the array functions. These allocate the pointer arrays, fill them up, or erase them.
+However, these do not erase the content of the records indicated by the poitners, or change
+the content of the lists.
+They are intended for the case when one has to sweep through the list element multiple times,
+and especially when elements randomly have to be accessed based on their position in the list.
+The list array ends with a NULL pointer to make sure one can detect the end. The key or value
+arrays have the problem that they may contain NULL pointers (e.g. if a value is not a string
+but another list). To check their length, use the length of the list.
+The list should not be changed while you are using the arrays on that list.
 

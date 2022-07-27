@@ -55,6 +55,7 @@ typedef struct record_s{
 /**************** function ****************/
 r_string_t* new_string(size_t length);
 r_string_t* new_string_from_text(char* text, int length);
+r_string_t* new_string_timestamp(void);
 void delete_string(r_string_t *text);
 record_t* new_record(void);
 void clear_record(record_t *rec);
@@ -74,3 +75,13 @@ void print_list_indent(record_t *list, int indent);
 
 int index_list(record_t *list);
 int len_list(record_t *list);
+
+/* array from list members or parts for
+ * quick access if a sweep is needed multiple times
+ */
+record_t **list_array(record_t *list);
+void delete_list_array(record_t** array, int length);
+r_string_t **values_array(record_t *list);
+r_string_t **keys_array(record_t *list);
+void delete_string_array(r_string_t **array, int length);
+

@@ -231,7 +231,26 @@ record_t* yaml_parse_inside(yaml_parser_t *parser, int map_block){
                     current = new_record();
                      */
                     current->value= content;
-                    current->type= RECORD_STRING;
+
+                    /* one hint about the type of the string is in the
+                     * event.data.style... if folded, it is multiline
+                     *
+                     * Other possibilities are hidden in the tags, if they are
+                     * available in the first place. If the user did not specify
+                     * them explicitly, I am not sure if they show up
+                     * printf("style: %d for %s\n", event.data.scalar.style, event.data.scalar.value);
+                     */
+                    if (event.data.scalar.style == YAML_FOLDED_SCALAR_STYLE ||\
+                            event.data.scalar.style == YAML_LITERAL_SCALAR_STYLE) {
+                        /* printf("Multiline string! %s\n", event.data.scalar.value); */
+                        current->type = RECORD_MULTILINE_STRING;
+                    } else {
+                        /* testing tags for float / int does not work on plain
+                         * YAML. So, do not bother at this point
+                         * maybe strtod and checking errno is a solution
+                         */
+                        current->type= RECORD_STRING;
+                    }
                     record= append_record(record, current);
                     current = NULL;
                     content = NULL;
@@ -269,8 +288,8 @@ record_t *read_yaml(char *filename) {
   yaml_parser_t parser;
   yaml_event_t event;
   /* our output: */
-  record_t *list;
-  record_t *record;
+  record_t *list= NULL;
+  record_t *record= NULL;
   int end=0;
 
   if (filename== NULL || (fh= fopen(filename, "rt")) == NULL) {
@@ -359,6 +378,10 @@ record_t *read_yaml(char *filename) {
             break;
       }
 
+      /*
+       * printf("current event type: %d\n", event.type);
+       * printf("deleting event %p\n", &event);
+       */
       yaml_event_delete(&event);
 
   } while (!end);
@@ -372,7 +395,7 @@ record_t *read_yaml(char *filename) {
 /*
 int main(void) {
     record_t *list;
-    list = read_yaml("libyaml-test/test.yaml");
+    list = read_yaml((char*)"libyaml-test/test.yaml");
     printf("main feedback\n");
     printf("list expanded, list: 0x%p\n",\
                         list);

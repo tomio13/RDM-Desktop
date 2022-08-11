@@ -23,7 +23,7 @@
  * a pointer or NULL upon error
  */
 r_string_t* new_string(size_t length) {
-    int i;
+    size_t i;
     r_string_t *res;
 
     if (length < 1) {
@@ -90,7 +90,222 @@ r_string_t* new_string_timestamp(void) {
         return(NULL);
     }
     timestamp = ctime((const time_t*)(now));
-    return(new_string_from_text(timestamp, strlen(timestamp)));
+    /* according to the documentation, the string should be maximum
+     * 26 characters long
+     */
+    return(new_string_from_text(timestamp, strnlen(timestamp, 26)));
+}
+
+/* string_concat()
+ * concatenate two strings into one new string;
+ * allocate the new string, so the user has to clean it up.
+ * It is assumed that the length parameters point to the
+ * end of each string.
+ *
+ * parameters:
+ * r_string_t *s1
+ * r_string_t *s2 the two strings to be put together
+ *
+ * return:
+ * r_string_t *res a new string, or s1 or s2 it the other
+ * is NULL;
+ */
+r_string_t *string_concat(r_string_t *s1, r_string_t *s2) {
+    r_string_t *res;
+    char *s= NULL;
+    size_t i=0;
+    size_t l=0;
+
+    if (s1 == NULL) {
+        return(s2);
+    }
+    if (s2 == NULL) {
+        return(s1);
+    }
+
+    l= s1->length+s2->length;
+    res = new_string(l);
+
+    s = res->value;
+    for(i=0; i < s1->length; i++) {
+        *s = *(s1->value+i);
+        s++;
+    }
+    for(;i < l; i++) {
+        *s = *(s2->value + i-s1->length);
+        s++;
+    }
+    /* the closing \0 was not included */
+    *s = '\0';
+    return(res);
+}
+
+/* string_append()
+ * append a character chain to a string object
+ * It is like concat, but do an in place replacement.
+ * Because of the simplicity of r_string_t, it reallocates
+ * the memory and copies the contents together,
+ * then frees up the old memory.
+ * Insert a separator character between or sep can be ''
+ *
+ * parameters:
+ * r_string_t *string   the string to be appended to
+ * char *   text        a '\0' terminated character array
+ * const char sep       a single separator character
+ *
+ * return:
+ * int 0 on success, -1 on error
+ */
+
+int string_append(r_string_t *string, char *text, const char sep) {
+    size_t i=0, l=0;
+    char *new_string= NULL;
+    char *s= NULL;
+
+    if (string == NULL || text == NULL) {
+        return(0);
+    }
+
+    /* the new length */
+    l= string->length+ strlen(text);
+    if (sep != 0) {
+        l ++;
+    }
+    /* allocate it: */
+    if ((new_string = (char*)malloc(l*sizeof(char))) == NULL) {
+        fputs("Unable to allocate fresh text!\n", stderr);
+        return(-1);
+    }
+
+    /* fill up from the two parts */
+    s = new_string;
+    for(i=0; i < string->length; i++) {
+        *s = *(string->value+i);
+        s++;
+    }
+
+    if (sep != 0) {
+        *s = sep;
+        s++;
+    }
+
+    for(;i < l; i++) {
+        *s = *(text+i - string->length);
+        s++;
+    }
+    /* this length did not include the closing \0 */
+    *s = '\0';
+    /* and now update the string:
+     * - remove the old memory
+     * - update the pointer
+     * - update the length
+     */
+    free(string->value);
+    string->value = new_string;
+    string->length = l;
+
+    return(0);
+}
+
+
+
+/* string_prepend()
+ * adding a character chain before a string object
+ * It is like concat, but do an in place replacement.
+ * Because of the simplicity of r_string_t, it reallocates
+ * the memory and copies the contents together,
+ * then frees up the old memory.
+ * Insert a separator character between or sep can be ''
+ *
+ * parameters:
+ * r_string_t *string   the string to be appended to
+ * char *   text        a '\0' terminated character array
+ * const char sep       a single separator character
+ *
+ * return:
+ * int 0 on success, -1 on error
+ */
+
+int string_prepend(r_string_t *string, char *text, const char sep) {
+    int i=0, l=0, l0=0;
+    char *new_string= NULL;
+    char *s= NULL;
+
+    if (string == NULL || text == NULL) {
+        return(-1);
+    }
+
+    /* the new length */
+    l0 = strlen(text);
+    l= string->length + l0;
+    if (sep != 0) {
+        l ++;
+    }
+    /* allocate it: */
+    if ((new_string = (char*)malloc(l*sizeof(char))) == NULL) {
+        fputs("Unable to allocate fresh text!\n", stderr);
+        return(-1);
+    }
+
+    /* fill up from the two parts */
+    s = new_string;
+    for(i=0; i < l0; i++) {
+        *s = *(text+i);
+        s++;
+    }
+
+    if (sep != 0) {
+        *s = sep;
+        s++;
+    }
+
+    for(;i < l; i++) {
+        *s = *(string->value + i - l0);
+        s++;
+    }
+    /* this length did not include the closing \0 */
+    *s = '\0';
+    /* and now update the string:
+     * - remove the old memory
+     * - update the pointer
+     * - update the length
+     */
+    free(string->value);
+    string->value = new_string;
+    string->length = l;
+
+    return(0);
+}
+
+
+/* string_replace_char
+ * replace one character with another one
+ * inside a string
+ *
+ * parameters:
+ * r_string_t *text     the text to replace within
+ * char from
+ * char to
+ *
+ * return: None
+ * replacement happens in place
+ */
+void string_replace_char(r_string_t *text, char from, char to) {
+    size_t i;
+
+    if (text == NULL || text->value == NULL) {
+        return;
+    }
+    if (from == to) {
+        /* nothing to do */
+        return;
+    }
+    for(i=0; i< text->length; i++) {
+        if(*(text->value+i) == from) {
+            *(text->value+i) = to;
+        }
+    }
+    return;
 }
 
 
@@ -103,7 +318,7 @@ r_string_t* new_string_timestamp(void) {
  */
 void delete_string(r_string_t *text){
 
-    int i;
+    size_t i;
 
     if (text == NULL){
         return;
@@ -361,27 +576,62 @@ void delete_list(record_t *list) {
 
 record_t* list_find(record_t *list, r_string_t *key) {
 
-    record_t *this;
+    record_t *this_r= NULL;
     int hit =0;
 
     if (list == NULL) {
         return(NULL);
     }
     /* start where we are: */
-    this = list;
+    this_r = list;
 
     /* at least check this element then all next */
     do {
         /* we use this to hold the record address */
-        if (this->key->length == key->length && \
-                strncmp(this->key->value, key->value, key->length) == 0) {
+        if (this_r->key->length == key->length && \
+                strncmp(this_r->key->value, key->value, key->length) == 0) {
             hit= 1;
             break;
         }
-    } while(hit <1 && (this= this->next)!= NULL);
+    } while(hit <1 && (this_r= this_r->next)!= NULL);
 
-    return(this);
+    if (hit < 1) {
+        this_r = NULL;
+    }
+    return(this_r);
 }
+
+/* list_find_from_text()
+ * do the list find based on a const char text string
+ * basically just do some wrapping and call the function above
+ *
+ * parameters:
+ * record_t *list       a pointer inside a list
+ * const char* key      what to search for
+ *
+ * return:
+ * record_t*    pointer to the result or NULL
+ */
+record_t *list_find_from_text(record_t *list, const char* key) {
+
+    r_string_t *keystring = NULL;
+    record_t *result= NULL;
+    int N= 0;
+    N = strlen(key);
+
+    if (N < 1) {
+        fputs("Searching for empty list!\n", stderr);
+        return(NULL);
+    }
+
+    keystring = new_string_from_text((char*)key, N);
+
+    result = list_find(list, keystring);
+    delete_string(keystring);
+
+    return(result);
+}
+
 
 /** print_list_indent()
  * print the content of a list using an indent number of
@@ -604,7 +854,7 @@ r_string_t **values_array(record_t *list) {
             case RECORD_STRING:
             case RECORD_NUMERIC:
             case RECORD_MULTILINE_STRING:
-                *(res+i) = curr->value;
+                *(res+i) = (r_string_t*)curr->value;
                 break;
             /* if we have a child here, we may
              * have to clean it up!

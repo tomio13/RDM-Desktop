@@ -5,9 +5,9 @@
  * replacing characters
  */
 
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
+#ifndef LISTS_H
+#define LISTS_H
+#endif
 
 typedef struct r_string_s{
     char *value;
@@ -56,6 +56,10 @@ typedef struct record_s{
 r_string_t* new_string(size_t length);
 r_string_t* new_string_from_text(char* text, int length);
 r_string_t* new_string_timestamp(void);
+r_string_t *string_concat(r_string_t *s1, r_string_t *s2);
+int string_append(r_string_t *string, char *text, const char sep);
+int string_prepend(r_string_t *string, char *text, const char sep);
+void string_replace_char(r_string_t *text, char from, char to);
 void delete_string(r_string_t *text);
 record_t* new_record(void);
 void clear_record(record_t *rec);
@@ -69,6 +73,7 @@ record_t* append_record(record_t *list, record_t *record);
 
 void delete_list(record_t *list);
 record_t *list_find(record_t *list, r_string_t *key);
+record_t *list_find_from_text(record_t *list, const char* key);
 
 void print_list_indent(record_t *list, int indent);
 #define print_list(x) print_list_indent(x, 0)

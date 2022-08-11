@@ -1,9 +1,0 @@
-# A list of folder paths to be generated
-# meant to be read from a simple C program
-# List only the subfolders, the main one is named after the project ID
-Data
-Project_plan
-Personnel
-Reports
-Data/2022-01-01
-Reporst/Task1

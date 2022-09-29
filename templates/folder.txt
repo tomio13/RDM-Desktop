@@ -1,11 +1,18 @@
 # A list of folder paths to be generated
 # meant to be read from a simple C program
 # List only the subfolders, the main one is named after the project ID
+# Potential subfolders are presented as comments to help
 Data
+# usage:
+# Data/Example_sample
+# Data/Example_sample/Example_analysis_0
+# Data/Example_sample/Example_analysis_1
 Figures
 Organizational
 Publications
+# e.g. Publications/1_NanoLetters
 Sample_storage
+# e.g. Sample_storage/1_TH22-001
 Source_code
 Figures/Drawings
 Figures/Movies
@@ -13,9 +20,20 @@ Figures/Photos
 Figures/Schemas
 Organizational/Budget
 Organizational/Personnel
+#Organizational/Personnel/Mark_Mustermann
 Organizational/PR_and_communication
+# Organizational/PR_and_communication/01_press_relase-20220101
 Organizational/Project_meetings
+# Organizational/Project_meetings/2022_01_01_Berlin
 Organisatorisches/Correspondence
+# Organisatorisches/Correspondence/2022_01_01_DFG_question
 Organizational/Proposal
+# Organizational/Proposal/Figures
+# Organizational/Proposal/2022_01_01_draft_1
 Organizational/Reports
+# Organizational/Reports/2023_01_31_report_1
 Publications/Paper_1
+# Publications/Paper_1/Figures
+# Publications/Paper_1/Draft_01
+# Publications/Paper_1/Submitted_01
+# Publications/Paper_1/Final

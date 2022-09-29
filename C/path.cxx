@@ -57,6 +57,7 @@ int is_dir(r_string_t *filename) {
 r_string_t *abspath(r_string_t *path) {
     /* let us assume none has a 2k file path... */
     char pathname[2048];
+    char *respath= NULL;
     r_string_t *apath= NULL;
     r_string_t *res= NULL;
 
@@ -73,7 +74,10 @@ r_string_t *abspath(r_string_t *path) {
     /* now what else? */
     if(path->length > 1 && \
             path->value[0] == '.' && path->value[1] == '/') {
-        realpath(".", pathname);
+        respath = realpath(".", pathname);
+        if (respath == NULL) {
+            fputs("Error resolving local path!\n", stderr);
+        }
         apath = new_string_from_text(pathname, strlen(pathname));
 
         if ((apath->length +1) < 2047) {
@@ -87,7 +91,7 @@ r_string_t *abspath(r_string_t *path) {
             *(apath->value + apath->length-1)= PATH_SEP;
         }
 
-        res = string_concat(apath, path);
+        res = string_concat(apath, path, 0);
     }
     if (apath != NULL) {
         delete_string(apath);
@@ -174,7 +178,7 @@ r_string_t *get_config_dir(void) {
         default_base = new_string_from_text((char*)"\\dwi_project", 13);
     #endif
     base_dir = new_string_from_text((char*)base, strlen(base));
-    config_dir = string_concat(base_dir, default_base);
+    config_dir = string_concat(base_dir, default_base, 0);
 
     /* clean up memory */
     delete_string(base_dir);

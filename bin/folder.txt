@@ -1,0 +1,21 @@
+# A list of folder paths to be generated
+# meant to be read from a simple C program
+# List only the subfolders, the main one is named after the project ID
+Data
+Figures
+Organizational
+Publications
+Sample_storage
+Source_code
+Figures/Drawings
+Figures/Movies
+Figures/Photos
+Figures/Schemas
+Organizational/Budget
+Organizational/Personnel
+Organizational/PR_and_communication
+Organizational/Project_meetings
+Organisatorisches/Correspondence
+Organizational/Proposal
+Organizational/Reports
+Publications/Paper_1

@@ -17,6 +17,8 @@ After working a bit on the yaml structure, I found that:
 Implemented a recursive algorithm to handle this. It is not nice, but
 seems to work fine.
 Source: libyaml-test-events-new.c
+Executable: yaml-test
+
 Compile it with:
 ```bash
 gcc -Wall libyaml-test-events-new.c -o yaml-test -lyaml

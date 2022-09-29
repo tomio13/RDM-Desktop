@@ -6,6 +6,9 @@
 # $< --> the name of the related file that caused the action
 # $* --> the prefix shared by target and dependent files
 
-project_dir: ../lists.cxx ../path.cxx project_dir_cmd.cxx
-	$(CXX) $(CFLAGS) $? $(LDFLAGS) -o ../bin/$@
+CFLAGS="-Wall"
+LDFLAGS="-fsanitize=leak" "-O2"
+OUTPUT   = ../../bin
 
+project_dir: ../lists.cxx ../path.cxx project_dir_cmd.cxx
+	$(CXX) $(CFLAGS) $? $(LDFLAGS) -o $(OUTPUT)/$@

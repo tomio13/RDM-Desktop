@@ -22,7 +22,7 @@ r_string_t *get_line(FILE* fp, char* text);
 
 r_string_t *get_line(FILE* fp) {
 
-    char c;
+    char c=0;
     long pos1=-1, pos2=-1;
     char *b;
     int stop=0;
@@ -71,7 +71,7 @@ r_string_t *get_line(FILE* fp) {
      * newline or EOF character, which we do not need in
      * the string
      */
-    if((result = new_string((int)(pos2 - pos1))) == NULL) {
+    if((result = new_string((size_t)(pos2 - pos1))) == NULL) {
         fputs("Unable to allocate new string!\n", stderr);
         return(NULL);
     }
@@ -97,9 +97,11 @@ int main(int argc, const char* argv[]) {
 
     FILE *fp;
     int i;
+    int idir=0;
     char const *def_file="folder.txt";
     char const *filename= NULL;
     r_string_t *line= NULL;
+    r_string_t *full_line= NULL;
     r_string_t *main_folder= NULL;
 
     /*
@@ -108,13 +110,8 @@ int main(int argc, const char* argv[]) {
      * printf("Got folder name: %s\n", main_folder);
      */
 
-    if (argc == 1) {
-        printf("Use with a project name and a -c folder-tree file parameter\n");
-        return(0);
-    }
-
     filename = def_file;
-    for (i=0; i < argc; i++) {
+    for (i=1; i < argc; i++) {
         /* do we have a switch?
          * e.g. -c config file name
          * -v version number
@@ -128,7 +125,7 @@ int main(int argc, const char* argv[]) {
                     return(0);
                 case 'u':
                 case 'h':
-                    printf("Use it as program -c folder-config.txt\n");
+                    printf("Use it as program project_name -c folder-config.txt\n");
                     return(0);
                 case 'c':
                     if (argc > (i+1)) {
@@ -136,35 +133,65 @@ int main(int argc, const char* argv[]) {
                         i ++;
                     }
             }
-        } else {
+        } else if (main_folder == NULL || main_folder->length <1){
+            /* parameter is not yet defined, and we have something to fill in */
             main_folder = new_string_from_text((char*)argv[i], strlen(argv[i]));
+        } else {
+            printf("Main folder is already set to: %s\n", main_folder->value);
+            fputs("Unknown option\n", stderr);
         }
     }
 
     if (main_folder == NULL || main_folder->length < 1) {
         fputs("Called without project name!\n", stderr);
-        return(0);
+        return(1);
     }
-
-    printf("creating main folder: %s\n", main_folder->value);
-    mkdirs(main_folder);
 
     if ((fp = fopen(filename, "rt")) == NULL) {
         printf("Unable to open configuration file: %s\n", filename);
+
+        if (main_folder != NULL) {
+            delete_string(main_folder);
+        }
+
         return(1);
     }
+
+    if ((idir= is_dir(main_folder)) < 0) {
+        printf("creating main folder: %s\n", main_folder->value);
+        mkdirs(main_folder);
+
+    } else if (idir == 0) {
+        fputs("Project folder name is used by a file!\n", stderr);
+        delete_string(main_folder);
+        return(1);
+    } else {
+
+        printf("folder: %s exists\n", main_folder->value);
+    }
+
 
     while ((line= get_line(fp)) != NULL) {
         /* run the path replacement */
         string_replace_char(line, '/', PATH_SEP);
 
-        if (string_prepend(line, main_folder->value, PATH_SEP) == -1) {
+        if ((full_line= string_concat(main_folder, line, PATH_SEP)) == NULL) {
             fputs("Cannot combine paths!\n", stderr);
         } else {
-            printf("creating: %s\n", line->value);
-            mkdirs(line);
+            printf("next target: %s ... ", full_line->value);
+            if ((idir= is_dir(full_line)) < 0) {
+                printf("is created\n");
+                mkdirs(full_line);
+            } else if (idir == 0) {
+                printf("is not a dir\n");
+            } else {
+                printf("exists\n");
+            }
         }
         delete_string(line);
+        line = NULL;
+        delete_string(full_line);
+        full_line = NULL;
     }
     fclose(fp);
 

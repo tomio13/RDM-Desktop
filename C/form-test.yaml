@@ -1,0 +1,32 @@
+# a test form to show how one can define forms
+# This is a multiple level YAML
+# every key is a form key, and the content has
+# to define: type and a doc string, or options
+
+description: |
+  This is the header text of the form
+  
+  One can produce a longer, multiline string
+  which will be picked up as it is.
+  * item 1
+  * item 2
+  * item 3
+
+Line entry:
+  type: text
+  doc: a single line text
+
+Floartd number entry:
+  type: numeric
+  doc: please enter a number here
+
+Integer number entry:
+  type: integer
+  doc: just a simple count would do
+
+Multiline:
+  type: multiline
+  doc: a text entry with free content, allowing for multiple lines.
+
+test: 2.22
+test2 : 4

@@ -1,0 +1,61 @@
+# a test form to show how one can define forms
+# This is a multiple level YAML
+# every key is a form key, and the content has
+# to define: type and a doc string, or options
+
+doc: |
+  This is the header text of the form
+  
+  One can produce a longer, multiline string
+  which will be picked up as it is.
+  * item 1
+  * item 2
+  * item 3
+
+sample ID:
+  type: text
+  doc: possibly AAA-22-0011 etc.
+
+user ID:
+  type: text
+  doc: your name please
+
+date:
+  type: text
+  doc: date of experiment yyyy-mm-dd
+
+temperature, C-degrees:
+  type: numeric
+  doc: please enter the temperature
+
+current, nA:
+  type: numeric
+  doc: the current measured in the cuvette
+
+duration, s:
+  type: numeric
+  doc: the duration of a run
+Number of runs:
+  type: integer
+  doc: number of runs (integer)
+
+description:
+  type: multiline
+  doc: |
+    Please describe any events during the
+    experiment, which may have influenced the
+    data.
+
+test: 2.22
+test2 : 4
+
+Choose:
+  type: select
+  doc: select an element
+  options:
+    - one
+    - two
+    - four
+    - six
+
+and a last one: pi

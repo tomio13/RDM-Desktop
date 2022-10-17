@@ -65,10 +65,10 @@ rendering engine to present you complex and interactive documents across the web
 While there is a strong trend to make them a default language interpreter, for
 a long time running javascript, recently pushing towards webassembly, they are
 anything but optimal on any platforms.
-Just looking at how much resoutces a common browser takes with a few (2-5) tabs
+Just looking at how much resources a common browser takes with a few (2-5) tabs
 open may convince you that these tools require quite some power. And especially
 to maintain security about what code is run and what data of the user can be
-harvested by specific websites require quite some computation power.
+harvested by specific websites requires computation power.
 Please do not misunderstand: they are excellent tools, but more specific clients
 may prove to be better.
 
@@ -84,6 +84,7 @@ can even handle such large amounts.
 
 This however also has some issues:
   * every data is on the cloud, which may belong to some company
+    (who promises not to look into it)
   * not every institute can afford having a large cluster
   * all processing happens on the server side
 

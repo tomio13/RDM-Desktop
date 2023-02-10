@@ -43,7 +43,8 @@ def get_default_config():
         home_dir = 'd:/' if os.isdir('d:/') else 'c:/'
         editor= 'notepad'
 
-    template_dir = os.path.join(config_dir, 'Templates')
+    #template_dir = os.path.join(config_dir, 'Templates')
+    template_dir = '../templates'
     projects_dir = os.path.join(home_dir, 'Projects')
 
     userID = os.getlogin()

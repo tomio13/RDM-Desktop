@@ -144,7 +144,7 @@ class ListWidget(tk.Tk):
         # Configure the window
         self.window.minsize(300,400)
         # transparency:
-        self.window.attributes('-alpha', 0.5)
+        self.window.attributes('-alpha', 0.85)
         # leave the size automatic
         self.window.geometry('')
         self.window.grid()

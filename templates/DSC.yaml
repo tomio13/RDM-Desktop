@@ -1,0 +1,94 @@
+# experiment recording for differential scanning calorimetry
+# Information is provided by Dr. Rostislav Vinokur, DWI
+doc: | 
+  Differential scanning calorimetry is an important tool in characterising
+  the melting behaviour of polymer systems.
+  
+  Recorded parameters are:
+    - relative time from experiment start in minutes
+    - temperature in centigrades
+    - heat flow in mW
+  ...
+
+
+sample ID:
+  type: text
+  description: "The institute standard sample ID"
+  required: true
+
+DSC device:
+  type: select
+  description: "Which device was used for the measurement"
+  options:
+    - DSC 8500 (PerkinElmer)
+    - DSC 204 F1 Phoenix (Netzsch)
+  value: DSC 8500 (PerkinElmer)
+  required: true
+
+sample description:
+  type: text
+  description: a short description of the sample
+  required: true
+
+measurement starting time:
+  type: text
+  description: "date and time when the experiment was performed as: YYYY-MM-DD HH:mm (M: for month, m: for minutes, like in ISO-8601)"
+  required: true
+
+pan type:
+  type: text
+  description: the type of the sample holder pan
+  required: true
+
+pan piercing:
+  # can we make this a radio button and call it bool type?
+  type: checkbox
+  description: "aluminum pans must be pierced if pressure buid up is possible, e.g. for measurements above +75 °C"
+  value: false
+  required: true
+
+initial sample mass, mg:
+  type: numeric
+  description: "encapsulated sample mass before DSC"
+  required: true
+
+final sample mass, mg:
+  type: numeric
+  description: "encapsulated sample mass after DSC"
+  required: true
+
+mass loss, percent:
+  type: numeric
+  description: "calculated as 100%*(init-fin)/init"
+  required: true
+
+pure gas:
+  type: text
+  description: "atmosphere for the exepriment, typically: nitrogen, synthetic air or other"
+  required: true
+
+pan damage:
+  type: checkbox
+  description: "check if pan distorted or exploded after DSC"
+  value: false
+  required: true
+
+sample leakage:
+  type: checkbox
+  description: "check if sample leaked from pan"
+  value: false
+  required: true
+
+lids type:
+  type: select
+  description: type of sample holder lids, Perkin Elmer system only
+  options:
+    - manual
+    - autosampler
+  value: manual
+  required: false
+
+cooling system:
+  type: text
+  description: the cooling system, Perkin Elmer system only
+  required: false

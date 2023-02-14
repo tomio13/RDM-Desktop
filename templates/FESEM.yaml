@@ -1,0 +1,37 @@
+# experiment recording form for dynamic light scattering experiments
+
+doc: |
+    
+
+sample ID:
+  type: text
+  description: "The institute standard sample ID"
+  required: true
+
+sample description:
+  type: text
+  description: a short description of the sample
+  required: true
+
+device:
+  type: select
+  description: "Which electron microscope was used?"
+  options:
+    - S-4800
+    - SU 9000
+
+specimen holder:
+  type: select
+  description: Select the specimen holder
+  options:
+    - Cu grid
+    - Si wafer
+    - glass
+
+glue type:
+  type: select
+  description: usually liquid or tape glues are used
+  options:
+    - liquid
+    - tape
+

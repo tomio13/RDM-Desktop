@@ -49,18 +49,30 @@ def get_default_config():
 
     userID = os.getlogin()
 
+    # we may still need:
+    # - readme template (MD files)
+    # - default template for forms
     return {'userID': userID,
             'templateDir':  template_dir,
-            'projectsDir':  projects_dir,
+            'projectDir':   projects_dir,
             'readme':       'readme.md',
             'editor':       editor,
             'ignore':       ['References'],
             'projectsTitle': 'Projects',
 
+            # the search fields specify how to
+            # handle the folder tree...
+            # top is the projects, then samples,
+            # then experiments
+            # we start with 'projectDir' within:
             'searchFolders': [
                 '',
                 'Data',
                 ''],
+            'searchNames': [
+                'project',
+                'sample',
+                'experiment'],
 
             'searchTargets': [
                 'dir',
@@ -71,10 +83,20 @@ def get_default_config():
                 '',
                 '',
                 'yaml$'],
+
             'templates':    [
-                'filelist',
+                'folderlist',
                 '',
-                '']
+                ''],
+
+            # default template is loaded for any
+            # experiment,
+            # for directories it is a default Readme.md
+            # content to start with
+            'defaultTemplate':  [
+                'readmeProject',
+                'readmeSample',
+                'defaultForm']
             }
 # end get_default_config
 

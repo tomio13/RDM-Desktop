@@ -39,7 +39,7 @@ class FormBuilder(object):
         if root_path:
             self.root_path = root_path
         else:
-            self.root_path = config['projectsDir']
+            self.root_path = config['projectDir']
 
         self.root_path = os.path.abspath(
                 os.path.expanduser(
@@ -143,7 +143,11 @@ class FormBuilder(object):
 
             txt_label = str(i)
             label = ttk.Label(frame, text= txt_label, pad= 10)
-            label.grid(column= 0, row= 0, padx=(2,5), pady=(2,2))
+            label.grid(column= 0,
+                       row= 0,
+                       padx=(2,5),
+                       pady=(2,2),
+                       stick='w')
 
             if v['type'] in ['text', 'numeric', 'integer', 'list']:
                 entry = ttk.Entry(frame)
@@ -171,7 +175,11 @@ class FormBuilder(object):
                         )
 
             # put the new entry in place
-            entry.grid(column= 1, row= 0, padx= (5,2), pady=(2,2))
+            entry.grid(column= 1,
+                       row= 0,
+                       padx= (5,2),
+                       pady=(2,2),
+                       stick='e')
 
             # create a dict of text label:entry
             # archive the result

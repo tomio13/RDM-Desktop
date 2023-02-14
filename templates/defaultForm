@@ -1,0 +1,10 @@
+# a form to be used for every experiment
+
+aim:
+  type: "multiline"
+  description: "What is the aim of this experiment?"
+
+observation:
+  type: "multiline"
+  description: "free text observations beyond the measurement"
+

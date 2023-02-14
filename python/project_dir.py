@@ -32,29 +32,33 @@ def make_dir(folder_name, list_file_path):
     # and do nothing if it exists
     os.makedirs(folder_name, exist_ok= True)
 
-    if os.path.exists(list_file):
-        with open(list_file, 'rt', encoding='utf-8') as fp:
+    if os.path.isfile(list_file_path):
+        print('found template file', list_file_path)
+        with open(list_file_path, 'rt', encoding='utf-8') as fp:
             txt_list = fp.readlines()
 
         if txt_list:
             print('Read:', len(txt_list),'lines')
             # each line should be a folder name
             # or starts with #, meaning comment
+
+            # count what we create:
+            i = 1
             for line in txt_list:
                 # readlines leaves the end newline character
                 # so cut it off:
                 line = line[:-1]
-                # count what we create:
-                i = 1
                 if line.startswith('#'):
                     print(line)
                     continue
                 # make the dirs
-                fn = os.path.join(main_folder, line)
+                fn = os.path.join(folder_name, line)
                 print('creating folder:', fn)
                 os.makedirs(fn, exist_ok= True)
                 i += 1
             print('Created', i, 'folders')
+        else:
+            print('Template not found!')
     # all is done
 # end make_project
 

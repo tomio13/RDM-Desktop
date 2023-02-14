@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="77.619942mm"
+   height="61.823166mm"
+   viewBox="0 0 77.619942 61.823166"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="RDM_desktop.svg"
+   inkscape:export-filename="RDM_desktop.png"
+   inkscape:export-xdpi="67.84"
+   inkscape:export-ydpi="67.84"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.847508"
+     inkscape:cx="162.38089"
+     inkscape:cy="100.67615"
+     inkscape:window-width="1712"
+     inkscape:window-height="1016"
+     inkscape:window-x="147"
+     inkscape:window-y="14"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <rect
+       x="236.75949"
+       y="408.17575"
+       width="239.05592"
+       height="143.40814"
+       id="rect266" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-51.303909,-91.411842)">
+    <rect
+       style="fill:#000080;stroke-width:5.29167;stroke-linejoin:round;stop-color:#000000"
+       id="rect111"
+       width="77.619942"
+       height="61.823166"
+       x="51.303909"
+       y="91.411842"
+       ry="16.653397"
+       rx="16.653397" />
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text264"
+       style="font-size:96px;line-height:125%;font-family:Roboto;-inkscape-font-specification:'Roboto, Normal';letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;white-space:pre;shape-inside:url(#rect266);display:inline;fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"><tspan
+         x="236.75977"
+         y="496.44975"
+         id="tspan482"><tspan
+           style="font-weight:bold;-inkscape-font-specification:'Roboto Bold';fill:#ffffff"
+           id="tspan480">RDM</tspan></tspan></text>
+  </g>
+</svg>

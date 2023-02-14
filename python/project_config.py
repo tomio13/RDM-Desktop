@@ -40,7 +40,7 @@ def get_default_config():
         home_dir = os.getenv('HOME')
         editor='nano'
     else:
-        home_dir = 'd:/' if os.isdir('d:/') else 'c:/'
+        home_dir = 'd:/' if os.path.isdir('d:/') else 'c:/'
         editor= 'notepad'
 
     #template_dir = os.path.join(config_dir, 'Templates')

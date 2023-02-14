@@ -173,6 +173,11 @@ class FormBuilder(object):
                         indir= self.root_path,
                         pattern='*.yaml'
                         )
+            elif v['type'] == 'checkbox':
+                entry = CheckBox(frame)
+
+                if 'value' in v and v['value']==True:
+                    entry.select()
 
             # put the new entry in place
             entry.grid(column= 1,
@@ -350,3 +355,29 @@ class MultilineText(object):
 
 # end of MultilineText
 
+
+class CheckBox(tk.Checkbutton):
+    """ an envelop to ktinter checkbox with a get() to
+        read out the value.
+    """
+
+    def __init__(self, parent= None, **kwargs):
+        """ initialize a checkbox widget
+        """
+
+        self.parent = parent
+        if self.parent is None:
+            self.parent = tk.Tk()
+
+        self.value = tk.IntVar()
+        super().__init__(self.parent,
+                         variable= self.value,
+                         onvalue= 1,
+                         offvalue= 0,
+                         **kwargs)
+
+    def get(self):
+        """ return back the value of self.value
+        """
+        return self.value.get() == 1
+# end of CheckBox

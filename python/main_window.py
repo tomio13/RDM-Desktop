@@ -519,7 +519,11 @@ class ListWidget(tk.Tk):
 
                 print('saving file to', new_path)
                 with open(new_path, 'wt') as fp:
-                    fp.write(yaml.safe_dump(form.result))
+                    fp.write(yaml.safe_dump(form.result,
+                                            sort_keys= False,
+                                            allow_unicode= True,
+                                            width= 70,
+                                            default_style= None))
             else:
                 # nothing saved, do not refresh
                 return

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """ Create a GUI to load information based on a yaml file and emmit another yaml with
     the resulted content.
+    A standalone version and testibed of the FormBuilder class.
 
     Author:     Tomio
     License:    MIT

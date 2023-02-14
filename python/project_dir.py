@@ -73,7 +73,7 @@ if __name__ == '__main__':
             if args[0] == '-c' and len(args) > 1:
                 list_file = args[1]
             else:
-                print('Invalid parameter:', txt)
+                print('Invalid parameter:', args)
                 sys.exit(0)
 
     # do the job

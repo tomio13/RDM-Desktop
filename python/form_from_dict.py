@@ -291,9 +291,8 @@ class FilePickerTextField(object):
         file = self.content.get()
         if os.path.isfile(file):
             return os.path.relpath(
-                    file
-                    self.dir
-                    )
+                    file,
+                    self.dir)
         else:
             return ''
     # end get

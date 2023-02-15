@@ -1,8 +1,11 @@
-# PROJECT NAME
+# %1 - project full name
 Please describe the project shortly here...
 
 # Abbreviated name
-...
+%1
+
+created: %D
+created by: %u
 
 # duration
 yyyy-mm-dd - yyyy-mm-dd

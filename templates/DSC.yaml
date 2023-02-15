@@ -11,10 +11,12 @@ doc: |
   ...
 
 
-sample ID:
-  type: text
-  description: "The institute standard sample ID"
-  required: true
+# One can argue if the sample ID is in the sample folder name,
+# but with this we allow to have a subsample for the experiment
+#sample ID:
+#  type: text
+#  description: "The institute standard sample ID (possibly subsample of the sample folder)"
+#  required: true
 
 DSC device:
   type: select
@@ -25,10 +27,10 @@ DSC device:
   value: DSC 8500 (PerkinElmer)
   required: true
 
-sample description:
-  type: text
-  description: a short description of the sample
-  required: true
+    #sample description:
+    #  type: text
+    #  description: "a short description of the sample"
+    #  required: true
 
 measurement starting time:
   type: text
@@ -44,7 +46,7 @@ pan piercing:
   # can we make this a radio button and call it bool type?
   type: checkbox
   description: "aluminum pans must be pierced if pressure buid up is possible, e.g. for measurements above +75 °C"
-  value: false
+  value: true
   required: true
 
 initial sample mass, mg:

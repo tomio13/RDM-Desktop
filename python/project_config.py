@@ -11,6 +11,7 @@
 import os
 import sys
 import yaml
+import time
 
 
 def get_config_dir():
@@ -174,3 +175,27 @@ def save_config(config):
                    encoding='utf8') as fp:
         yaml.dump(config, fp)
 # end save_config
+
+
+def replace_text(text, config, root_path):
+    """ search for specific replacement characters and fill them up
+        with dynamic content.
+    """
+
+    if '%' not in text:
+        return text
+
+    relpath = os.path.relpath(root_path, config['projectDir'])
+    relpath = relpath.split('/')
+
+    rep = {f'%{i+1}':j for i,j in enumerate(relpath)}
+
+    rep['%u'] = config['userID']
+    rep['%d'] = time.strftime('%Y-%m-%d', time.localtime())
+    rep['%D'] = time.strftime('%Y-%m-%d %H:%M %z', time.localtime())
+
+    for i,v in rep.items():
+        text= text.replace(i, v)
+
+    return text
+# end of replace_text

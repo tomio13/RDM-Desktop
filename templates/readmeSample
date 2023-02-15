@@ -1,4 +1,7 @@
-# Sample ID
+# %3
 please describe what is this sample and where it is from.
 If this is synthesized here, you can refer to the experiment folder
 where the synthesis is recorded.
+
+created on: %D
+created by: %u

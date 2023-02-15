@@ -23,7 +23,7 @@ from tkinter.filedialog import askopenfile
 
 
 # now the local elements:
-from project_config import get_config
+from project_config import get_config, replace_text
 from project_dir import make_dir
 from form_from_dict import FormBuilder
 
@@ -477,6 +477,11 @@ class ListWidget(tk.Tk):
 
                 if txt:
                     # this file does not suppose to exist!
+                    txt = replace_text(txt,
+                                       self.config,
+                                       os.path.join(self.root_path,
+                                                    new_path))
+
                     with open(os.path.join(
                         new_path,
                         config['readme']),
@@ -548,4 +553,5 @@ class ListWidget(tk.Tk):
         # now, update the list
         self.listbox_fill()
     # end of add_new
+
 # end of class ListWidget

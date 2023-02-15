@@ -1,16 +1,29 @@
 # experiment recording form for dynamic light scattering experiments
 
 doc: |
-    
+   The field emission scanning electron microscopes are an important
+   source of image information from low to very high magnifications.
+   This definition helps providing suitable metadata about the images
+   produced.
 
-sample ID:
-  type: text
-  description: "The institute standard sample ID"
+sample pre-treatment:
+  type: multiline
+  description: "was the sample pre-treated, and how? (e.g. dried)"
   required: true
 
-sample description:
+    #sample ID:
+    #  type: text
+    #  description: "The institute standard sample ID"
+    #  required: true
+
+    #sample description:
+    #  type: text
+    #  description: a short description of the sample
+    #  required: true
+
+operator:
   type: text
-  description: a short description of the sample
+  description: "Who operated the instrument? Pleas provide a name or 'self' if the suer reporting this"
   required: true
 
 device:
@@ -19,19 +32,45 @@ device:
   options:
     - S-4800
     - SU 9000
+  required: true
 
 specimen holder:
   type: select
   description: Select the specimen holder
   options:
     - Cu grid
+    - Au/Pd grid
     - Si wafer
     - glass
+  required: true
+
+sample coating:
+  type: select
+  description: "what conductive coating is on the surface"
+  options:
+    - Au/Pd
+    - carbon
+  required: true
+
+coating thickness, nm:
+  type: numeric
+  description: "how thick layer was set"
+  required: true
 
 glue type:
   type: select
   description: usually liquid or tape glues are used
   options:
-    - liquid
+    - liquid silver
+    - liquid carbon
     - tape
+  required: true
+
+measurement type:
+  type: select
+  description: "what was recorded? Images, EDX?"
+  options:
+    - FESEM image
+    - EDX spectrum
+  required: true
 

@@ -13,6 +13,8 @@ import project_config as pc
 from tkinter.filedialog import FileDialog
 from tkinter import StringVar
 
+from project_config import replace_text
+
 
 class FormBuilder(object):
     """ a GUI window form dynamically built from a template
@@ -88,22 +90,27 @@ class FormBuilder(object):
 
         self.scrollbar = ttk.Scrollbar(self.window,
                                       orient='vertical',
-                                      command= self.canvas.yview)
+                                      command= self.canvas.yview,
+                                      takefocus= True)
+
         self.scrollbar.grid(column=1, row=0, sticky='ns')
         # add a frame
         self.scroll_frame= ttk.Frame(self.canvas)
 
         # autoupdate the scrollable size as soon as
         # the area changed because we added sg.
+
         self.scroll_frame.bind(
                 "<Configure>",
                 lambda e: self.canvas.configure(
                     scrollregion= self.canvas.bbox("all")
                     )
             )
+
         self.canvas.create_window((0,0),
                                   window= self.scroll_frame,
                                   anchor='nw')
+
         self.canvas.configure(yscrollcommand= self.scrollbar.set)
         # with this, we have a window, containing a canvas,
         # in which we have frame
@@ -132,9 +139,15 @@ class FormBuilder(object):
 
         for j,i in enumerate(keys):
             v = self.template[i]
-            if 'type' not in v:
-                print('not a form element!', i, v)
-                self.result[i] = v
+
+            if not isinstance(v, dict) or 'type' not in v:
+                # print('not a form element!', i, v)
+
+                if isinstance(v, str):
+                    self.result[i] = replace_text(v, self.config, self.root_path)
+                else:
+                    self.result[i] = v
+
                 continue
 
             # a local frame is used to pack everything in
@@ -149,7 +162,7 @@ class FormBuilder(object):
                        pady=(2,2),
                        stick='w')
 
-            if v['type'] in ['text', 'numeric', 'integer', 'list']:
+            if v['type'] in ['text', 'url', 'numeric', 'integer', 'list']:
                 entry = ttk.Entry(frame)
 
             elif v['type'] == 'select':
@@ -173,6 +186,7 @@ class FormBuilder(object):
                         indir= self.root_path,
                         pattern='*.yaml'
                         )
+
             elif v['type'] == 'checkbox':
                 entry = CheckBox(frame)
 
@@ -221,7 +235,6 @@ class FormBuilder(object):
     def quit(self):
         self.window.destroy()
     # end quit
-
 # end of class FormBuilder
 
 

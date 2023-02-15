@@ -63,3 +63,12 @@ anaconda, conda, docker, etc.
 - yaml
 - tkinter
 
+# field types
+- text          single line text
+- multiline     multiline text field
+- numeric       any number
+- integer       only integer numbers
+- url           a web URL (https://...)
+- list          comma separated list of values
+- file          relative link to a file
+- checkbox      a true/false value as check box

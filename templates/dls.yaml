@@ -6,10 +6,10 @@ doc: |
   Single or a series of measurements run as a temperature or time series.
   Please attach every recorded file in the series.
 
-sample ID:
-  type: text
-  description: "The institute standard sample ID"
-  required: true
+  #sample ID:
+    # type: text
+    #  description: "The institute standard sample ID: possibly subsample of the sample folder"
+    #required: true
 
 DLS device:
   type: select
@@ -25,10 +25,10 @@ DLS device:
     # add what else
   required: true
 
-sample description:
-  type: text
-  description: a short description of the sample
-  required: true
+    #sample description:
+    #type: text
+    #description: a short description of the sample
+    #required: true
 
 solvent:
   type: text

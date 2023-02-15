@@ -1,5 +1,8 @@
 # a form to be used for every experiment
 
+user: "%u"
+created: "%D"
+
 aim:
   type: "multiline"
   description: "What is the aim of this experiment?"
@@ -7,4 +10,15 @@ aim:
 observation:
   type: "multiline"
   description: "free text observations beyond the measurement"
+
+files:
+    type: "file"
+    description: "link to the data files"
+
+sample description:
+  type: text
+  description: a short description of the sample
+  required: true
+
+sample ID: "%3"
 

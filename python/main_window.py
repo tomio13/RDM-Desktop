@@ -479,7 +479,7 @@ class ListWidget(tk.Tk):
                     # this file does not suppose to exist!
                     with open(os.path.join(
                         new_path,
-                        config['readme'),
+                        config['readme']),
                               'wt') as fp:
                         fp.write(txt)
 

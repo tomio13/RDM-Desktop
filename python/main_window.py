@@ -194,6 +194,12 @@ class ListWidget(tk.Tk):
 
         self.make_listbox()
 
+        self.openButton = tk.Button(
+                self.frame,
+                text='Open',
+                command= self.file_manager
+                )
+        self.openButton.grid(column=2, columnspan=3, row=9)
         # third (last) row is the button to look up content
         self.button = tk.Button(
                 self.frame,
@@ -220,6 +226,16 @@ class ListWidget(tk.Tk):
         else:
             return ''
 
+    # end get_config_element
+
+    def file_manager(self):
+        """ Open the current folder in a file manager
+        """
+        if 'filemanager' in self.config:
+            cmd= (self.config['filemanager'], self.root_path)
+            # open in a subprocess, but do not wait for it!
+            subprocess.Popen(cmd)
+    # end file_manager
 
     def activate_item(self):
         """ what happens when one has selected an item in the
@@ -463,12 +479,12 @@ class ListWidget(tk.Tk):
                     # this file does not suppose to exist!
                     with open(os.path.join(
                         new_path,
-                        'readme.md'),
+                        config['readme'),
                               'wt') as fp:
                         fp.write(txt)
 
                 cmd= (config['editor'],
-                      os.path.join(new_path,'readme.md'))
+                      os.path.join(new_path, config['readme']))
 
                 subprocess.call(cmd)
 

@@ -34,14 +34,17 @@ def get_default_config():
     """ Read some system variables to set some default values
         for the configuration.
     """
+    version = 0.2
     config_dir = get_config_dir()
 
     if os.name == 'posix':
         home_dir = os.getenv('HOME')
         editor='nano'
+        filemanager='xdg-open'
     else:
         home_dir = 'd:/' if os.path.isdir('d:/') else 'c:/'
         editor= 'notepad'
+        filemanager= 'explorer'
 
     #template_dir = os.path.join(config_dir, 'Templates')
     template_dir = '../templates'
@@ -56,6 +59,8 @@ def get_default_config():
             'templateDir':  template_dir,
             'projectDir':   projects_dir,
             'readme':       'readme.md',
+            'filemanager':  filemanager,
+            'version':      version,
             'editor':       editor,
             'ignore':       ['References'],
             'projectsTitle': 'Projects',
@@ -122,9 +127,23 @@ def get_config():
     # get the default and check out what is missing
     def_conf = get_default_config()
 
+    # if there was a version change, we must
+    # update the cofiguration
+    if 'version' not in conf\
+        or conf['version'] != def_conf['version']:
+        must_save = True
+        # update the version!
+        conf['version'] = def_conf['version']
+
+    else:
+        must_save = False
+
     for k,v in def_conf.items():
         if k not in conf:
             conf[k] = v
+
+    if must_save:
+        save_config(conf)
 
     return conf
 # end get_config

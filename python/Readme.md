@@ -42,3 +42,24 @@ in the searchFolders.
 # RDM\_project
 is the main program, it actually callst he main window.
 
+
+# Installation
+The program requires no special installation.
+Copy the repo, and run the RDMi\_project.py file in the python folder.
+The GUI should start and deploy the default configuration for the user.
+
+# Requirements
+python: 3.x (tested wtih 3.10)
+pyyaml: a default python yaml library
+
+All other libraries should be part of the standard python install.
+No special environment is needed, so you can save yourself from things like
+anaconda, conda, docker, etc.
+
+# Libraries used
+- os
+- sys
+- subprocess
+- yaml
+- tkinter
+

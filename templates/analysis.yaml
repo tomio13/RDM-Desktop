@@ -5,7 +5,7 @@
 #  description: "please describe what information you try extracting"
 #  required: true
 
-version: 2023-02-15
+template version: 2023-02-15
 
 Parameters:
   type: "multiline"
@@ -46,7 +46,7 @@ software:
   description: "name of the software used"
   required: true
 
-version:
+software version:
   type: "file"
   description: "version of the used software"
   required: true

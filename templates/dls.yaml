@@ -12,7 +12,7 @@ doc: |
     #required: true
 
 # specify a template version so one can compare if needed
-version: 2023-02-16
+template version: 2023-02-16
 
 DLS device:
   type: select

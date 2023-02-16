@@ -159,8 +159,8 @@ class ListWidget():
         # Fill in content... we could have all these elements in
         # internal functions, if the user should be able to
         # redecorate the content. But it is not the case so:
-        self.frame= tk.Frame(self.window, bd= 10)
-        self.frame.grid(
+        frame= tk.Frame(self.window, bd= 10)
+        frame.grid(
                 column=0,
                 row=0,
                 columnspan=10,
@@ -171,29 +171,29 @@ class ListWidget():
         # now, make sure the listbox in col 0, row 1 is scaled!
         # This is needed, so resizing the window will resize that
         # content with it.
-        self.frame.grid_columnconfigure(0, weight=1)
-        self.frame.grid_rowconfigure(1, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_rowconfigure(1, weight=1)
 
         # first row is a main label of the content
-        label= tk.Label(self.frame, text= title)
+        label= tk.Label(frame, text= title)
         label.grid(column=0, columnspan=10, row=0)
 
-        self.make_listbox()
+        self.make_listbox(frame)
 
         self.openButton = tk.Button(
-                self.frame,
+                frame,
                 text='Open',
                 command= self.file_manager
                 )
         self.openButton.grid(column=2, columnspan=3, row=9)
         # third (last) row is the button to look up content
-        self.button = tk.Button(
-                self.frame,
+        button = tk.Button(
+                frame,
                 text='Add New',
                 command= self.add_new
                 )
         # make a nice, large button:
-        self.button.grid(column= 7, columnspan= 3, row= 9)
+        button.grid(column= 7, columnspan= 3, row= 9)
     # end __init__
 
 
@@ -339,16 +339,19 @@ class ListWidget():
     # end get_filelist
 
 
-    def make_listbox(self) -> None:
+    def make_listbox(self,
+                     parent:tk.Misc) -> None:
         """ create and fill out the listbox of the GUI
             Use self.content_list to add the elements
             to the widget.
+            Parameters:
+            parent   a widget    parent widget
 
             return: None
         """
         # next is the actual directory content (sub directories)
         # listbox with single selection
-        self.listbox = tk.Listbox(self.frame, selectmode= tk.BROWSE)
+        self.listbox = tk.Listbox(parent, selectmode= tk.BROWSE)
         self.listbox.grid(
                 column=0,
                 columnspan= 9,
@@ -361,7 +364,7 @@ class ListWidget():
 
         # make it scrollable:
         self.scrollbar= tk.Scrollbar(
-                self.frame,
+                parent,
                 bg='grey',
                 orient='vertical',
                 command= self.listbox.yview,

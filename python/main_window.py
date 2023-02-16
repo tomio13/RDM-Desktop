@@ -106,8 +106,6 @@ class ListWidget():
         # when one clicks the file, gets the folder list...
         # It is a bit vague at the moment, but keeps things flexible
 
-        # first define what to ignore
-        self.ignore= self.config['ignore'] if 'ignore' in self.config else []
 
         # this is for debugging
         print(f'level: {self.level}, Path is {self.root_path}')
@@ -153,8 +151,8 @@ class ListWidget():
         # If I try running the same in a child window, I am getting
         # an error, so do it only at the top level
         if parent is None:
-            self.icon = tk.PhotoImage(file='./icons/RDM_desktop.png')
-            self.window.iconphoto(True, self.icon)
+            icon = tk.PhotoImage(file='./icons/RDM_desktop.png')
+            self.window.iconphoto(True, icon)
 
         self.window.title(title)
 
@@ -177,8 +175,8 @@ class ListWidget():
         self.frame.grid_rowconfigure(1, weight=1)
 
         # first row is a main label of the content
-        self.label= tk.Label(self.frame, text= title)
-        self.label.grid(column=0, columnspan=10, row=0)
+        label= tk.Label(self.frame, text= title)
+        label.grid(column=0, columnspan=10, row=0)
 
         self.make_listbox()
 
@@ -395,17 +393,20 @@ class ListWidget():
         print('at level:', self.level)
         self.listbox.delete('0', 'end')
 
+        # first define what to ignore
+        ignore= self.config['ignore'] if 'ignore' in self.config else []
+
         # load / reload folder content
         if self.target == 'dir':
             print('listing directories')
-            self.get_dirlist(self.ignore)
+            self.get_dirlist(ignore)
         else:
             print('listing files')
             # search pattern should matter only for searching for files
             pattern = self.get_config_element(
                 'searchPattern'
                 )
-            self.get_filelist(pattern, self.ignore)
+            self.get_filelist(pattern, ignore)
 
         # fill up the content (folder names)
         for i,j in enumerate(self.content_list):

@@ -88,3 +88,23 @@ substitution values, such as:
                 for an experiment %3 is the experiment short name provided
 
 This substitution is also applied to the readme templates.
+
+# configuration
+The first start of the program drops a default config.yaml file
+either as:
+- /home/.config/rdm\_project/config.yaml
+- c:/Users/%USER%/AppData/Local/rdm\_project/config.yaml
+
+This file defines several parameters, which will affect how the
+program works. Please do not alter the folder configuration except
+if you really know what you are doing.
+
+However, you should change:
+- userID: the name saved to new entries
+- editor: it is Notepad on Windows, nano on other systems, change it
+  to something you like (I like Notepad++ for example).
+  On windows, find your favorite editor, and add the full path here, but
+  use '/' instead of '\'.
+
+Do not change the version, because the software uses it to update the
+missing fields if a new version comes out.

@@ -10,11 +10,11 @@
 """
 import os
 import sys
-import yaml
 import time
+import yaml
 
 
-def get_config_dir():
+def get_config_dir() -> str:
     """ Based on the OS, get the /home/$user/.config/rdm_project
         or the c:/users/%user%/AppData/Local folder.
     """
@@ -31,7 +31,7 @@ def get_config_dir():
 # end get_config_dir
 
 
-def get_default_config():
+def get_default_config() -> dict:
     """ Read some system variables to set some default values
         for the configuration.
 
@@ -39,7 +39,6 @@ def get_default_config():
         a dict containing the configuration parameters.
     """
     version = 0.2
-    config_dir = get_config_dir()
 
     if os.name == 'posix':
         home_dir = os.getenv('HOME')
@@ -110,9 +109,12 @@ def get_default_config():
 # end get_default_config
 
 
-def get_config():
+def get_config() -> dict:
     """ Find the config folder, and try pulling up the configuration.
         Substitute non-existing values with their default counterpart.
+
+        return
+        a dict with the configuration
     """
     # is there a configuration already saved?
     config_dir= get_config_dir()
@@ -153,7 +155,7 @@ def get_config():
 # end get_config
 
 
-def load_config():
+def load_config() -> dict:
     """ it is get_config, just for making sure we do not
         miss the name
     """
@@ -161,7 +163,7 @@ def load_config():
 # end load_config
 
 
-def save_config(config):
+def save_config(config: dict) -> None:
     """ take a dict, and write it to the default config
         location as YAML file made by pyyaml.
     """
@@ -180,7 +182,7 @@ def save_config(config):
 # end save_config
 
 
-def replace_text(text, config, root_path):
+def replace_text(text: str, config: dict, root_path: str) -> str:
     """ search for specific replacement characters and fill them up
         with dynamic content.
 

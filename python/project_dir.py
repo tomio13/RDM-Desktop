@@ -10,18 +10,20 @@
 
 import os
 import sys
-__all__ = ['make_project']
+__all__ = ['make_dir']
 
 list_file = 'templates/folder.txt'
 
-def make_dir(folder_name, list_file_path):
-    """ Create a folder directory and all its subdirectories.
+def make_dir(folder_name:str, list_file_path:str) -> None:
+    """ Create a folder directory and all its subdirectories
+        based on a list of folder names from list_file_path.
 
         Parameters:
-        @parameter folder_name  name of the new project folder
-        @parameter list_file_path   a file where the subfolders are
-                                    listed.
-        @return None
+        folder_name     string  name of the new project root folder
+        list_file_path  string  a file where the subfolders are
+                                listed.
+        return
+            None
     """
     folder_name = os.path.abspath(
             os.path.expanduser(folder_name)
@@ -78,4 +80,4 @@ if __name__ == '__main__':
 
     # do the job
     make_dir(main_folder, list_file)
-
+# end of project_dir

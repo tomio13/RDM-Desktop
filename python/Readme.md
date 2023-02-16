@@ -59,6 +59,7 @@ anaconda, conda, docker, etc.
 # Libraries used
 - os
 - sys
+- time
 - subprocess
 - yaml
 - tkinter
@@ -70,5 +71,18 @@ anaconda, conda, docker, etc.
 - integer       only integer numbers
 - url           a web URL (https://...)
 - list          comma separated list of values
+- numericlist   comma separated list of numbers
 - file          relative link to a file
 - checkbox      a true/false value as check box
+
+# dynamic values
+Template fields which are not part of the form may have some
+substitution values, such as:
+- %u            the userID field from the configuration
+- %d            the current date in ISO-8601 format
+- %D            the current date and time and time zone in ISO-8601 format
+- %1, %2, %3    the part of the relative path within the project
+                for a project %1 is the project name provided (short one)
+                for an experiment %3 is the experiment short name provided
+
+This substitution is also applied to the readme templates.

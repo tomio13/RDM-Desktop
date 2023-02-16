@@ -186,7 +186,12 @@ def replace_text(text, config, root_path):
         return text
 
     relpath = os.path.relpath(root_path, config['projectDir'])
-    relpath = relpath.split('/')
+
+    # windows may have '\\' instead of '/'
+    if '\\' in relpath:
+        relpath = relpath.split('\\')
+    else:
+        relpath = relpath.split('/')
 
     rep = {f'%{i+1}':j for i,j in enumerate(relpath)}
 

@@ -8,69 +8,69 @@
     License:    MIT
     Warranty:   None
     Date:       2023-01-20
-    version:    0.1.0
-    A first conceptual class to do listing hierarchy in
-    the folder tree.
 """
 
 import os
-import sys
 import subprocess
-import yaml
 import tkinter as tk
 from tkinter import simpledialog as tksd
 from tkinter.filedialog import askopenfile
+import yaml
 
 
 # now the local elements:
-from project_config import get_config, replace_text
+from project_config import replace_text
 from project_dir import make_dir
 from form_from_dict import FormBuilder
 
-# important global variables
+# important global variables (within the package)
 __version__= '0.1.5'
-config = get_config()
 
 
-class ListWidget(tk.Tk):
+class ListWidget():
     """ A widget to provide a list of a folder, but in
         a controlled way. Also allow for selecting a folder,
-        getting its content or get information about it
-        looking into the local information file, typically a
-        readme.md or similar.
+        or a file, and open a pop-up to work with its content.
     """
+    # linter is complaining, but I need these for a reasonable
+    # iterative function call:
+    # pylint: disable=too-many-arguments
     def __init__(self,
-                 title= '',
-                 root_path='',
-                 parent= None,
-                 config= config,
-                 level= 0
-                 ):
+                 config:dict,
+                 title:str = '',
+                 root_path:str ='',
+                 parent:tk.Misc = None,
+                 level:int = 0
+                 ) -> None:
         """ Create the window, its elements and its content.
 
-            @param title        optional title to overwrite config
-                                used when a line is clicked
-            @param root_path    the current path
-            @param parent       the parent object, if this is not the
-                                first window
-            @param config       a dictionary describing all configuration
-                                parameters
-                                For details, see pc.get_default_config()
-            @param level        at which depth we are in the structure
-            @return None
+            Parameters:
+            title        string     optional title to overwrite config
+                                    used when a line is clicked
+            root_path    string     the current path
+            parent       window     the parent object, if this is not the
+                                    first window
+            config       dict       a dictionary describing all configuration
+                                    parameters
+                                    For details, see pc.get_default_config()
+
+            level        int        at which depth we are in the structure
+
+            return None
         """
 
         # store parameters:
         self.config = config
         self.level = level
+        self.content_list = []
 
-        if 'projectDir' not in config:
+        if 'projectDir' not in self.config:
             raise ValueError('projectDir not provided!')
 
         if root_path:
             self.root_path = root_path
         else:
-            self.root_path = config['projectDir']
+            self.root_path = self.config['projectDir']
 
         self.root_path = os.path.abspath(
                 os.path.expanduser(
@@ -86,26 +86,18 @@ class ListWidget(tk.Tk):
             # This way the user can tune if we have more depth.
             # Default is nothing (like for Projects)
             #
-            # root_path defines what we list out
-            last_element = self.get_config_element(
-                    'searchFolders'
-                    )
-
+            # root_path defines path that we list out
             self.root_path = os.path.join(
                     self.root_path,
-                    last_element
+                    self.get_config_element(
+                    'searchFolders')
                     )
-        # this is for debugging
-        print('level:', self.level)
-        print(f'Path is {self.root_path}')
 
         # we should provide a title at clicks, but if not,
         # use the projects title:
         k = 'projectsTitle'
         if not title and k in self.config:
-            self.title= self.config[k]
-        else:
-            self.title = title
+            title= self.config[k]
 
         # at each level we may ask for a directory listing or
         # searching for files
@@ -117,11 +109,8 @@ class ListWidget(tk.Tk):
         # first define what to ignore
         self.ignore= self.config['ignore'] if 'ignore' in self.config else []
 
-        # search pattern should matter only for searching for files
-        self.pattern = self.get_config_element(
-                'searchPattern'
-                )
-        print('pattern is set to:', self.pattern)
+        # this is for debugging
+        print(f'level: {self.level}, Path is {self.root_path}')
 
         self.target = self.get_config_element(
                 'searchTargets'
@@ -131,15 +120,14 @@ class ListWidget(tk.Tk):
 
         # the window and its default parameters
         self.child_windows = []
-        self.parent = parent
 
         # we have all configuration filled up,
         # generate the GUI:
         # the window first
-        if self.parent is None:
+        if parent is None:
             self.window = tk.Tk()
         else:
-            self.window = tk.Toplevel(self.parent)
+            self.window = tk.Toplevel(parent)
 
         # Configure the window
         self.window.minsize(300,400)
@@ -164,7 +152,7 @@ class ListWidget(tk.Tk):
         # make sure the children can inherit this icon
         # If I try running the same in a child window, I am getting
         # an error, so do it only at the top level
-        if self.parent is None:
+        if parent is None:
             self.icon = tk.PhotoImage(file='./icons/RDM_desktop.png')
             self.window.iconphoto(True, self.icon)
 
@@ -189,7 +177,7 @@ class ListWidget(tk.Tk):
         self.frame.grid_rowconfigure(1, weight=1)
 
         # first row is a main label of the content
-        self.label= tk.Label(self.frame, text= self.title)
+        self.label= tk.Label(self.frame, text= title)
         self.label.grid(column=0, columnspan=10, row=0)
 
         self.make_listbox()
@@ -210,38 +198,46 @@ class ListWidget(tk.Tk):
         self.button.grid(column= 7, columnspan= 3, row= 9)
     # end __init__
 
-    def get_config_element(self, key):
+
+    def get_config_element(self, key:str) -> str:
         """ To dig into a list within config, get the
             element at self.level.
 
-            @param key text, a key in config
+            Parameters
+            key string  a key in config
 
-            if self.config[key] is a list returns its
+            Return
+            if self.config[key] is a list return its
             self.level value or ''
         """
         if key in self.config\
-                and isinstance(self.config[key], list)\
-                and len(self.config[key]) > self.level:
-                    return self.config[key][self.level]
-        else:
-            return ''
+            and isinstance(self.config[key], list)\
+            and len(self.config[key]) > self.level:
 
+            return self.config[key][self.level]
+
+        return ''
     # end get_config_element
 
-    def file_manager(self):
+
+    def file_manager(self) -> None:
         """ Open the current folder in a file manager
         """
         if 'filemanager' in self.config:
-            cmd= (self.config['filemanager'], self.root_path)
+            cmd= [self.config['filemanager'], self.root_path]
             # open in a subprocess, but do not wait for it!
-            subprocess.Popen(cmd)
+            with subprocess.Popen(cmd) as pop:
+                print('child started:', pop)
     # end file_manager
 
-    def activate_item(self):
+
+    def activate_item(self) -> None:
         """ what happens when one has selected an item in the
             list box, and pushed the select button?
+
             If we are in a project list, we get the dirs of
             the data dir (kind of repeating the listing).
+
             If it is a data folder, we need to list the YAML
             files in there.
         """
@@ -250,14 +246,17 @@ class ListWidget(tk.Tk):
             print('Nothing was selected')
             return
 
+        # get what is selected:
         item = self.listbox.get(indx)
 
+        # turn it to a full path:
         full_path = os.path.join(
                 self.root_path,
                 item)
 
+        # a file we open with the default editor
         if os.path.isfile(full_path):
-            cmd= (config['editor'], full_path)
+            cmd= (self.config['editor'], full_path)
             subprocess.call(cmd)
 
         else:
@@ -274,7 +273,8 @@ class ListWidget(tk.Tk):
             )
     # end activate item
 
-    def get_dirlist(self, ignore= []):
+
+    def get_dirlist(self, ignore:list) -> None:
         """ get a list of directories in the root_path
             Use self.root_path for the path,
             but drop those words in ignore.
@@ -297,7 +297,7 @@ class ListWidget(tk.Tk):
     # end get_dirlist
 
 
-    def get_filelist(self, pattern, ignore):
+    def get_filelist(self, pattern:str, ignore:list) -> None:
         """ list up files in a folder based on a simple pattern,
             e.g. .yaml for all files ending with .yaml.
             If pattern starts with ., then use end of, else
@@ -305,10 +305,12 @@ class ListWidget(tk.Tk):
 
             Drop files which names are in ignore list.
 
-            @param  pattern files to search for
-            @param  ignore  a list of files to ignore
+            Parameters
+            pattern     string  files to search for
+            ignore      list    files to be ignored
 
-            @return None    fill up self.content_list
+            return:
+            None    fill up self.content_list
         """
         self.content_list = []
         if not os.path.isdir(self.root_path):
@@ -338,12 +340,13 @@ class ListWidget(tk.Tk):
             self.content_list.sort()
     # end get_filelist
 
-    def make_listbox(self):
+
+    def make_listbox(self) -> None:
         """ create and fill out the listbox of the GUI
             Use self.content_list to add the elements
             to the widget.
 
-            @return: None
+            return: None
         """
         # next is the actual directory content (sub directories)
         # listbox with single selection
@@ -381,7 +384,7 @@ class ListWidget(tk.Tk):
     # end make_listbox
 
 
-    def listbox_fill(self):
+    def listbox_fill(self) -> None:
         """ refresh the listbox content from self.content_list
         """
         if not self.listbox:
@@ -398,7 +401,11 @@ class ListWidget(tk.Tk):
             self.get_dirlist(self.ignore)
         else:
             print('listing files')
-            self.get_filelist(self.pattern, self.ignore)
+            # search pattern should matter only for searching for files
+            pattern = self.get_config_element(
+                'searchPattern'
+                )
+            self.get_filelist(pattern, self.ignore)
 
         # fill up the content (folder names)
         for i,j in enumerate(self.content_list):
@@ -406,13 +413,139 @@ class ListWidget(tk.Tk):
     # end listbox_fill
 
 
-    def add_new(self):
+    def make_readme(self, default_template:str, new_path:str) -> None:
+        """ Create the readme file in a new folder
+            based on information provided.
+
+            Parameters:
+            default_template    string  path to the template file
+            new_path            string  the path of the new folder
+        """
+        if not default_template:
+            return
+
+        txt= ''
+        if os.path.isfile(default_template):
+            with open(default_template,
+                      'rt',
+                      encoding='UTF-8') as fp:
+                txt = fp.read()
+
+        if txt:
+            # this file does not suppose to exist!
+            txt = replace_text(
+                    txt,
+                    self.config,
+                    os.path.join(self.root_path,
+                                  new_path)
+                    )
+
+            with open(os.path.join(
+                    new_path,
+                    self.config['readme']),
+                    'wt',
+                    encoding='UTF-8') as fp:
+                fp.write(txt)
+
+        cmd= (self.config['editor'],
+              os.path.join(new_path, self.config['readme']))
+
+        subprocess.call(cmd)
+    # end make_readme
+
+
+    def run_form(self,
+                 template_dir:str,
+                 default_template:str,
+                 label:str,
+                 new_path:str) -> bool:
+        """ run the form builder and save its result
+
+            Parameters:
+            template_dir        string  where the templates are
+            default_template    string  we load first this
+                                        template, appended by
+                                        a user selected template
+            label               string  title of new form
+            new_path            string  path to the new file
+
+            Return:
+            True if we changed the list, so refresh is needed
+        """
+        # now, we have to get the templates,
+        # put them together and call the form machine
+        # then dump the result...
+        template_dict= {}
+
+        # we pull the default template first
+        print('Default template:', default_template)
+        if os.path.isfile(default_template):
+            with open(default_template,
+                      'rt',
+                      encoding='UTF-8') as fp:
+                template_dict= yaml.safe_load(fp)
+
+        new_template = {}
+        with askopenfile(title='Select template form',
+                mode='r',
+                filetypes=[('yaml', '*.yaml'), ('yml', '*.yml')],
+                initialdir= template_dir,
+                defaultextension='yaml') as fp:
+
+            new_template = yaml.safe_load(fp)
+        # end loading templates
+
+        if template_dict and new_template:
+            template_dict.update(new_template)
+
+        elif new_template:
+            template_dict = new_template
+
+        if not template_dict:
+            print('No tempalte is specified')
+            return False
+
+        form = FormBuilder(
+                title= f'Form of {label}',
+                root_path= self.root_path,
+                parent= self.window,
+                template= template_dict,
+                config= self.config)
+
+        # we have to get stuck here until it comes back
+        # form.window.mainloop()
+        form.window.wait_window()
+
+        if form.result:
+            if not new_path.endswith('.yaml'):
+                new_path = f'{new_path}.yaml'
+
+            print('saving file to', new_path)
+            with open(new_path,
+                      'wt',
+                      encoding='UTF-8') as fp:
+
+                fp.write(yaml.safe_dump(form.result,
+                         sort_keys= False,
+                         allow_unicode= True,
+                         width= 70,
+                         default_style= None))
+            return True
+
+        # nothing saved, do not refresh
+        return False
+    # end run_form
+
+
+    def add_new(self) -> None:
         """ create a new item. Depending on the level and
             what we have (e.g. folders or files),
             we have to call different workers.
+
             Folders are created using: make_projects
             and a folder list template,
-            files are created by using the form_from_yaml
+
+            Files are created by using the form_from_yaml
         """
         # get first the name
         label = self.get_config_element(
@@ -428,7 +561,7 @@ class ListWidget(tk.Tk):
         print('creating', new_name)
 
         k = 'templateDir'
-        template_dir = config[k] if k in config else ''
+        template_dir = self.config[k] if k in self.config else ''
 
         default_template = self.get_config_element(
                 'defaultTemplate'
@@ -470,88 +603,17 @@ class ListWidget(tk.Tk):
 
             # we should add a readme, and we may have
             # templates for it:
-            if default_template:
-                if os.path.isfile(default_template):
-                    with open(default_template, 'rt') as fp:
-                        txt = fp.read()
-
-                if txt:
-                    # this file does not suppose to exist!
-                    txt = replace_text(txt,
-                                       self.config,
-                                       os.path.join(self.root_path,
-                                                    new_path))
-
-                    with open(os.path.join(
-                        new_path,
-                        config['readme']),
-                              'wt') as fp:
-                        fp.write(txt)
-
-                cmd= (config['editor'],
-                      os.path.join(new_path, config['readme']))
-
-                subprocess.call(cmd)
+            self.make_readme(default_template, new_path)
 
         else:
-            # now, we have to get the templates,
-            # put them together and call the form machine
-            # then dump the result...
-            template_dict= {}
-            # we pull the default template first
-            print('Default template:', default_template)
-            if os.path.isfile(default_template):
-                with open(default_template, 'rt') as fp:
-                    template_dict= yaml.safe_load(fp)
 
-            new_template = {}
-            with askopenfile(title='Select template form',
-                        mode='r',
-                        filetypes=[('yaml', '*.yaml'), ('yml', '*.yml')],
-                        initialdir= template_dir,
-                 defaultextension='yaml') as fp:
 
-                new_template = yaml.safe_load(fp)
-            # end loading templates
-
-            if template_dict and new_template:
-                template_dict.update(new_template)
-            elif new_template:
-                template_dict = new_template
-
-            if not template_dict:
-                print('No tempalte is specified')
+        # now, update the list. If nothing changed, just go back.
+            if not self.run_form(template_dir,
+                                 default_template,
+                                 label,
+                                 new_path):
                 return
-
-            form = FormBuilder(
-                    title= f'Form of {label}',
-                    root_path= self.root_path,
-                    parent= self.window,
-                    template= template_dict,
-                    config= self.config)
-
-            # we have to get stuck here until it comes back
-            # form.window.mainloop()
-            form.window.wait_window()
-
-            if form.result:
-                if not new_path.endswith('.yaml'):
-                    new_path = f'{new_path}.yaml'
-
-                print('saving file to', new_path)
-                with open(new_path, 'wt') as fp:
-                    fp.write(yaml.safe_dump(form.result,
-                                            sort_keys= False,
-                                            allow_unicode= True,
-                                            width= 70,
-                                            default_style= None))
-            else:
-                # nothing saved, do not refresh
-                return
-            del(form)
-
-        # now, update the list
         self.listbox_fill()
     # end of add_new
-
 # end of class ListWidget

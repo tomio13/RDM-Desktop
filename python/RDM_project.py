@@ -10,9 +10,10 @@
 """
 
 import main_window as mw
+from project_config import get_config
 
 if __name__ == '__main__':
     print('Starting RDM-desktop GUI')
-    GUI = mw.ListWidget()
+    GUI = mw.ListWidget(config = get_config())
     GUI.window.mainloop()
 

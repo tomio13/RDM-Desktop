@@ -81,7 +81,7 @@ glue type:
   required: true
 
 measurement mode:
-  type: select
+  type: multiselect
   description: "Mode of operation, select all employed"
   options:
     - SEM

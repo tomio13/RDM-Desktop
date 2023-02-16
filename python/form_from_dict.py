@@ -162,8 +162,9 @@ class FormBuilder(object):
                        pady=(2,2),
                        stick='w')
 
-            if v['type'] in ['text', 'url', 'numeric', 'integer', 'list']:
-                entry = ttk.Entry(frame)
+            if v['type'] in ['text', 'url', 'numeric', 'integer', 'list', 'numericlist']:
+                # entry = ttk.Entry(frame, textvariable= var)
+                entry = EntryBox(frame, v['type'])
 
             elif v['type'] == 'select':
                 entry = ttk.Combobox(frame)
@@ -303,9 +304,12 @@ class FilePickerTextField(object):
     def get(self):
         file = self.content.get()
         if os.path.isfile(file):
-            return os.path.relpath(
+            file= os.path.relpath(
                     file,
                     self.dir)
+
+            return f'file:{file}'
+
         else:
             return ''
     # end get
@@ -397,3 +401,79 @@ class CheckBox(tk.Checkbutton):
         """
         return self.value.get() == 1
 # end of CheckBox
+
+
+class EntryBox(object):
+    """ an entry box which can also check its content
+        to be: text, file, url, integer, numeric
+    """
+
+    def __init__(self, parent, vartype='text', **kwarg):
+        """ Initiate an entry widget, based on its type
+        """
+        if vartype == 'integer':
+            self.var = tk.IntVar()
+        elif vartype == 'numeric':
+            self.var = tk.DoubleVar()
+        else:
+            self.var = tk.StringVar()
+
+        self.type = vartype
+        self.parent = parent
+
+        if self.parent is None:
+            self.parent = tk.Tk()
+
+        self.entry = ttk.Entry(self.parent, textvariable= self.var)
+    # end __init__
+
+    def get(self):
+        """ return the value as a proper python variable
+            Handle types:
+            string      --> do nothing
+            integer     --> convert to integer
+            numeric     --> convert to float
+            list        --> split by comma and strip
+            numericlist --> split, conver to float, use N/A
+            url         --> check and add missing https://
+        """
+        s = self.var.get()
+        if not s:
+            return s
+
+        if self.type == 'integer':
+            return int(self.var.get())
+
+        if self.type == 'numeric':
+            return float(self.var.get())
+
+        if self.type == 'url':
+            if not s.startswith('http://') \
+            and not s.startswith('https://'):
+                return f'https://{s}'
+
+        if self.type == 'list':
+            return [i.strip() for i in s.split(',')]
+
+        if self.type == 'numericlist':
+            l = [i.strip() for i in s.split(',')]
+            res = []
+            for i in l:
+                # I hate this, but it is simpler than
+                # writing a regex and test if for all values
+                try:
+                    a = float(i)
+                except ValueError:
+                    a = 'N/A'
+                res.append(a)
+
+            return res
+
+        else:
+            return s
+    # end get()
+
+    def grid(self, **kwargs):
+        self.entry.grid(**kwargs)
+
+# end class EntryBox

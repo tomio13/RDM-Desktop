@@ -11,6 +11,9 @@ doc: |
     #  description: "The institute standard sample ID: possibly subsample of the sample folder"
     #required: true
 
+# specify a template version so one can compare if needed
+version: 2023-02-16
+
 DLS device:
   type: select
   description:  "Which device was used?"

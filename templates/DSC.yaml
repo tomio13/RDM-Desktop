@@ -10,6 +10,8 @@ doc: |
     - heat flow in mW
   ...
 
+# specify a template version so one can compare if needed
+version: 2023-02-16
 
 # One can argue if the sample ID is in the sample folder name,
 # but with this we allow to have a subsample for the experiment

@@ -5,6 +5,8 @@
 #  description: "please describe what information you try extracting"
 #  required: true
 
+version: 2023-02-15
+
 Parameters:
   type: "multiline"
   description: "please provide a list of parameters used for the analysis (one per line)"

@@ -74,6 +74,8 @@ anaconda, conda, docker, etc.
 - numericlist   comma separated list of numbers
 - file          relative link to a file
 - checkbox      a true/false value as check box
+- select        pick one from a list (text)
+- multiselect   pick one or more from a list (text list)
 
 # dynamic values
 Template fields which are not part of the form may have some

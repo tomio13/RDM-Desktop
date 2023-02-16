@@ -174,6 +174,9 @@ class FormBuilder(object):
                 entry['state'] = 'readonly'
                 entry.set(v['options'][0])
 
+            elif v['type'] == 'multiselect':
+                entry = MultiSelect(frame, v['options'])
+
             elif v['type'] == 'multiline':
                 # another text widget
                 entry = MultilineText(frame)
@@ -475,5 +478,39 @@ class EntryBox(object):
 
     def grid(self, **kwargs):
         self.entry.grid(**kwargs)
-
 # end class EntryBox
+
+
+class MultiSelect(object):
+    """ a listbox based multiple select box
+    """
+    def __init__(self, parent, options=[]):
+        """ Create a a widget and list up the options
+            in it.
+        """
+        self.options = options
+        self.parent = parent
+
+        if self.parent is None:
+            self.parent = tk.Tk()
+        # end empty window
+        self.select = tk.Listbox(self.parent,
+                                 selectmode='multiple')
+
+        for i,j in enumerate(options):
+            self.select.insert(i,j)
+    # end __init__
+
+    def grid(self, **kwargs):
+        self.select.grid(**kwargs)
+    # end grid
+
+    def get(self):
+        """ return a list of selected values
+        """
+        l = [self.select.get(i) for i in self.select.curselection()]
+
+        # here is a possibility to convert to numbers
+        # for later...
+        return l
+    # end get

@@ -61,31 +61,31 @@ measurement starting time:
   required: true
 
 relative time point, s:
-  type: list
+  type: numericlist
   description: a list of relative time points of each experiment in the series
   value: [0]
   required: true
 
 refractive index:
-  type: list
+  type: numericlist
   description: comma delimited list of refractive index values of the medium, used in the primary analysis (e.g. water, 1.33)
   value: []
   required: true
 
 temperature, K:
-  type: list
+  type: numericlist
   description: a comma delimited list of temperatures of the sample in the instrument
   value: []
   required: true
 
 viscosity, mPas:
-  type: list
+  type: numericlist
   description: comma separated list of viscosity values in centiPoise or mPas (the same)
   value: []
   required: true
 
 detection angle, degrees:
-  type: list
+  type: numericlist
   description: comma separated list of angles used for the measurements
   value: []
   required: true
@@ -112,19 +112,19 @@ software version:
 
 # results of default analysis
 average diffusion coefficient, micron^2/s:
-  type: list
+  type: numericlist
   description: list of average diffusion coefficients reported by a cumulant analysis
   value: []
   required: true
 
 second cumulant (expansion parameter):
-  type: list
+  type: numericlist
   description: list of the parabolic terms in the cumulant fits, deviation from ideal translation diffusion
   value: []
   required: true
 
 hydrodynamic radius, nm:
-  type: list
+  type: numericlist
   description: list of (equivalent) hydrodynamic radii
   value: []
   required: true

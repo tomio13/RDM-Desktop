@@ -34,6 +34,9 @@ def get_config_dir():
 def get_default_config():
     """ Read some system variables to set some default values
         for the configuration.
+
+        return value
+        a dict containing the configuration parameters.
     """
     version = 0.2
     config_dir = get_config_dir()
@@ -160,7 +163,7 @@ def load_config():
 
 def save_config(config):
     """ take a dict, and write it to the default config
-        location.
+        location as YAML file made by pyyaml.
     """
     if not config:
         return
@@ -180,6 +183,24 @@ def save_config(config):
 def replace_text(text, config, root_path):
     """ search for specific replacement characters and fill them up
         with dynamic content.
+
+        Current spacers:
+        %1, %2, %3:         project name, Data, sample name from the
+                            folder name
+        %u                  userID from config
+        %d                  current date in ISO 8601 format
+        %D                  current date, time and time zone in ISO
+                            8601 format.
+
+        Parameters:
+        text        string  the text to be scanned
+        config      dict    configuration dict, we use the project
+                            path from it
+        root_path   string  the path of the current object
+                            splitting it up, we get names of the
+                            current project and sample (typically)
+        return:
+        string with spacers substituted
     """
 
     if '%' not in text:

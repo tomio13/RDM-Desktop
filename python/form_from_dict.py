@@ -5,15 +5,16 @@
     Date:       2023-02-08
     Warranty:   None
 """
-import yaml
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
-import project_config as pc
-from tkinter.filedialog import FileDialog
+# from tkinter.filedialog import FileDialog
+from tkinter.filedialog import askopenfilenames
 from tkinter import StringVar
+import yaml
 
 from project_config import replace_text
+# import project_config as pc
 
 
 class FormBuilder(object):
@@ -185,10 +186,11 @@ class FormBuilder(object):
                 # files we are seeking contain other
                 # experiments in the root_path
                 # experiments are typically yaml files
+                ext = v['extension'] if 'extension' in v else 'yaml'
                 entry = FilePickerTextField(
                         parent= frame,
                         indir= self.root_path,
-                        pattern='*.yaml'
+                        extension= ext
                         )
 
             elif v['type'] == 'checkbox':
@@ -250,7 +252,7 @@ class FilePickerTextField(object):
         Use possibly a relative path.
     """
 
-    def __init__(self, parent= None, indir='.', pattern= '*.yaml'):
+    def __init__(self, parent= None, indir='.', extension= 'yaml'):
         """ Generate the widget and populate its settings
         """
         if parent is None:
@@ -265,7 +267,7 @@ class FilePickerTextField(object):
 
 
         self.dir = indir
-        self.pattern = pattern
+        self.extension = extension
         self.content = StringVar()
 
         self.entry = ttk.Entry(
@@ -291,27 +293,43 @@ class FilePickerTextField(object):
         """ bring up a file dialog and get a file name
         """
 
-        d = FileDialog(
-                self.frame,
-                title='Select file')
-        fn = d.go(
-                dir_or_file= os.path.join(self.dir,
-                             self.content.get()),
-                pattern= self.pattern
-                  )
-        if fn:
-           self.content.set(fn)
+        # d = FileDialog(
+        d = askopenfilenames(
+                master= self.frame,
+                title='Select file',
+                defaultextension= self.extension,
+                initialdir= self.dir
+                )
+        #fn = d.go(
+        #        dir_or_file= os.path.join(self.dir,
+        #                     self.content.get()),
+        #        pattern= self.pattern
+        #          )
+        if d:
+           fn = [os.path.relpath(i, self.dir) for i in d]
+           # this is our 'return' value:
+           self.content.set( ', '.join(list(fn)))
     # end get_file
 
 
     def get(self):
-        file = self.content.get()
-        if os.path.isfile(file):
-            file= os.path.relpath(
-                    file,
-                    self.dir)
+        fn = self.content.get()
 
-            return f'file:{file}'
+        if ',' in fn:
+            fn = fn.split(', ')
+            print('start with:', fn)
+            fn = [f'file:{i}' for i in fn \
+                    if os.path.isfile(os.path.join(self.dir, i))]
+            print('result:', fn)
+            return fn
+
+        elif os.path.isfile(fn):
+            fn = os.path.relpath(
+                    fn,
+                    self.dir
+                    )
+
+            return f'file:{fn}'
 
         else:
             return ''

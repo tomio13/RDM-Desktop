@@ -14,7 +14,7 @@ import os
 import subprocess
 import tkinter as tk
 from tkinter import simpledialog as tksd
-from tkinter.filedialog import askopenfile
+from tkinter.filedialog import askopenfilename
 import yaml
 
 
@@ -490,24 +490,25 @@ class ListWidget():
                 template_dict= yaml.safe_load(fp)
 
         new_template = {}
-        with askopenfile(title='Select template form',
-                mode='r',
+        fn = askopenfilename(title='Select template form',
                 filetypes=[('yaml', '*.yaml'), ('yml', '*.yml')],
                 initialdir= template_dir,
-                defaultextension='yaml') as fp:
+                defaultextension='yaml')
+        if fn:
+            with open(fn, 'rt', encoding='UTF-8') as fp:
 
-            new_template = yaml.safe_load(fp)
-        # end loading templates
+                new_template = yaml.safe_load(fp)
+            # end loading templates
+
+        else:
+            print('No template requested')
+            return False
 
         if template_dict and new_template:
             template_dict.update(new_template)
 
         elif new_template:
             template_dict = new_template
-
-        if not template_dict:
-            print('No tempalte is specified')
-            return False
 
         form = FormBuilder(
                 title= f'Form of {label}',

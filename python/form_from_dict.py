@@ -166,10 +166,9 @@ class FormBuilder():
 
             if v['type'] in ['text', 'url', 'numeric', 'integer', 'list', 'numericlist']:
                 # entry = ttk.Entry(frame, textvariable= var)
+                entry = EntryBox(frame, v['type'])
                 if 'value' in v:
-                    entry = EntryBox(frame, v['type'], text=v['value'])
-                else:
-                    entry = EntryBox(frame, v['type'])
+                    entry.set(v['value'])
 
             elif v['type'] == 'select':
                 entry = ttk.Combobox(frame)
@@ -264,9 +263,7 @@ class FormBuilder():
             # keys from a subset to the whole
             # this means keys should not be repeated
             # within the subset vs. main tree
-            print('adding', i)
             if self.template[i]['type'] == 'subset':
-                print('filling up array!', v.get())
                 self.result.update(v.get())
             else:
                 self.result[i] = v.get()
@@ -494,6 +491,23 @@ class EntryBox():
         self.entry = ttk.Entry(self.parent, textvariable= self.var)
     # end __init__
 
+    def set(self, value:str|int|float|list) -> None:
+        """ set the internal variable from value
+        """
+        if not value:
+            return
+        if self.type == 'integer':
+            self.var.set(int(value))
+        elif self.type == 'numeric':
+            self.var.set(float(value))
+        elif self.type == 'numericlist':
+            self.var.set(', '.join([str(i) for i in value]))
+        elif self.type == 'list':
+            self.var.set(', '.join(value))
+        else:
+            self.var.set(value)
+    # end of set
+
     def get(self) -> str|int|float|list:
         """ return the value as a proper python variable
             Handle types:
@@ -715,11 +729,20 @@ class SubSet():
                 )->None:
         """ add values to the lists
         """
+        this_template = self.form.copy()
+        if self.content:
+            row = self.content[-1]
+
+
+            keylist = list(this_template.keys())
+            for i,j in enumerate(keylist):
+                this_template[j]['value'] = row[i]
+
         input_form = FormBuilder(
                 title= f'Add new {title}',
                 root_path= root_path,
                 parent= self.parent,
-                template= self.form,
+                template= this_template,
                 config= config
                 )
         input_form.window.wait_window()
@@ -747,9 +770,14 @@ class SubSet():
         window.columnconfigure(0, weight= 1)
         window.rowconfigure(0, weight= 1)
         window.lift()
-        print('columns:', tuple(self.form.keys()))
+        frame= ttk.Frame(window)
+        frame.grid(column=0, row=0, sticky='news')
+        frame.columnconfigure(0, weight=1)
+        frame.rowconfigure(0, weight=1)
+
+        # print('columns:', tuple(self.form.keys()))
         cols = tuple(self.form.keys())
-        tree_view = ttk.Treeview(window,
+        tree_view = ttk.Treeview(frame,
                                  columns = cols,
                                  show= 'headings')
         for head in cols:
@@ -758,9 +786,103 @@ class SubSet():
         for line in self.content:
             tree_view.insert('','end', values= line)
 
-        tree_view.grid(column=0, row=0, sticky='news')
-        tree_view.wait_window()
+        tree_view.grid(column=0,
+                       row=0,
+                       columnspan=2,
+                       sticky='news')
+
+        button_delete= ttk.Button(
+                frame,
+                text= 'Delete',
+                command= lambda: self.delete_selected(tree_view)
+                )
+
+        button_delete.grid(column= 0, row= 1, sticky='sw')
+
+        button_edit= ttk.Button(
+                frame,
+                text= 'Edit',
+                command= lambda: self.edit_selected(
+                    tree_view,
+                    title,
+                    root_path,
+                    config
+                    )
+                )
+        button_edit.grid(column= 1, row= 1, sticky='se')
+
+        window.wait_window()
+
     # end show
+
+
+    def delete_selected(self, tree_widget) -> None:
+        """ delete selected rows
+            parameters
+
+            tree_widget:    the parent widget we are working in
+        """
+        for i in tree_widget.selection():
+            # delete the root content:
+            self.content.pop(tree_widget.index(i))
+            # delete from the widget
+            tree_widget.delete(i)
+
+        # since the list changed:
+        self.update_content()
+    # end delete_selected
+
+
+    def edit_selected(self,
+                      tree_widget:ttk.Treeview,
+                      title:str,
+                      root_path:str,
+                      config:dict) -> None:
+        """ edit selected row
+            Edit only the first of the selection, so it may
+            cause problems if the user is not watching...
+
+            parameters:
+            tree_widget     the tree widget we are working on
+            title:          to pass to the form editor
+            root_path:      to pass to the form editor
+            config:         to pass to the form editor
+        """
+        element = tree_widget.selection()
+        if not element:
+            print('Nothing to edit')
+            return
+
+        element = element[0]
+        # we need an index to see the content part
+        index = tree_widget.index(element)
+        row = self.content[index]
+
+        # to use the form builder, we have to change
+        # the form to have values set
+        this_template = self.form.copy()
+        keylist = list(this_template.keys())
+        for i,j in enumerate(keylist):
+            this_template[j]['value'] = row[i]
+
+        # now, we can call an editing form
+        input_form = FormBuilder(
+                title= f'edit {title}',
+                root_path= root_path,
+                parent= tree_widget,
+                template= this_template,
+                config= config
+                )
+        input_form.window.wait_window()
+
+        if input_form.result:
+            # update both the tree widget and the content:
+            self.content[index] = list(input_form.result.values())
+            tree_widget.item(element,
+                            value= tuple(input_form.result.values()))
+        # since the number of rows did not change,
+        # we need no other update on content
+    # end edit
 
     def get(self) -> None:
         """ return the results as a dict

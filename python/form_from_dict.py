@@ -17,16 +17,16 @@ from project_config import replace_text
 # import project_config as pc
 
 
-class FormBuilder(object):
+class FormBuilder():
     """ a GUI window form dynamically built from a template
     """
     def __init__(self,
-                 title='Template form',
-                 root_path='',
-                 parent= None,
-                 template= None,
-                 config= {}
-                 ):
+                 title:str ='Template form',
+                 root_path:str ='',
+                 parent:tk.Misc= None,
+                 template:dict= None,
+                 config:dict={}
+                 ) -> None:
         """ Create a window, and populate it with input fields from
             template.
             At submittion, save a YAML file of the results.
@@ -125,12 +125,13 @@ class FormBuilder(object):
         self.entrydict= {}
         # and we have a result dict:
         self.result = {}
+        self.default_result = {}
         # add a lot of frames into the frame
         self.add_content()
     # end init()
 
 
-    def add_content(self):
+    def add_content(self) -> None:
         """ parse the template dict, and add elements to the
             main window accordingly.
         """
@@ -145,9 +146,9 @@ class FormBuilder(object):
                 # print('not a form element!', i, v)
 
                 if isinstance(v, str):
-                    self.result[i] = replace_text(v, self.config, self.root_path)
+                    self.default_result[i] = replace_text(v, self.config, self.root_path)
                 else:
-                    self.result[i] = v
+                    self.default_result[i] = v
 
                 continue
 
@@ -161,11 +162,14 @@ class FormBuilder(object):
                        row= 0,
                        padx=(2,5),
                        pady=(2,2),
-                       stick='w')
+                       sticky='w')
 
             if v['type'] in ['text', 'url', 'numeric', 'integer', 'list', 'numericlist']:
                 # entry = ttk.Entry(frame, textvariable= var)
-                entry = EntryBox(frame, v['type'])
+                if 'value' in v:
+                    entry = EntryBox(frame, v['type'], text=v['value'])
+                else:
+                    entry = EntryBox(frame, v['type'])
 
             elif v['type'] == 'select':
                 entry = ttk.Combobox(frame)
@@ -173,7 +177,10 @@ class FormBuilder(object):
                 # make it read only, so user cannot insert new values
                 # alternative would be state 'normal'
                 entry['state'] = 'readonly'
-                entry.set(v['options'][0])
+                if 'value' in v:
+                    entry.set(v['value'])
+                else:
+                    entry.set(v['options'][0])
 
             elif v['type'] == 'multiselect':
                 entry = MultiSelect(frame, v['options'])
@@ -181,6 +188,8 @@ class FormBuilder(object):
             elif v['type'] == 'multiline':
                 # another text widget
                 entry = MultilineText(frame)
+                if 'value' in v:
+                    entry.text.insert(v['value'])
 
             elif v['type'] == 'file':
                 # files we are seeking contain other
@@ -192,6 +201,8 @@ class FormBuilder(object):
                         indir= self.root_path,
                         extension= ext
                         )
+                if 'value' in v:
+                    entry.content.set(v['value'])
 
             elif v['type'] == 'checkbox':
                 entry = CheckBox(frame)
@@ -199,12 +210,27 @@ class FormBuilder(object):
                 if 'value' in v and v['value']==True:
                     entry.select()
 
+            elif v['type'] == 'subset'\
+                and 'value' in v \
+                and isinstance(v['value'], dict):
+                if not v['value']:
+                    print('Calling subset with empty value!')
+
+                entry= SubSet(
+                    title= i,
+                    root_path= self.root_path,
+                    parent= frame,
+                    form= v['value'],
+                    config= self.config
+                    )
+            # end enumerating possible types
+
             # put the new entry in place
             entry.grid(column= 1,
                        row= 0,
                        padx= (5,2),
                        pady=(2,2),
-                       stick='e')
+                       sticky='e')
 
             # create a dict of text label:entry
             # archive the result
@@ -225,11 +251,25 @@ class FormBuilder(object):
     # end of add_content
 
 
-    def collect_results(self):
+    def collect_results(self) -> None:
         """ fill up the results with this
         """
+        # if the process was cancelled in any way,
+        # self.result should be empty
+        # now, that we have a submission, we fill it up
+        self.result = self.default_result.copy()
+
         for i,v in self.entrydict.items():
-            self.result[i] = v.get()
+            # we have the chance to insert the
+            # keys from a subset to the whole
+            # this means keys should not be repeated
+            # within the subset vs. main tree
+            print('adding', i)
+            if self.template[i]['type'] == 'subset':
+                print('filling up array!', v.get())
+                self.result.update(v.get())
+            else:
+                self.result[i] = v.get()
         # end pulling results
         # here comes some validity checking....
         #
@@ -238,13 +278,13 @@ class FormBuilder(object):
 
     # enf collect_results
 
-    def quit(self):
+    def quit(self) -> None:
         self.window.destroy()
     # end quit
 # end of class FormBuilder
 
 
-class FilePickerTextField(object):
+class FilePickerTextField():
     """ a small class to build a file picker in the form of
         a text field and a button. The button activates a
         file selector widget, and its results fills the text
@@ -252,7 +292,10 @@ class FilePickerTextField(object):
         Use possibly a relative path.
     """
 
-    def __init__(self, parent= None, indir='.', extension= 'yaml'):
+    def __init__(self,
+                 parent:tk.Misc= None,
+                 indir:str='.',
+                 extension:str= 'yaml') -> None:
         """ Generate the widget and populate its settings
         """
         if parent is None:
@@ -289,7 +332,7 @@ class FilePickerTextField(object):
     # end __init__
 
 
-    def get_file(self):
+    def get_file(self) -> None:
         """ bring up a file dialog and get a file name
         """
 
@@ -312,7 +355,7 @@ class FilePickerTextField(object):
     # end get_file
 
 
-    def get(self):
+    def get(self) -> str|list:
         fn = self.content.get()
 
         if ',' in fn:
@@ -337,13 +380,13 @@ class FilePickerTextField(object):
 # end FilePickerTextField
 
 
-class MultilineText(object):
+class MultilineText():
     """ a multiline text widget with scroll bars on it...
     """
 
     def __init__(self,
-                 parent= None
-                 ):
+                 parent:tk.Misc= None
+                 )-> None:
         """ A Tk text area widget coupled to scroll bars in a frame
         """
 
@@ -388,7 +431,7 @@ class MultilineText(object):
     # end __init__
 
 
-    def get(self):
+    def get(self)->str:
         """ return the full content of the widget
         """
         return self.text.get('1.0','end')
@@ -402,7 +445,7 @@ class CheckBox(tk.Checkbutton):
         read out the value.
     """
 
-    def __init__(self, parent= None, **kwargs):
+    def __init__(self, parent:tk.Misc= None, **kwargs:dict) -> None:
         """ initialize a checkbox widget
         """
 
@@ -417,19 +460,22 @@ class CheckBox(tk.Checkbutton):
                          offvalue= 0,
                          **kwargs)
 
-    def get(self):
+    def get(self)->str:
         """ return back the value of self.value
         """
         return self.value.get() == 1
 # end of CheckBox
 
 
-class EntryBox(object):
+class EntryBox():
     """ an entry box which can also check its content
         to be: text, file, url, integer, numeric
     """
 
-    def __init__(self, parent, vartype='text', **kwarg):
+    def __init__(self,
+                 parent:tk.Misc,
+                 vartype:str='text',
+                 **kwarg:dict) -> None:
         """ Initiate an entry widget, based on its type
         """
         if vartype == 'integer':
@@ -448,7 +494,7 @@ class EntryBox(object):
         self.entry = ttk.Entry(self.parent, textvariable= self.var)
     # end __init__
 
-    def get(self):
+    def get(self) -> str|int|float|list:
         """ return the value as a proper python variable
             Handle types:
             string      --> do nothing
@@ -494,15 +540,18 @@ class EntryBox(object):
             return s
     # end get()
 
-    def grid(self, **kwargs):
+    def grid(self, **kwargs:dict) -> None:
         self.entry.grid(**kwargs)
 # end class EntryBox
 
 
-class MultiSelect(object):
+class MultiSelect():
     """ a listbox based multiple select box
     """
-    def __init__(self, parent, options=[]):
+
+    def __init__(self,
+                 parent:tk.Misc,
+                 options:list=[]) -> None:
         """ Create a a widget and list up the options
             in it.
         """
@@ -523,7 +572,7 @@ class MultiSelect(object):
         self.select.grid(**kwargs)
     # end grid
 
-    def get(self):
+    def get(self) -> list:
         """ return a list of selected values
         """
         l = [self.select.get(i) for i in self.select.curselection()]
@@ -532,3 +581,197 @@ class MultiSelect(object):
         # for later...
         return l
     # end get
+# end class MultiSelect
+
+
+class SubSet():
+    """ Handle a block of entries to form a table. In the original
+        GUI show only the title, number of columns and rows.
+        Provide an entry form for new values, a table view for
+        the whole, means to delete and edit rows.
+        Return a dict with the keys from the field names and
+        lists for the values. This can be reassembled to a table
+        easily.
+    """
+
+    def __init__(self,
+                 title:str,
+                 root_path:str,
+                 parent:tk.Misc,
+                 form:dict,
+                 config:dict) -> None:
+        """ create a frame inside the parent widget with
+            information about the current status of the subset,
+            and buttons to:
+            - view the data
+            - add new values
+
+            Use the FormBuilder to add new values
+
+            Parameters:
+            title:      a title string
+            root_path:  the path wer are currently working in
+            parent:     the parent widget or None
+            form:       what fields to be collected
+            config:     the configuration dict
+        """
+        if not form:
+            print('Nothing to do here!')
+            return
+
+#        self.root_path = root_path
+#        self.title= title
+#        self.config = config
+        self.form = form
+        self.parent = tk.Tk() if parent is None else parent
+
+        # about the data:
+        self.content = []
+        self.label_fields= []
+
+        self.frame = ttk.Frame(self.parent)
+#        self.frame.grid(column= 0, row= 0, sticky= 'nsew')
+        label = tk.Label(self.frame, text= title)
+        label.grid(column= 0, row= 0)
+        # now, we need some content...
+        self.create_content(title= title,
+                            root_path= root_path,
+                            config= config)
+    # end __init__
+
+
+
+    def add_labels(self):
+        """ create the labels with row and column
+            numbers
+        """
+        nrow = len(self.content)
+        ncol = len(self.form)
+        label1 = tk.Label(self.frame,
+                          text= f'Fields: {ncol}')
+        label2 = tk.Label(self.frame,
+                          text= f'Items: {nrow}')
+        label1.grid(column = 0, row= 1, ipadx= 5, ipady= 5, sticky= 'news')
+        label2.grid(column = 0, row= 2, ipadx= 5, ipady= 5, sticky= 'news')
+
+        self.label_fields = [label1, label2]
+    # end add_labels
+
+
+    def create_content(self,
+                       title:str,
+                       root_path:str,
+                       config:dict) -> None:
+        """ fill up the frame content the first time
+            The parameters coming from __init__ and get sent to be
+            used in the subsequent pop-up windows...
+        """
+        self.add_labels()
+
+        # now, add the buttons:
+        button_new = tk.Button(self.frame,
+                               text='+',
+                               command= lambda: self.add_new(
+                                   title= title,
+                                   root_path= root_path,
+                                   config= config
+                                   ))
+
+        button_new.grid(column=2, row= 1)
+
+        button_show= tk.Button(self.frame,
+                               text='show',
+                               command= lambda: self.show(
+                                   title= title,
+                                   root_path= root_path,
+                                   config= config
+                                   ))
+
+        button_show.grid(column=2, row= 2)
+    # end create_content
+
+
+    def update_content(self):
+        """ update the content in the frame showing
+            - label
+            - number of columns
+            - number of rows
+        """
+
+        # clear the frame
+        for widget in self.label_fields:
+            widget.destroy()
+
+        self.label_fields = []
+
+        # now, add them again
+        self.add_labels()
+    # end update_content
+
+    def add_new(self,
+                title:str,
+                root_path:str,
+                config:dict
+                )->None:
+        """ add values to the lists
+        """
+        input_form = FormBuilder(
+                title= f'Add new {title}',
+                root_path= root_path,
+                parent= self.parent,
+                template= self.form,
+                config= config
+                )
+        input_form.window.wait_window()
+
+        if input_form.result:
+            self.content.append(
+                    list(input_form.result.values())
+                    )
+            self.update_content()
+    # end add_new
+
+
+    def show(self,
+             title:str,
+             root_path:str,
+             config:dict
+             ):
+        """ make a tabulated list of the existing entries
+        """
+
+        window= tk.Toplevel(self.parent)
+        window.title(title)
+        window.minsize(300,400)
+        window.grid()
+        window.columnconfigure(0, weight= 1)
+        window.rowconfigure(0, weight= 1)
+        window.lift()
+        print('columns:', tuple(self.form.keys()))
+        cols = tuple(self.form.keys())
+        tree_view = ttk.Treeview(window,
+                                 columns = cols,
+                                 show= 'headings')
+        for head in cols:
+            tree_view.heading(head, text= head)
+
+        for line in self.content:
+            tree_view.insert('','end', values= line)
+
+        tree_view.grid(column=0, row=0, sticky='news')
+        tree_view.wait_window()
+    # end show
+
+    def get(self) -> None:
+        """ return the results as a dict
+        """
+        keys = list(self.form.keys())
+        vals = list(zip(*self.content))
+        return {i:v for i,v in zip(keys, vals)}
+    # end of get
+
+
+    def grid(self, **kwargs:dict) -> None:
+        self.frame.grid(**kwargs)
+    # grid for rendering
+# end of class SubSet

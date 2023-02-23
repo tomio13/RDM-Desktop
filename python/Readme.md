@@ -76,6 +76,27 @@ anaconda, conda, docker, etc.
 - checkbox      a true/false value as check box
 - select        pick one from a list (text)
 - multiselect   pick one or more from a list (text list)
+- subset        a special widget, which contains a whole set, any set
+                under its value. These then form a new entry box, and build up
+                a table. At the end, each element comes back as a list of
+                (either numerical or text) values
+                Using this construct guarantees that every list has the same
+                number of entries.
+
+# subset
+In many experiments we may repeat a specific task with a small set of parameters
+which may vary between these repeated steps. Now, we can pack those under a subset,
+and using the '+' icon we can add a new entry. The widget only displays how many
+rows we have generated, and how many fields (columns) are defined withing.
+Using the 'show' button we can get a table view of the entries.
+Here the 'Delete' button allows removing one or more rows, and the 'Edit' button
+allows editing any one row at a time.
+During adding values, the entry form always picks up the values of the last entry,
+so we may spare some typing if only few values changed between steps.
+
+The result takes the keys of the internal elements, and turns the values to lists.
+Thus, be careful not to have overlaping names. Meaning: use unique names across
+the whole template.
 
 # dynamic values
 Template fields which are not part of the form may have some

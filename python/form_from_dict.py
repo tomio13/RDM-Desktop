@@ -410,10 +410,8 @@ class FilePickerTextField():
 
         if ',' in fn:
             fn = fn.split(', ')
-            print('start with:', fn)
             fn = [f'file:{i}' for i in fn \
                     if os.path.isfile(os.path.join(self.dir, i))]
-            print('result:', fn)
             return fn
 
         elif os.path.isfile(fn):
@@ -975,6 +973,7 @@ class SubSet():
         """
         keys = list(self.form.keys())
         vals = list(zip(*self.content))
+
         if not any(vals):
             return None
 

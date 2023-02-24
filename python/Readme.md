@@ -3,7 +3,7 @@ This is a python implementation and a workspace to develop the concepts in the R
 
 # Tkinter: Tcl/Tk
 I employ Tkinter because this is typically installed in all basic python installs.
-The resulted GUI is still in the few MB size (currently about 6 MB)
+The resulted GUI is still in the few MB size (currently about 9 MB)
 
 # Functionalities
 - a project folder generator

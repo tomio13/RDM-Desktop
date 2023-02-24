@@ -423,7 +423,7 @@ class FilePickerTextField():
             return f'file:{fn}'
 
         else:
-            return ''
+            return None
     # end get
 # end FilePickerTextField
 
@@ -484,7 +484,11 @@ class MultilineText():
     def get(self)->str:
         """ return the full content of the widget
         """
-        return self.text.get('1.0','end')
+        v= self.text.get('1.0','end')
+        if not v:
+            return None
+
+        return v
     # end of get
 
 # end of MultilineText
@@ -666,6 +670,9 @@ class MultiSelect():
 
         # here is a possibility to convert to numbers
         # for later...
+        if not l:
+            return None
+
         return l
     # end get
 # end class MultiSelect

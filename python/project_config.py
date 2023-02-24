@@ -197,7 +197,7 @@ def replace_text(text: str, config: dict, root_path: str) -> str:
         Parameters:
         text        string  the text to be scanned
         config      dict    configuration dict, we use the project
-                            path from it
+                            path, userID from it
         root_path   string  the path of the current object
                             splitting it up, we get names of the
                             current project and sample (typically)

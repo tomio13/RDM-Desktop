@@ -12,7 +12,8 @@ doc: |
     #required: true
 
 # specify a template version so one can compare if needed
-template version: 2023-02-16
+template: dls.yaml
+template version: 2023-02-23
 
 DLS device:
   type: select
@@ -38,7 +39,7 @@ solvent:
   description: what solvent was used in the measurement (e.g. water, PBS, ethanol)
   required: true
 
-sample volume (ml):
+sample volume, ml:
   type: numeric
   description: what volume was measured
   required: true
@@ -63,37 +64,7 @@ measurement starting time:
   description: "date and time when the experiment was performed as: YYYY-MM-DD HH:mm (M: for month, m: for minutes, like in ISO-8601)"
   required: true
 
-relative time point, s:
-  type: numericlist
-  description: a list of relative time points of each experiment in the series
-  value: [0]
-  required: true
-
-refractive index:
-  type: numericlist
-  description: comma delimited list of refractive index values of the medium, used in the primary analysis (e.g. water, 1.33)
-  value: []
-  required: true
-
-temperature, K:
-  type: numericlist
-  description: a comma delimited list of temperatures of the sample in the instrument
-  value: []
-  required: true
-
-viscosity, mPas:
-  type: numericlist
-  description: comma separated list of viscosity values in centiPoise or mPas (the same)
-  value: []
-  required: true
-
-detection angle, degrees:
-  type: numericlist
-  description: comma separated list of angles used for the measurements
-  value: []
-  required: true
-
-duration, seconds:
+duration, s:
   type: numeric
   description: duration of data acquisition (should be the same at every measurement step)
   required: true
@@ -113,21 +84,50 @@ software version:
   description: "version of the software used"
   required: true
 
-# results of default analysis
-average diffusion coefficient, micron^2/s:
-  type: numericlist
-  description: list of average diffusion coefficients reported by a cumulant analysis
-  value: []
-  required: true
 
-second cumulant (expansion parameter):
-  type: numericlist
-  description: list of the parabolic terms in the cumulant fits, deviation from ideal translation diffusion
-  value: []
+parameters of runs:
+  type: "subset"
   required: true
+  value:
+    relative time point, s:
+      type: numeric
+      description: relative time point of  the current experiment in the series
+      required: true
 
-hydrodynamic radius, nm:
-  type: numericlist
-  description: list of (equivalent) hydrodynamic radii
-  value: []
-  required: true
+    refractive index:
+      type: numeric
+      description: refractive index of the medium, used in the primary analysis (e.g. water, 1.33)
+      required: true
+
+    temperature, K:
+      type: numeric
+      description: temperatures of the sample in the instrument
+      required: true
+
+    viscosity, mPas:
+      type: numeric
+      description: viscosity values in centiPoise or mPas (the same)
+      required: true
+
+    detection angle, degrees:
+      type: numeric
+      description: scattering angle used for the measurements
+      required: true
+
+  # results of default analysis
+    average diffusion coefficient, micron^2/s:
+      type: numeric
+      description: average diffusion coefficients reported by a cumulant analysis
+      required: true
+
+    second cumulant (expansion parameter):
+      type: numeric
+      description: the parabolic terms in the cumulant fits, deviation from ideal translation diffusion
+      required: true
+
+    hydrodynamic radius, nm:
+      type: numeric
+      description: (equivalent) hydrodynamic radii
+      required: true
+
+  # end of subset

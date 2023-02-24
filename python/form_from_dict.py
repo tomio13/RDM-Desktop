@@ -10,6 +10,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 # from tkinter.filedialog import FileDialog
 from tkinter.filedialog import askopenfilenames
+from tkinter.messagebox import showerror
 from tkinter import StringVar
 import yaml
 
@@ -78,41 +79,44 @@ class FormBuilder():
         # Let us use the example at:
         # https://blog.teclado.com/tkinter-scrollable-frames/
         # well, a bit modified 8)
-        self.canvas = tk.Canvas(self.window)
-        self.canvas.grid(
+        canvas = tk.Canvas(self.window)
+        canvas.grid(
                 column= 0,
                 row= 0,
                 padx= 10,
                 pady= 10,
                 sticky='snwe'
                 )
-        self.canvas.grid_columnconfigure(0, weight=1)
-        self.canvas.grid_rowconfigure(0, weight=1)
+        canvas.grid_columnconfigure(0, weight=10)
+        canvas.grid_rowconfigure(0, weight=1)
 
-        self.scrollbar = ttk.Scrollbar(self.window,
-                                      orient='vertical',
-                                      command= self.canvas.yview,
-                                      takefocus= True)
+        scrollbar = ttk.Scrollbar(self.window,
+                                  orient='vertical',
+                                  command= canvas.yview,
+                                  takefocus= True)
 
-        self.scrollbar.grid(column=1, row=0, sticky='ns')
+        scrollbar.grid(column=1, row=0, padx=5, pady=5,  sticky='nse')
+        scrollbar.grid_columnconfigure(0, weight=1)
+        scrollbar.grid_rowconfigure(0, weight=1)
         # add a frame
-        self.scroll_frame= ttk.Frame(self.canvas)
 
         # autoupdate the scrollable size as soon as
         # the area changed because we added sg.
 
-        self.scroll_frame.bind(
-                "<Configure>",
-                lambda e: self.canvas.configure(
-                    scrollregion= self.canvas.bbox("all")
-                    )
-            )
-
-        self.canvas.create_window((0,0),
+        self.scroll_frame= ttk.Frame(canvas)
+        canvas.create_window((0,0),
                                   window= self.scroll_frame,
                                   anchor='nw')
 
-        self.canvas.configure(yscrollcommand= self.scrollbar.set)
+        self.scroll_frame.bind(
+                "<Configure>",
+                lambda e: canvas.configure(
+                    scrollregion= canvas.bbox("all")
+                    )
+            )
+
+        canvas.configure(yscrollcommand= scrollbar.set)
+        # self.scroll_frame.grid(column=0, row=0, sticky='nsw')
         # with this, we have a window, containing a canvas,
         # in which we have frame
         # We can pack content into the frame, and it can be scrolled
@@ -170,8 +174,15 @@ class FormBuilder():
                 if 'value' in v:
                     entry.set(v['value'])
 
+                if 'required' in v and v['required']:
+                    entry.required = True
+
             elif v['type'] == 'select':
                 entry = ttk.Combobox(frame)
+                # two parameters we need, they do not have:
+                entry.required = False
+                entry.error= False
+
                 entry['values'] = v['options']
                 # make it read only, so user cannot insert new values
                 # alternative would be state 'normal'
@@ -181,14 +192,22 @@ class FormBuilder():
                 else:
                     entry.set(v['options'][0])
 
+                if 'required' in v and v['required']:
+                    entry.required = True
+
             elif v['type'] == 'multiselect':
                 entry = MultiSelect(frame, v['options'])
+                if 'required' in v and v['required']:
+                    entry.required = True
 
             elif v['type'] == 'multiline':
                 # another text widget
                 entry = MultilineText(frame)
                 if 'value' in v:
                     entry.text.insert(v['value'])
+
+                if 'required' in v and v['required']:
+                    entry.required = True
 
             elif v['type'] == 'file':
                 # files we are seeking contain other
@@ -203,8 +222,13 @@ class FormBuilder():
                 if 'value' in v:
                     entry.content.set(v['value'])
 
+                if 'required' in v and v['required']:
+                    entry.required = True
+
             elif v['type'] == 'checkbox':
                 entry = CheckBox(frame)
+                entry.required= False
+                entry.error = False
 
                 if 'value' in v and v['value']==True:
                     entry.select()
@@ -222,6 +246,9 @@ class FormBuilder():
                     form= v['value'],
                     config= self.config
                     )
+
+                if 'required' in v and v['required']:
+                    entry.required = True
             # end enumerating possible types
 
             # put the new entry in place
@@ -263,10 +290,32 @@ class FormBuilder():
             # keys from a subset to the whole
             # this means keys should not be repeated
             # within the subset vs. main tree
-            if self.template[i]['type'] == 'subset':
-                self.result.update(v.get())
+            val = v.get()
+            typ = self.template[i]['type']
+
+            # If we have a problem, do not close the
+            # widget, inform the user
+            if val is None:
+                if v.error:
+                    showerror(master= self.window,
+                          title='Invalid value!',
+                          message=f'Invalid value in {i} {typ}')
+                    # erase our content
+                    self.result = {}
+                    return
+
+                if v.required:
+                    showerror(master= self.window,
+                          title='Error',
+                          message=f'{i} is required!')
+                    # erase our content
+                    self.result = {}
+                    return
+
+            if typ == 'subset':
+                self.result.update(val)
             else:
-                self.result[i] = v.get()
+                self.result[i] = val
         # end pulling results
         # here comes some validity checking....
         #
@@ -309,6 +358,8 @@ class FilePickerTextField():
         self.dir = indir
         self.extension = extension
         self.content = StringVar()
+        self.required= False
+        self.error= False
 
         self.entry = ttk.Entry(
                 self.frame,
@@ -400,6 +451,8 @@ class MultilineText():
 
         self.text = tk.Text(self.frame, width= 50, height= 10)
         self.text.grid(column=0, row=0, sticky='we')
+        self.required= False
+        self.error = False
 
         self.scroll_vertical= tk.Scrollbar(self.frame,
                                            bg= 'grey',
@@ -447,6 +500,9 @@ class CheckBox(tk.Checkbutton):
         """
 
         self.parent = parent
+        self.error = False
+        self.required= False
+
         if self.parent is None:
             self.parent = tk.Tk()
 
@@ -475,15 +531,15 @@ class EntryBox():
                  **kwarg:dict) -> None:
         """ Initiate an entry widget, based on its type
         """
-        if vartype == 'integer':
-            self.var = tk.IntVar()
-        elif vartype == 'numeric':
-            self.var = tk.DoubleVar()
-        else:
-            self.var = tk.StringVar()
+        # internally we use strings for any variable
+        self.var = tk.StringVar()
 
         self.type = vartype
+        self.error = False
+        self.error = False
+
         self.parent = parent
+        self.required= False
 
         if self.parent is None:
             self.parent = tk.Tk()
@@ -491,21 +547,26 @@ class EntryBox():
         self.entry = ttk.Entry(self.parent, textvariable= self.var)
     # end __init__
 
-    def set(self, value:str|int|float|list) -> None:
-        """ set the internal variable from value
+    def set(self, value:str|int|float|list|None) -> None:
+        """ Set the internal variable from value
+            Use a text tk variable, so convert the incoming
+            types to it.
         """
-        if not value:
+        # since tk does not handle invalid numbers well,
+        # we have to take it out of its hands...
+        # that would mean that every field is a text field,
+        # but if the conversion fails, we make a message and
+        # return None. The main FormBuilder then refuses to close
+        if value is None:
             return
-        if self.type == 'integer':
-            self.var.set(int(value))
-        elif self.type == 'numeric':
-            self.var.set(float(value))
+
+        if self.type == 'list':
+            self.var.set(', '.join(value))
         elif self.type == 'numericlist':
             self.var.set(', '.join([str(i) for i in value]))
-        elif self.type == 'list':
-            self.var.set(', '.join(value))
+
         else:
-            self.var.set(value)
+            self.var.set(str(value))
     # end of set
 
     def get(self) -> str|int|float|list:
@@ -517,17 +578,39 @@ class EntryBox():
             list        --> split by comma and strip
             numericlist --> split, conver to float, use N/A
             url         --> check and add missing https://
+
+            Return
+                the value obtained or None if there was no entry
+                Upon conversion error, return None
+                and set self.error to True
         """
+        # reset the error, so it is a clear indication of
+        # conversion problems
+        self.error= False
+
         s = self.var.get()
+        # no entry:
         if not s:
-            return s
+            return  None
 
-        if self.type == 'integer':
-            return int(self.var.get())
+        # the numeric cases:
+        try:
+            if self.type == 'integer':
+                return int(self.var.get())
 
-        if self.type == 'numeric':
-            return float(self.var.get())
+            if self.type == 'numeric':
+                return float(self.var.get())
 
+            if self.type == 'numericlist':
+                l = [i.strip() for i in s.split(',')]
+                return [float(i) for i in l]
+
+        except ValueError:
+            # print('invalid value in entry')
+            self.error= 1
+            return None
+
+        # the various text cases
         if self.type == 'url':
             if not s.startswith('http://') \
             and not s.startswith('https://'):
@@ -536,22 +619,10 @@ class EntryBox():
         if self.type == 'list':
             return [i.strip() for i in s.split(',')]
 
-        if self.type == 'numericlist':
-            l = [i.strip() for i in s.split(',')]
-            res = []
-            for i in l:
-                # I hate this, but it is simpler than
-                # writing a regex and test if for all values
-                try:
-                    a = float(i)
-                except ValueError:
-                    a = 'N/A'
-                res.append(a)
-
-            return res
-
         else:
+            # any other text types...
             return s
+
     # end get()
 
     def grid(self, **kwargs:dict) -> None:
@@ -571,6 +642,8 @@ class MultiSelect():
         """
         self.options = options
         self.parent = parent
+        self.required= False
+        self.error = False
 
         if self.parent is None:
             self.parent = tk.Tk()
@@ -636,6 +709,8 @@ class SubSet():
 #        self.root_path = root_path
 #        self.title= title
 #        self.config = config
+        self.required= False
+        self.error = False
         self.form = form
         self.parent = tk.Tk() if parent is None else parent
 
@@ -889,6 +964,9 @@ class SubSet():
         """
         keys = list(self.form.keys())
         vals = list(zip(*self.content))
+        if not any(vals):
+            return None
+
         return {i:v for i,v in zip(keys, vals)}
     # end of get
 

@@ -405,6 +405,8 @@ class FilePickerTextField():
 
     def get(self) -> str|list:
         fn = self.content.get()
+        if not fn:
+            return None
 
         if ',' in fn:
             fn = fn.split(', ')
@@ -423,7 +425,9 @@ class FilePickerTextField():
             return f'file:{fn}'
 
         else:
-            return None
+            # we still return, to allow for non-existent files
+            return fn
+
     # end get
 # end FilePickerTextField
 

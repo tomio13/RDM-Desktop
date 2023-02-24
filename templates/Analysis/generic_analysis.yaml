@@ -1,10 +1,14 @@
 # Data analysis means a post processing of existing data
 # this definition is meant to help describing such a work
+# However, this is only a very generic template, it may be
+# much better to make individual ones for specific cases.
+#
 #Aim of the analysis:
 #  type: "multiline"
 #  description: "please describe what information you try extracting"
 #  required: true
 
+template: analysis.yaml
 template version: 2023-02-15
 
 Parameters:

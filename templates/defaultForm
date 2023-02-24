@@ -11,13 +11,13 @@ observation:
   type: "multiline"
   description: "free text observations beyond the measurement"
 
-files:
+sample preparation log:
     type: "file"
-    description: "link to the data files"
+    description: "link to the sample synthesis or readme file"
 
 sample description:
   type: text
-  description: a short description of the sample
+  description: "a short description of the sample"
   required: true
 
 sample ID: "%3"

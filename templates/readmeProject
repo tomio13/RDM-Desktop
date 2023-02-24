@@ -10,4 +10,5 @@ created by: %u
 # duration
 yyyy-mm-dd - yyyy-mm-dd
 
-
+# Link to description
+External link [%1]()

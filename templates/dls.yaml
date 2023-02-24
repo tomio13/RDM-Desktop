@@ -130,4 +130,8 @@ parameters of runs:
       description: (equivalent) hydrodynamic radii
       required: true
 
+    data file:
+      type: file
+      description: "link to the data file(s) measured with this parameter"
+      required: true
   # end of subset

@@ -1,3 +1,6 @@
+# problem: here the values come back flattened for
+# subsets... How can we put them back? The keys
+# do not match
 #!/usr/bin/env python
 """ a dialog to ask metadata from a user based on a template dict
     Author:     tomio
@@ -16,7 +19,6 @@ import yaml
 
 from project_config import replace_text
 # import project_config as pc
-
 
 class FormBuilder():
     """ a GUI window form dynamically built from a template
@@ -147,8 +149,6 @@ class FormBuilder():
             v = self.template[i]
 
             if not isinstance(v, dict) or 'type' not in v:
-                # print('not a form element!', i, v)
-
                 if isinstance(v, str):
                     self.default_result[i] = replace_text(v, self.config, self.root_path)
                 else:
@@ -204,7 +204,11 @@ class FormBuilder():
                 # another text widget
                 entry = MultilineText(frame)
                 if 'value' in v:
-                    entry.text.insert(v['value'])
+                    # for some reason we can have some spaces...
+                    vv = v['value'].strip()
+                    if vv:
+                        # the first point is a position as 'line.column'
+                        entry.text.insert('1.0', v['value'])
 
                 if 'required' in v and v['required']:
                     entry.required = True
@@ -233,19 +237,24 @@ class FormBuilder():
                 if 'value' in v and v['value']==True:
                     entry.select()
 
-            elif v['type'] == 'subset'\
-                and 'value' in v \
-                and isinstance(v['value'], dict):
-                if not v['value']:
-                    print('Calling subset with empty value!')
+            elif v['type'] == 'subset' \
+                    and 'form' in v \
+                    and isinstance(v['form'], dict):
 
                 entry= SubSet(
                     title= i,
                     root_path= self.root_path,
                     parent= frame,
-                    form= v['value'],
+                    form= v['form'],
                     config= self.config
                     )
+
+                if 'value' in v\
+                    and v['value'] is not None \
+                    and len(v['value']) == len(v['form']):
+                    # right now no message if there was
+                    # a failure in the value field
+                    entry.set(v['value'])
 
                 if 'required' in v and v['required']:
                     entry.required = True
@@ -312,10 +321,12 @@ class FormBuilder():
                     self.result = {}
                     return
 
-            if typ == 'subset':
-                self.result.update(val)
-            else:
-                self.result[i] = val
+#            if typ == 'subset' and isinstance(val, dict):
+#                for i,j in val.items():
+#                    self.result[i] = j
+
+            # add even if val is None
+            self.result[i] = val
         # end pulling results
         # here comes some validity checking....
         #
@@ -490,7 +501,7 @@ class MultilineText():
         if not v:
             return None
 
-        return v
+        return v.strip()
     # end of get
 
 # end of MultilineText
@@ -553,7 +564,7 @@ class EntryBox():
         self.entry = ttk.Entry(self.parent, textvariable= self.var)
     # end __init__
 
-    def set(self, value:str|int|float|list|None) -> None:
+    def set(self, value:str|int|float|list) -> None:
         """ Set the internal variable from value
             Use a text tk variable, so convert the incoming
             types to it.
@@ -563,8 +574,6 @@ class EntryBox():
         # that would mean that every field is a text field,
         # but if the conversion fails, we make a message and
         # return None. The main FormBuilder then refuses to close
-        if value is None:
-            return
 
         if self.type == 'list':
             self.var.set(', '.join(value))
@@ -612,7 +621,6 @@ class EntryBox():
                 return [float(i) for i in l]
 
         except ValueError:
-            # print('invalid value in entry')
             self.error= 1
             return None
 
@@ -859,7 +867,6 @@ class SubSet():
         frame.columnconfigure(0, weight=1)
         frame.rowconfigure(0, weight=1)
 
-        # print('columns:', tuple(self.form.keys()))
         cols = tuple(self.form.keys())
         tree_view = ttk.Treeview(frame,
                                  columns = cols,
@@ -961,7 +968,10 @@ class SubSet():
 
         if input_form.result:
             # update both the tree widget and the content:
-            self.content[index] = list(input_form.result.values())
+            self.content[index] = [i for i in input_form.result.values()]
+            # problem: here the values come back flattened for
+            # subsets... How can we put them back? The keys
+            # do not match
             tree_widget.item(element,
                             value= tuple(input_form.result.values()))
         # since the number of rows did not change,
@@ -974,12 +984,32 @@ class SubSet():
         keys = list(self.form.keys())
         vals = list(zip(*self.content))
 
-        if not any(vals):
+        if vals == []:
             return None
 
-        return {i:v for i,v in zip(keys, vals)}
+        return {i:list(v) for i,v in zip(keys, vals)}
     # end of get
 
+
+    def set(self, values:dict) -> None:
+        """ take a dict where the values are lists,
+            and put it into the content lists.
+
+            The user has to make sure the dict contains
+            the current form keys, and the length match
+            one another.
+
+        """
+
+        # we go an extra circle to set the values
+        this_set = {i:j for i,j in values.items() if i in self.form}
+
+        if len(this_set) != len(self.form):
+            print('size mismatch, cannot set values for subset!')
+
+        self.content = [tuple(i) for i in zip(*list(this_set.values()))]
+        self.update_content()
+    # end set
 
     def grid(self, **kwargs:dict) -> None:
         self.frame.grid(**kwargs)

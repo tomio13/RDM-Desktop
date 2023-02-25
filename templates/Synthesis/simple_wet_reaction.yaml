@@ -1,0 +1,71 @@
+# template for a simple chemical reaction
+# Author: Tomio
+
+doc: | 
+  A simple chemical reaction starts with mixing components, then
+  treat the mixture (or just wait), and optionally add further
+  components.
+
+template: simple_wet_reaction
+template version: 2023-02-25
+
+Steps:
+  type: subset
+  required: true
+  form:
+    Name of the step:
+      type: multiline
+      description: "Brief description what this step is happening in this step"
+      required: true
+
+    step time:
+      type: text
+      description: "Relative or absolute time of this step within the experiment"
+      required: true
+
+    Components:
+      type: subset
+      description: "what components were added in this step. It may happen, that nothing"
+      required: false
+      form:
+        chemical:
+          type: text
+          description: "Name, possibly IUPAC name of the component added (it may be a simple chemical or a mixture, another sample, solution)"
+
+          required: true
+
+        Added by:
+          type: select
+          description:  "How was the amount measured?"
+          options:
+            - volume, ml
+            - weight, g
+          required: true
+
+        amount:
+          type: numeric
+          description: "The actual amount"
+          required: true
+
+        internal reference:
+          type: file
+          description: "If it was another sample, or further information is avaliable, link the file here"
+          required: false
+        # end of chemical form
+
+    parameters:
+      type: subset
+      description: "What parameters are set? E.g. temperature, gas atmosphere, pressure?"
+      form:
+        parameter name:
+          type: select
+          description: "Pick the parameter type"
+          options:
+            - temperature, C
+            - atmorsphere
+            - pressure, bar
+        parameter value:
+          type: text
+          description: "the actual value you have set (text is accepted as well)"
+      # end of parameters
+  # end of Steps

@@ -88,7 +88,7 @@ software version:
 parameters of runs:
   type: "subset"
   required: true
-  value:
+  form:
     relative time point, s:
       type: numeric
       description: relative time point of  the current experiment in the series

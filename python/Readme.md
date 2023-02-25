@@ -77,11 +77,12 @@ anaconda, conda, docker, etc.
 - select        pick one from a list (text)
 - multiselect   pick one or more from a list (text list)
 - subset        a special widget, which contains a whole set, any set
-                under its value. These then form a new entry box, and build up
-                a table. At the end, each element comes back as a list of
-                (either numerical or text) values
+                under its form (not the value anymore!).
+                These then form a new entry box, and build upa a table.
+                At the end, each element comes back as a list of
+                (either numerical or text) values.
                 Using this construct guarantees that every list has the same
-                number of entries.
+                number of entries, and can be translated to a table any time.
 
 # subset
 In many experiments we may repeat a specific task with a small set of parameters
@@ -94,9 +95,17 @@ allows editing any one row at a time.
 During adding values, the entry form always picks up the values of the last entry,
 so we may spare some typing if only few values changed between steps.
 
-The result takes the keys of the internal elements, and turns the values to lists.
+# Changed on 2023-02-25
+--The result takes the keys of the internal elements, and turns the values to lists.
 Thus, be careful not to have overlaping names. Meaning: use unique names across
-the whole template.
+the whole template.--
+The above does not apply, the results stay in a lower level tree structure.
+This then allows setting subsets inside subsets, which allows rather complex
+templates to work in an iterative manner.
+
+To set devault values for a subset, the value field can be used under the main label
+(same level as type: subser), and every subset key needs to be listed with a default
+value. (It may be not really practical for complex trees.)
 
 # dynamic values
 Template fields which are not part of the form may have some

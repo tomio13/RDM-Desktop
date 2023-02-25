@@ -15,7 +15,6 @@ import tkinter.ttk as ttk
 from tkinter.filedialog import askopenfilenames
 from tkinter.messagebox import showerror
 from tkinter import StringVar
-import yaml
 
 from project_config import replace_text
 # import project_config as pc
@@ -234,7 +233,7 @@ class FormBuilder():
                 entry.required= False
                 entry.error = False
 
-                if 'value' in v and v['value']==True:
+                if 'value' in v and v['value'] is True:
                     entry.select()
 
             elif v['type'] == 'subset' \
@@ -408,9 +407,9 @@ class FilePickerTextField():
         #        pattern= self.pattern
         #          )
         if d:
-           fn = [os.path.relpath(i, self.dir) for i in d]
-           # this is our 'return' value:
-           self.content.set( ', '.join(list(fn)))
+            fn = [os.path.relpath(i, self.dir) for i in d]
+            # this is our 'return' value:
+            self.content.set( ', '.join(list(fn)))
     # end get_file
 
 
@@ -561,7 +560,9 @@ class EntryBox():
         if self.parent is None:
             self.parent = tk.Tk()
 
-        self.entry = ttk.Entry(self.parent, textvariable= self.var)
+        self.entry = ttk.Entry(self.parent,
+                               textvariable= self.var,
+                               **kwarg)
     # end __init__
 
     def set(self, value:str|int|float|list) -> None:
@@ -633,13 +634,15 @@ class EntryBox():
         if self.type == 'list':
             return [i.strip() for i in s.split(',')]
 
-        else:
-            # any other text types...
-            return s
+        # any other text types...
+        return s
 
     # end get()
 
     def grid(self, **kwargs:dict) -> None:
+        """ propagate the grid to the internal
+            widget
+        """
         self.entry.grid(**kwargs)
 # end class EntryBox
 
@@ -650,7 +653,7 @@ class MultiSelect():
 
     def __init__(self,
                  parent:tk.Misc,
-                 options:list=[]) -> None:
+                 options:list) -> None:
         """ Create a a widget and list up the options
             in it.
         """
@@ -670,6 +673,8 @@ class MultiSelect():
     # end __init__
 
     def grid(self, **kwargs):
+        """ specify the grid() method for the whole calss
+        """
         self.select.grid(**kwargs)
     # end grid
 
@@ -698,6 +703,9 @@ class SubSet():
         easily.
     """
 
+    # we need all these parameters, because subset can
+    # handle the full form again...
+    #pylint: disable=too-many-arguments
     def __init__(self,
                  title:str,
                  root_path:str,
@@ -968,7 +976,7 @@ class SubSet():
 
         if input_form.result:
             # update both the tree widget and the content:
-            self.content[index] = [i for i in input_form.result.values()]
+            self.content[index] = list(input_form.result.values())
             # problem: here the values come back flattened for
             # subsets... How can we put them back? The keys
             # do not match
@@ -984,6 +992,10 @@ class SubSet():
         keys = list(self.form.keys())
         vals = list(zip(*self.content))
 
+        # vals can be false even when it is not fully empty
+        # we need None only if no value was ever set...
+        # Internal 0 and None values are controlled in the form
+        #pylint: disable=use-implicit-booleaness-not-comparison
         if vals == []:
             return None
 
@@ -1012,6 +1024,8 @@ class SubSet():
     # end set
 
     def grid(self, **kwargs:dict) -> None:
+        """ use the grid of the frame to position the information
+        """
         self.frame.grid(**kwargs)
     # grid for rendering
 # end of class SubSet

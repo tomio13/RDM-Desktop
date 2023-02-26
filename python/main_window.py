@@ -15,6 +15,7 @@ import subprocess
 import tkinter as tk
 from tkinter import simpledialog as tksd
 from tkinter.filedialog import askopenfilename
+from tkinter import font
 import yaml
 
 
@@ -41,7 +42,6 @@ class ListWidget():
                  root_path:str ='',
                  parent:tk.Misc = None,
                  level:int = 0,
-                 **kwargs
                  ) -> None:
         """ Create the window, its elements and its content.
 
@@ -56,7 +56,6 @@ class ListWidget():
                                     For details, see pc.get_default_config()
 
             level        int        at which depth we are in the structure
-            kwargs       dict       any parameters to pass to the main window
 
             return None
         """
@@ -125,12 +124,22 @@ class ListWidget():
         # generate the GUI:
         # the window first
         if parent is None:
-            self.window = tk.Tk(**kwargs)
+            self.window = tk.Tk()
         else:
-            self.window = tk.Toplevel(parent, **kwargs)
+            self.window = tk.Toplevel(parent)
+
+        for i in ['TkDefaultFont', 'TkFixedFont', 'TkTextFont', 'TkMenuFont']:
+            this_font = font.nametofont(i)
+            this_font.configure(
+                # family='Segoe Script',
+                # or
+                # family='Arial',
+                size = 14
+                )
+        # end looping for fonts
 
         # Configure the window
-        self.window.minsize(300,400)
+        self.window.minsize(600,600)
         # transparency:
         # self.window.attributes('-alpha', 0.9)
         # leave the size automatic

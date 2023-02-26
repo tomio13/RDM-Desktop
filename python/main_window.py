@@ -40,7 +40,8 @@ class ListWidget():
                  title:str = '',
                  root_path:str ='',
                  parent:tk.Misc = None,
-                 level:int = 0
+                 level:int = 0,
+                 **kwargs
                  ) -> None:
         """ Create the window, its elements and its content.
 
@@ -55,6 +56,7 @@ class ListWidget():
                                     For details, see pc.get_default_config()
 
             level        int        at which depth we are in the structure
+            kwargs       dict       any parameters to pass to the main window
 
             return None
         """
@@ -123,14 +125,14 @@ class ListWidget():
         # generate the GUI:
         # the window first
         if parent is None:
-            self.window = tk.Tk()
+            self.window = tk.Tk(**kwargs)
         else:
-            self.window = tk.Toplevel(parent)
+            self.window = tk.Toplevel(parent, **kwargs)
 
         # Configure the window
         self.window.minsize(300,400)
         # transparency:
-        self.window.attributes('-alpha', 0.85)
+        # self.window.attributes('-alpha', 0.9)
         # leave the size automatic
         self.window.geometry('')
         self.window.grid()

@@ -6,6 +6,7 @@ doc: |
    This definition helps providing suitable metadata about the images
    produced.
 
+template: SEM.yaml
 template version: 2023-02-16
 
 sample pre-treatment:

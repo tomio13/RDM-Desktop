@@ -9,25 +9,31 @@
     Warranty:   None
 """
 import os
+
 import tkinter as tk
-import tkinter.ttk as ttk
+from  tkinter import ttk
 # from tkinter.filedialog import FileDialog
-from tkinter.filedialog import askopenfilenames
 from tkinter.messagebox import showerror
-from tkinter import StringVar
 
 from project_config import replace_text
-# import project_config as pc
+
+from rdm_widgets import EntryBox, MultilineText,\
+    FilePickerTextField, CheckBox, MultiSelect
+
 
 class FormBuilder():
     """ a GUI window form dynamically built from a template
     """
+    # This is a complex dynamic widget, which needs
+    # several stirring parameters
+    #pylint: disable=too-many-instance-attributes
+    #pylint: disable=too-many-arguments
     def __init__(self,
-                 title:str ='Template form',
-                 root_path:str ='',
-                 parent:tk.Misc= None,
-                 template:dict= None,
-                 config:dict={}
+                 title:str,
+                 root_path:str,
+                 parent:tk.Misc,
+                 template:dict,
+                 config:dict
                  ) -> None:
         """ Create a window, and populate it with input fields from
             template.
@@ -142,7 +148,6 @@ class FormBuilder():
         """
 
         keys = list(self.template.keys())
-        N = len(keys)
 
         for j,i in enumerate(keys):
             v = self.template[i]
@@ -280,8 +285,13 @@ class FormBuilder():
                 )
 
         # now, stick it to the bottom
+
+        # j is defined in the enumerate of the for loop,
+        # indicating the last row added
+        #pylint: disable=undefined-loop-variable
         self.submit_button.grid(column=0, row=j+1)
         # last thing to add: a submit button
+
     # end of add_content
 
 
@@ -327,370 +337,12 @@ class FormBuilder():
             # add even if val is None
             self.result[i] = val
         # end pulling results
-        # here comes some validity checking....
-        #
         # if all good, close:
-        self.quit()
-
-    # enf collect_results
-
-    def quit(self) -> None:
         self.window.destroy()
-    # end quit
+
+    # end collect_results
+
 # end of class FormBuilder
-
-
-class FilePickerTextField():
-    """ a small class to build a file picker in the form of
-        a text field and a button. The button activates a
-        file selector widget, and its results fills the text
-        field. The text field is editable.
-        Use possibly a relative path.
-    """
-
-    def __init__(self,
-                 parent:tk.Misc= None,
-                 indir:str='.',
-                 extension:str= 'yaml') -> None:
-        """ Generate the widget and populate its settings
-        """
-        if parent is None:
-            self.parent = tk.Tk()
-        else:
-            # this can be a frame or similar, we embed into
-            self.parent = parent
-
-        self.frame= ttk.Frame(self.parent)
-        # allow positioning after called:
-        self.grid = self.frame.grid
-
-
-        self.dir = indir
-        self.extension = extension
-        self.content = StringVar()
-        self.required= False
-        self.error= False
-
-        self.entry = ttk.Entry(
-                self.frame,
-                width= 30,
-                textvariable= self.content
-                )
-
-        self.entry.grid(
-                column= 0,
-                row= 0
-                )
-
-        self.button = ttk.Button(self.frame,
-                                text='Select',
-                                command= self.get_file
-                                )
-        self.button.grid(column= 1, row= 0)
-    # end __init__
-
-
-    def get_file(self) -> None:
-        """ bring up a file dialog and get a file name
-        """
-
-        # d = FileDialog(
-        d = askopenfilenames(
-                master= self.frame,
-                title='Select file',
-                defaultextension= self.extension,
-                initialdir= self.dir
-                )
-        #fn = d.go(
-        #        dir_or_file= os.path.join(self.dir,
-        #                     self.content.get()),
-        #        pattern= self.pattern
-        #          )
-        if d:
-            fn = [os.path.relpath(i, self.dir) for i in d]
-            # this is our 'return' value:
-            self.content.set( ', '.join(list(fn)))
-    # end get_file
-
-
-    def get(self) -> str|list:
-        fn = self.content.get()
-        if not fn:
-            return None
-
-        if ',' in fn:
-            fn = fn.split(', ')
-            fn = [f'file:{i}' for i in fn \
-                    if os.path.isfile(os.path.join(self.dir, i))]
-            return fn
-
-        elif os.path.isfile(fn):
-            fn = os.path.relpath(
-                    fn,
-                    self.dir
-                    )
-
-            return f'file:{fn}'
-
-        else:
-            # we still return, to allow for non-existent files
-            return fn
-
-    # end get
-# end FilePickerTextField
-
-
-class MultilineText():
-    """ a multiline text widget with scroll bars on it...
-    """
-
-    def __init__(self,
-                 parent:tk.Misc= None
-                 )-> None:
-        """ A Tk text area widget coupled to scroll bars in a frame
-        """
-
-        if parent is None:
-            self.parent = tk.Tk()
-        else:
-            # this can be a frame or similar, we embed into
-            self.parent = parent
-
-        self.frame= ttk.Frame(self.parent)
-
-        self.frame.rowconfigure(0, weight=1)
-        self.frame.columnconfigure(0, weight=1)
-
-        self.text = tk.Text(self.frame, width= 50, height= 10)
-        self.text.grid(column=0, row=0, sticky='we')
-        self.required= False
-        self.error = False
-
-        self.scroll_vertical= tk.Scrollbar(self.frame,
-                                           bg= 'grey',
-                                           orient= 'vertical',
-                                           command= self.text.yview,
-                                           takefocus= True
-                                           )
-        self.scroll_vertical.grid(row= 0,
-                                   column= 1,
-                                   sticky= 'ns')
-        self.text.config(yscrollcommand= self.scroll_vertical.set)
-
-        self.scroll_horizontal= tk.Scrollbar(self.frame,
-                                           bg= 'grey',
-                                           orient= 'horizontal',
-                                           command= self.text.xview,
-                                           takefocus= True
-                                           )
-        self.scroll_horizontal.grid(row= 1,
-                                   column= 0,
-                                   sticky= 'ew')
-        self.text.config(xscrollcommand= self.scroll_horizontal.set)
-
-        # to allow positioning
-        self.grid = self.frame.grid
-    # end __init__
-
-
-    def get(self)->str:
-        """ return the full content of the widget
-        """
-        v= self.text.get('1.0','end')
-        if not v:
-            return None
-
-        return v.strip()
-    # end of get
-
-# end of MultilineText
-
-
-class CheckBox(tk.Checkbutton):
-    """ an envelop to ktinter checkbox with a get() to
-        read out the value.
-    """
-
-    def __init__(self, parent:tk.Misc= None, **kwargs:dict) -> None:
-        """ initialize a checkbox widget
-        """
-
-        self.parent = parent
-        self.error = False
-        self.required= False
-
-        if self.parent is None:
-            self.parent = tk.Tk()
-
-        self.value = tk.IntVar()
-        super().__init__(self.parent,
-                         variable= self.value,
-                         onvalue= 1,
-                         offvalue= 0,
-                         **kwargs)
-
-    def get(self)->str:
-        """ return back the value of self.value
-        """
-        return self.value.get() == 1
-# end of CheckBox
-
-
-class EntryBox():
-    """ an entry box which can also check its content
-        to be: text, file, url, integer, numeric
-    """
-
-    def __init__(self,
-                 parent:tk.Misc,
-                 vartype:str='text',
-                 **kwarg:dict) -> None:
-        """ Initiate an entry widget, based on its type
-        """
-        # internally we use strings for any variable
-        self.var = tk.StringVar()
-
-        self.type = vartype
-        self.error = False
-        self.error = False
-
-        self.parent = parent
-        self.required= False
-
-        if self.parent is None:
-            self.parent = tk.Tk()
-
-        self.entry = ttk.Entry(self.parent,
-                               textvariable= self.var,
-                               **kwarg)
-    # end __init__
-
-    def set(self, value:str|int|float|list) -> None:
-        """ Set the internal variable from value
-            Use a text tk variable, so convert the incoming
-            types to it.
-        """
-        # since tk does not handle invalid numbers well,
-        # we have to take it out of its hands...
-        # that would mean that every field is a text field,
-        # but if the conversion fails, we make a message and
-        # return None. The main FormBuilder then refuses to close
-
-        if self.type == 'list':
-            self.var.set(', '.join(value))
-        elif self.type == 'numericlist':
-            self.var.set(', '.join([str(i) for i in value]))
-
-        else:
-            self.var.set(str(value))
-    # end of set
-
-    def get(self) -> str|int|float|list:
-        """ return the value as a proper python variable
-            Handle types:
-            string      --> do nothing
-            integer     --> convert to integer
-            numeric     --> convert to float
-            list        --> split by comma and strip
-            numericlist --> split, conver to float, use N/A
-            url         --> check and add missing https://
-
-            Return
-                the value obtained or None if there was no entry
-                Upon conversion error, return None
-                and set self.error to True
-        """
-        # reset the error, so it is a clear indication of
-        # conversion problems
-        self.error= False
-
-        s = self.var.get()
-        # no entry:
-        if not s:
-            return  None
-
-        # the numeric cases:
-        try:
-            if self.type == 'integer':
-                return int(self.var.get())
-
-            if self.type == 'numeric':
-                return float(self.var.get())
-
-            if self.type == 'numericlist':
-                l = [i.strip() for i in s.split(',')]
-                return [float(i) for i in l]
-
-        except ValueError:
-            self.error= 1
-            return None
-
-        # the various text cases
-        if self.type == 'url':
-            if not s.startswith('http://') \
-            and not s.startswith('https://'):
-                return f'https://{s}'
-
-        if self.type == 'list':
-            return [i.strip() for i in s.split(',')]
-
-        # any other text types...
-        return s
-
-    # end get()
-
-    def grid(self, **kwargs:dict) -> None:
-        """ propagate the grid to the internal
-            widget
-        """
-        self.entry.grid(**kwargs)
-# end class EntryBox
-
-
-class MultiSelect():
-    """ a listbox based multiple select box
-    """
-
-    def __init__(self,
-                 parent:tk.Misc,
-                 options:list) -> None:
-        """ Create a a widget and list up the options
-            in it.
-        """
-        self.options = options
-        self.parent = parent
-        self.required= False
-        self.error = False
-
-        if self.parent is None:
-            self.parent = tk.Tk()
-        # end empty window
-        self.select = tk.Listbox(self.parent,
-                                 selectmode='multiple')
-
-        for i,j in enumerate(options):
-            self.select.insert(i,j)
-    # end __init__
-
-    def grid(self, **kwargs):
-        """ specify the grid() method for the whole calss
-        """
-        self.select.grid(**kwargs)
-    # end grid
-
-    def get(self) -> list:
-        """ return a list of selected values
-        """
-        l = [self.select.get(i) for i in self.select.curselection()]
-
-        # here is a possibility to convert to numbers
-        # for later...
-        if not l:
-            return None
-
-        return l
-    # end get
-# end class MultiSelect
 
 
 class SubSet():

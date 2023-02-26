@@ -38,7 +38,7 @@ def get_default_config() -> dict:
         return value
         a dict containing the configuration parameters.
     """
-    version = 0.2
+    version = 0.3
 
     if os.name == 'posix':
         home_dir = os.getenv('HOME')
@@ -65,7 +65,13 @@ def get_default_config() -> dict:
             'filemanager':  filemanager,
             'version':      version,
             'editor':       editor,
-            'ignore':       ['References'],
+            'chemicals':    os.path.join(projects_dir, 'Chemicals'),
+            'equipment':    os.path.join(projects_dir, 'Equipment'),
+            'ignore':       ['References', 'Chemicals', 'Equipment'],
+            # for connecting to an existing upload source,
+            # we may have a default configuration here
+            # first server link, then the token
+            'server':       {'server':'', 'token':''},
             'projectsTitle': 'Projects',
 
             # the search fields specify how to

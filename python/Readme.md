@@ -76,13 +76,8 @@ anaconda, conda, docker, etc.
 - checkbox      a true/false value as check box
 - select        pick one from a list (text)
 - multiselect   pick one or more from a list (text list)
-- subset        a special widget, which contains a whole set, any set
-                under its form (not the value anymore!).
-                These then form a new entry box, and build upa a table.
-                At the end, each element comes back as a list of
-                (either numerical or text) values.
-                Using this construct guarantees that every list has the same
-                number of entries, and can be translated to a table any time.
+- subset        a special widget, which contains a whole set,
+                see explanation below.
 
 # subset
 In many experiments we may repeat a specific task with a small set of parameters
@@ -94,16 +89,21 @@ Here the 'Delete' button allows removing one or more rows, and the 'Edit' button
 allows editing any one row at a time.
 During adding values, the entry form always picks up the values of the last entry,
 so we may spare some typing if only few values changed between steps.
+This widget recursively uses the form builder, thus all validity checks
+are applied to the fields.
+
+If a subset is optional, but its elements are required, the latter is checked
+only if the user does any entries.
 
 # Changed on 2023-02-25
 --The result takes the keys of the internal elements, and turns the values to lists.
 Thus, be careful not to have overlaping names. Meaning: use unique names across
 the whole template.--
-The above does not apply, the results stay in a lower level tree structure.
-This then allows setting subsets inside subsets, which allows rather complex
+The above does not apply anymore, the results stay in a lower level tree structure.
+This then allows setting subsets inside subsets, which allows for rather complex
 templates to work in an iterative manner.
 
-To set devault values for a subset, the value field can be used under the main label
+To set default values for a subset, the value field can be used under the main label
 (same level as type: subser), and every subset key needs to be listed with a default
 value. (It may be not really practical for complex trees.)
 

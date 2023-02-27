@@ -227,8 +227,16 @@ class FormBuilder():
                         indir= self.root_path,
                         extension= ext
                         )
-                if 'value' in v:
-                    entry.content.set(v['value'])
+                if 'value' in v and v['value'] is not None:
+                    this_value = v['value']
+                    if isinstance(this_value, list):
+                        this_value = ', '.join([i.split('file:',1)[-1]\
+                                for i in this_value if i != 'file:None'])
+
+                    else:
+                        this_value = this_value.split('file:', 1)[-1]
+
+                    entry.content.set(this_value)
 
                 if 'required' in v and v['required']:
                     entry.required = True
@@ -339,7 +347,6 @@ class FormBuilder():
         # end pulling results
         # if all good, close:
         self.window.destroy()
-
     # end collect_results
 
 # end of class FormBuilder

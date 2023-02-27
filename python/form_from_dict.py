@@ -495,7 +495,11 @@ class SubSet():
 
             keylist = list(this_template.keys())
             for i,j in enumerate(keylist):
-                this_template[j]['value'] = row[i]
+                # subsets may go too deep, it is better
+                # to keep those empty (reset)
+                # inherit the values of the rest
+                if this_template[j]['type'] != 'subset':
+                    this_template[j]['value'] = row[i]
 
         input_form = FormBuilder(
                 title= f'Add new {title}',

@@ -42,6 +42,7 @@ class ListWidget():
                  root_path:str ='',
                  parent:tk.Misc = None,
                  level:int = 0,
+                 fontsize: int=12
                  ) -> None:
         """ Create the window, its elements and its content.
 
@@ -56,6 +57,7 @@ class ListWidget():
                                     For details, see pc.get_default_config()
 
             level        int        at which depth we are in the structure
+            fontsize     int        user can set the font size here
 
             return None
         """
@@ -134,7 +136,7 @@ class ListWidget():
                 # family='Segoe Script',
                 # or
                 # family='Arial',
-                size = 14
+                size = fontsize
                 )
         # end looping for fonts
 

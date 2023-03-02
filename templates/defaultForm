@@ -22,3 +22,7 @@ sample description:
 
 sample ID: "%3"
 
+experiment start:
+    type: date
+    description: "Experiment starting date and time in ISO 8601 format"
+    required: true

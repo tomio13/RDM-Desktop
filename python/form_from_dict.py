@@ -123,6 +123,15 @@ class FormBuilder():
                     )
             )
 
+        self.scroll_frame.bind(
+                '<Enter>',
+                lambda event: self.bind_mousewheel(canvas)
+                )
+        self.scroll_frame.bind(
+                '<Leave>',
+                lambda event: self.unbind_mousewheel(canvas)
+                )
+
         canvas.configure(yscrollcommand= scrollbar.set)
         # self.scroll_frame.grid(column=0, row=0, sticky='nsw')
         # with this, we have a window, containing a canvas,
@@ -141,6 +150,45 @@ class FormBuilder():
         # add a lot of frames into the frame
         self.add_content()
     # end init()
+
+
+    def bind_mousewheel(self, canvas):
+        """ bind the mouse wheel to the frame
+        """
+        canvas.bind_all('<MouseWheel>',
+                        lambda event: self.roll(event, canvas)
+                        )
+        canvas.bind_all('<4>',
+                        lambda event: self.roll(event, canvas),
+                        add='+')
+        canvas.bind_all('<5>',
+                        lambda event: self.roll(event, canvas),
+                        add='+')
+    # end of bind_mousewheel
+
+
+    def unbind_mousewheel(self, canvas):
+        """ release the binding
+        """
+        canvas.unbind_all('<MouseWheel>')
+        canvas.unbind_all('<Button-4>')
+        canvas.unbind_all('<Button-5>')
+    # end unbind_mousewheel
+
+
+    def roll(self, event, canvas):
+        """ what to do if scroll is done
+            From event we can figure out where it moved,
+            on canvas we can apply
+        """
+        # in windows, delta is nonzero
+        if event.delta != 0:
+            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
+
+        # on Linux, it is 0 but button 4/5 work
+        else:
+            sign = 1 if event.num == 5 else -1
+            canvas.yview_scroll(sign*2, 'units')
 
 
     def add_content(self) -> None:

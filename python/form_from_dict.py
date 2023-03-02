@@ -79,7 +79,6 @@ class FormBuilder():
         # window.attributes('-topmost', 1)
 
         self.window.title(title)
-        self.window.bind('<Escape>', lambda event: self.window.destroy())
         # with this, we have a nice, empty window with a title
         #
         # We need a scrollable container with flexible content
@@ -133,6 +132,8 @@ class FormBuilder():
                 )
 
         canvas.configure(yscrollcommand= scrollbar.set)
+        # to destroy, we have to unbind the canvas first
+        self.window.bind('<Escape>', lambda event: self.destroy(canvas))
         # self.scroll_frame.grid(column=0, row=0, sticky='nsw')
         # with this, we have a window, containing a canvas,
         # in which we have frame
@@ -171,8 +172,8 @@ class FormBuilder():
         """ release the binding
         """
         canvas.unbind_all('<MouseWheel>')
-        canvas.unbind_all('<Button-4>')
-        canvas.unbind_all('<Button-5>')
+        canvas.unbind_all('<4>')
+        canvas.unbind_all('<5>')
     # end unbind_mousewheel
 
 
@@ -343,7 +344,7 @@ class FormBuilder():
         self.submit_button = ttk.Button(
                 frame,
                 text= 'Submit',
-                command= self.collect_results
+                command = self.collect_results
                 )
 
         # now, stick it to the bottom
@@ -402,6 +403,14 @@ class FormBuilder():
         # if all good, close:
         self.window.destroy()
     # end collect_results
+
+    def destroy(self, canvas):
+        """ destroy the widget, but make sure the events are
+            freed from the canvas
+        """
+        self.unbind_mousewheel(canvas)
+        self.window.destroy()
+    # end destroy
 
 # end of class FormBuilder
 
@@ -777,5 +786,4 @@ class SubSet():
 
         self.update_content()
     # end set
-
 # end of class SubSet

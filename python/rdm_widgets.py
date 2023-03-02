@@ -416,7 +416,6 @@ class DateRoller():
         now = time.localtime()
         if value != '':
             now = time.strptime(value, '%Y-%m-%d %H:%M')
-        print('starting date value', now)
 
         if self.parent is None:
             window= tk.Tk()

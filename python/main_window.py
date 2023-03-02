@@ -186,6 +186,7 @@ class ListWidget():
         # content with it.
         frame.grid_columnconfigure(0, weight=1)
         frame.grid_rowconfigure(1, weight=1)
+        self.window.bind('<Escape>', lambda event: self.window.destroy())
 
         # first row is a main label of the content
         label= tk.Label(frame, text= title)

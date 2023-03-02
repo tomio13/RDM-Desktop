@@ -8,6 +8,7 @@
     Warranty:   None
 """
 import os
+import time
 import tkinter as tk
 from tkinter import ttk
 # from tkinter.filedialog import FileDialog
@@ -390,3 +391,149 @@ class MultiSelect():
         return l
     # end get
 # end class MultiSelect
+
+
+class DateRoller():
+    """ a simple widget to set up a date using spin boxes
+
+        It takes year, month, day, hour and minute as integer
+        numbers. It would not stop anyone typing in wrong values,
+        but will invalidate the result (get returns None) and
+        sets the error variable, so required check will work.
+
+        It can be initiated with a value in:
+        YYY-mm-dd HH:MM form or the set() method can do the same
+        any time.
+    """
+
+    def __init__(self, parent:tk.Misc= None, value:str='') -> None:
+        """ set up the widget and its initial values
+        """
+        self.parent = parent
+        # get the time tuple
+        # (year, month, day, hour,
+        # min, sec, wday, yday, isdst)
+        now = time.localtime()
+        if value != '':
+            now = time.strptime(value, '%Y-%m-%d %H:%M')
+        print('starting date value', now)
+
+        if self.parent is None:
+            window= tk.Tk()
+            window.geometry('200x50')
+            window.grid()
+            window.title('Date picker')
+            frame = tk.Frame(window)
+            frame.grid(column=0, row=0, sticky='news')
+            self.window = window
+        else:
+            #window = tk.Toplevel(self.parent)
+            frame = tk.Frame(self.parent)
+            # make grid availeble for external adjustments
+            self.grid = frame.grid
+
+        self.fieldlist=[]
+        self.varlist=[]
+        mins = [now[0]-5, 1, 1, 0, 0]
+        maxs = [now[0]+5, 12, 31, 23, 59]
+        for i,v in enumerate(['year','month','day', 'hour', 'minute']):
+            label = tk.Label(frame,
+                             text= v)
+            label.grid(column=i, row=0)
+
+            newvar= tk.StringVar()
+            newvar.set(str(now[i]))
+            spinner = tk.Spinbox(frame,
+                                 from_ = mins[i],
+                                 to = maxs[i],
+                                 # values= list(range(mins[i],maxs[i]+1)),
+                                 textvariable= newvar,
+                                 wrap= True,
+                                 width= 4 if i == 0 else 2,
+                                 # command= lambda event: self.changed(event, i))
+                                 )
+            # we can directly trace the variables:
+            newvar.trace_add('write', lambda var, event, mode: self.changed(var, event, mode, i))
+
+            spinner.grid(column= i, row=1)
+
+            self.fieldlist.append(spinner)
+            self.varlist.append(newvar)
+
+        # done adding fields
+    # end of __init__
+
+
+    def set(self, value):
+        """ set the values from value
+            The value should be in the form YYY-mm-dd HH:MM
+        """
+        now = list(time.strptime(value, '%Y-%m-%d %H:%M'))[:5]
+
+        for i,v in enumerate(now):
+            self.varlist[i].set(str(v))
+
+        # update the internal variable
+        self.value_set()
+    # end set
+
+
+    def changed(self, var, event, mode,  index):
+        """ spinner changed. If it is month, adjust the day limit
+            This function is a trace method assigned to the variables.
+        """
+        month_max_list = [31, 28, 31, 30, 31, 30,
+                          31, 31, 30, 31, 30, 31]
+        try:
+            self.error= False
+            year = int(self.varlist[0].get())
+            month = int(self.varlist[1].get())
+            day = int(self.varlist[2].get())
+
+        except ValueError:
+            print('invalid value entered!')
+            self.error= True
+            self.value= None
+            return
+
+
+        if year%4 == 0 and year%100 != 0:
+            month_max_list[1] = 29
+
+        # limit the month days up to what the month allows
+        self.fieldlist[2].configure(to = month_max_list[month-1])
+        if day > month_max_list[month-1]:
+            day = month_max_list[month-1]
+        self.varlist[2].set(str(day))
+
+        # record the curernt value
+        self.value_set()
+    # end changed
+
+
+    def value_set(self):
+        """ combine the spin boxes to a value
+        """
+        try:
+            self.error= False
+            date = (int(i.get()) for i in self.varlist)
+
+        except ValueError:
+            print('Invalid value in date!')
+            self.error= True
+            self.value = None
+            return
+
+        date = tuple(date) + (0,0,0,0)
+
+        self.value = time.strftime('%Y-%m-%d %H:%M', date)
+    # end of value_set
+
+
+    def get(self):
+        """ return the actual value
+        """
+        return self.value
+    # end of get
+
+# end class datePicker

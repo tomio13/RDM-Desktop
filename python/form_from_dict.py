@@ -17,8 +17,8 @@ from tkinter.messagebox import showerror
 
 from project_config import replace_text
 
-from rdm_widgets import EntryBox, MultilineText,\
-    FilePickerTextField, CheckBox, MultiSelect
+from rdm_widgets import (EntryBox, MultilineText,
+    FilePickerTextField, CheckBox, MultiSelect, DateRoller)
 
 
 class FormBuilder():
@@ -65,7 +65,7 @@ class FormBuilder():
         else:
             self.window = tk.Toplevel(self.parent)
 
-        self.window.minsize(300,400)
+        self.window.minsize(600,600)
         # leave the size automatic
         self.window.geometry('')
         self.window.grid()
@@ -79,6 +79,7 @@ class FormBuilder():
         # window.attributes('-topmost', 1)
 
         self.window.title(title)
+        self.window.bind('<Escape>', lambda event: self.window.destroy())
         # with this, we have a nice, empty window with a title
         #
         # We need a scrollable container with flexible content
@@ -180,6 +181,11 @@ class FormBuilder():
 
                 if 'required' in v and v['required']:
                     entry.required = True
+
+            elif v['type'] == 'date':
+                entry = DateRoller(frame)
+                if 'value' in v:
+                    entry.set(v['value'])
 
             elif v['type'] == 'select':
                 entry = ttk.Combobox(frame)

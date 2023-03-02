@@ -268,10 +268,10 @@ class FormBuilder():
                     )
 
                 if 'value' in v\
-                    and v['value'] is not None \
-                    and len(v['value']) == len(v['form']):
-                    # right now no message if there was
-                    # a failure in the value field
+                        and v['value'] is not None:
+                    # set gives messges if there is
+                    # a trivial mismatch, but no single
+                    # point tests are done
                     entry.set(v['value'])
 
                 if 'required' in v and v['required']:
@@ -410,6 +410,10 @@ class SubSet():
 
         self.frame = ttk.Frame(self.parent)
 #        self.frame.grid(column= 0, row= 0, sticky= 'nsew')
+
+        # to position the overview widget, use:
+        self.grid = self.frame.grid
+
         label = tk.Label(self.frame, text= title)
         label.grid(column= 0, row= 0)
         # now, we need some content...
@@ -505,6 +509,7 @@ class SubSet():
                 # to keep those empty (reset)
                 # inherit the values of the rest
                 if this_template[j]['type'] != 'subset':
+                    # print('setting up values for', this_template[j]['type'])
                     this_template[j]['value'] = row[i]
 
         input_form = FormBuilder(
@@ -539,6 +544,9 @@ class SubSet():
         window.columnconfigure(0, weight= 1)
         window.rowconfigure(0, weight= 1)
         window.lift()
+        # ESC will close the window
+        window.bind('<Escape>', lambda event: window.destroy())
+
         frame= ttk.Frame(window)
         frame.grid(column=0, row=0, sticky='news')
         frame.columnconfigure(0, weight=1)
@@ -668,12 +676,21 @@ class SubSet():
         if vals == []:
             return None
 
-        return {i:list(v) for i,v in zip(keys, vals)}
+        # column based, kind of flattened:
+        # return {i:list(v) for i,v in zip(keys, vals)}
+
+        # make it row based return
+        res = []
+        for val_row in self.content:
+            row = dict(zip(*list([keys, val_row])))
+            res.append(row)
+
+        return res
     # end of get
 
 
-    def set(self, values:dict) -> None:
-        """ take a dict where the values are lists,
+    def set(self, values:list) -> None:
+        """ take a list of dicts where the values are lists,
             and put it into the content lists.
 
             The user has to make sure the dict contains
@@ -682,19 +699,35 @@ class SubSet():
 
         """
 
+        if not values or not isinstance(values[0], dict):
+            return
+
         # we go an extra circle to set the values
-        this_set = {i:j for i,j in values.items() if i in self.form}
+        keys = list(values[0].keys())
 
-        if len(this_set) != len(self.form):
-            print('size mismatch, cannot set values for subset!')
+        # this_set = {i:j for i,j in values.items() if i in self.form}
 
-        self.content = [tuple(i) for i in zip(*list(this_set.values()))]
+        # if len(this_set) != len(self.form):
+        #    print('size mismatch, cannot set values for subset!')
+
+        # self.content = [tuple(i) for i in zip(*list(this_set.values()))]
+
+        # we have two options:
+        # we can go blind, assuming the keys match
+        # or we can just assume the first line matches all others
+
+        for i in keys:
+            if i not in self.form:
+                print('key', i, 'not found')
+                return
+
+        if len(keys) != len(self.form):
+            print('length mismatch!', len(keys), 'vs', length(self.form))
+            return
+
+        self.content = [tuple(i.values()) for i in values]
+
         self.update_content()
     # end set
 
-    def grid(self, **kwargs:dict) -> None:
-        """ use the grid of the frame to position the information
-        """
-        self.frame.grid(**kwargs)
-    # grid for rendering
 # end of class SubSet

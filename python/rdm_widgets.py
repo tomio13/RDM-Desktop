@@ -410,6 +410,7 @@ class DateRoller():
         """ set up the widget and its initial values
         """
         self.parent = parent
+        self.value = None
         # get the time tuple
         # (year, month, day, hour,
         # min, sec, wday, yday, isdst)
@@ -458,8 +459,9 @@ class DateRoller():
 
             self.fieldlist.append(spinner)
             self.varlist.append(newvar)
-
         # done adding fields
+        # to set the first value
+        self.value_set()
     # end of __init__
 
 

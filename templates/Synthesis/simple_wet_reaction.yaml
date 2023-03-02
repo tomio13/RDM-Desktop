@@ -13,17 +13,17 @@ Steps:
   type: subset
   required: true
   form:
-    Name of the step:
+    step:
       type: multiline
-      description: "Brief description what this step is happening in this step"
+      description: "Brief description what this step is happening"
       required: true
 
-    step time:
-      type: text
-      description: "Relative or absolute time of this step within the experiment"
+    date and time:
+      type: date
+      description: "date and time point of the actual step"
       required: true
 
-    Components:
+    components:
       type: subset
       description: "what components were added in this step. It may happen, that nothing"
       required: false

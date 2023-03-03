@@ -12,81 +12,64 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: DSC.yaml
-template version: 2023-02-16
-
-# One can argue if the sample ID is in the sample folder name,
-# but with this we allow to have a subsample for the experiment
-#sample ID:
-#  type: text
-#  description: "The institute standard sample ID (possibly subsample of the sample folder)"
-#  required: true
+template version: "2023-02-16"
 
 DSC device:
   type: select
-  description: "Which device was used for the measurement"
+  doc: "Which device was used for the measurement"
   options:
     - DSC 8500 (PerkinElmer)
     - DSC 204 F1 Phoenix (Netzsch)
   value: DSC 8500 (PerkinElmer)
   required: true
 
-    #sample description:
-    #  type: text
-    #  description: "a short description of the sample"
-    #  required: true
-
-measurement starting time:
-  type: text
-  description: "date and time when the experiment was performed as: YYYY-MM-DD HH:mm (M: for month, m: for minutes, like in ISO-8601)"
-  required: true
-
 pan type:
   type: text
-  description: the type of the sample holder pan
+  doc: the type of the sample holder pan
   required: true
 
 pan piercing:
   # can we make this a radio button and call it bool type?
   type: checkbox
-  description: "aluminum pans must be pierced if pressure buid up is possible, e.g. for measurements above +75 °C"
+  doc: "aluminum pans must be pierced if pressure buid up is possible, e.g. for measurements above +75 °C"
   value: true
   required: true
 
 initial sample mass, mg:
   type: numeric
-  description: "encapsulated sample mass before DSC"
+  doc: "encapsulated sample mass before DSC"
   required: true
 
 final sample mass, mg:
   type: numeric
-  description: "encapsulated sample mass after DSC"
+  doc: "encapsulated sample mass after DSC"
   required: true
 
 mass loss, percent:
   type: numeric
-  description: "calculated as 100%*(init-fin)/init"
+  doc: "calculated as 100%*(init-fin)/init"
   required: true
 
 pure gas:
   type: text
-  description: "atmosphere for the exepriment, typically: nitrogen, synthetic air or other"
+  doc: "atmosphere for the exepriment, typically: nitrogen, synthetic air or other"
   required: true
 
 pan damage:
   type: checkbox
-  description: "check if pan distorted or exploded after DSC"
+  doc: "check if pan distorted or exploded after DSC"
   value: false
   required: true
 
 sample leakage:
   type: checkbox
-  description: "check if sample leaked from pan"
+  doc: "check if sample leaked from pan"
   value: false
   required: true
 
 lids type:
   type: select
-  description: type of sample holder lids, Perkin Elmer system only
+  doc: type of sample holder lids, Perkin Elmer system only
   options:
     - manual
     - autosampler
@@ -95,9 +78,9 @@ lids type:
 
 cooling system:
   type: text
-  description: the cooling system, Perkin Elmer system only
+  doc: the cooling system, Perkin Elmer system only
   required: false
 
 results:
   type: file
-  description: "the resulted data file(s)"
+  doc: "the resulted data file(s)"

@@ -14,29 +14,34 @@ Steps:
   required: true
   form:
     step:
-      type: multiline
-      description: "Brief description what this step is happening"
+      type: text
+      doc:  "name for the step"
       required: true
+
+    description:
+      type: multiline
+      doc: "description what this step is"
+      required: false
 
     date and time:
       type: date
-      description: "date and time point of the actual step"
+      doc: "date and time point of the actual step"
       required: true
 
     components:
       type: subset
-      description: "what components were added in this step. It may happen, that nothing"
+      doc: "what components were added in this step. It may happen, that nothing"
       required: false
       form:
         chemical:
           type: text
-          description: "Name, possibly IUPAC name of the component added (it may be a simple chemical or a mixture, another sample, solution)"
+          doc: "Name, possibly IUPAC name of the component added (it may be a simple chemical or a mixture, another sample, solution)"
 
           required: true
 
         Added by:
           type: select
-          description:  "How was the amount measured?"
+          doc:  "How was the amount measured?"
           options:
             - volume, ml
             - weight, g
@@ -44,28 +49,28 @@ Steps:
 
         amount:
           type: numeric
-          description: "The actual amount"
+          doc: "The actual amount"
           required: true
 
         internal reference:
           type: file
-          description: "If it was another sample, or further information is avaliable, link the file here"
+          doc: "If it was another sample, or further information is avaliable, link the file here"
           required: false
         # end of chemical form
 
     parameters:
       type: subset
-      description: "What parameters are set? E.g. temperature, gas atmosphere, pressure?"
+      doc: "What parameters are set? E.g. temperature, gas atmosphere, pressure?"
       form:
         parameter name:
           type: select
-          description: "Pick the parameter type"
+          doc: "Pick the parameter type"
           options:
             - temperature, C
             - atmorsphere
             - pressure, bar
         parameter value:
           type: text
-          description: "the actual value you have set (text is accepted as well)"
+          doc: "the actual value you have set (text is accepted as well)"
       # end of parameters
   # end of Steps

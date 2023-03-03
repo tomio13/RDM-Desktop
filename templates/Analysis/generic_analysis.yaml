@@ -5,7 +5,7 @@
 #
 #Aim of the analysis:
 #  type: "multiline"
-#  description: "please describe what information you try extracting"
+#  doc: "please describe what information you try extracting"
 #  required: true
 
 template: analysis.yaml
@@ -13,49 +13,49 @@ template version: 2023-02-15
 
 Parameters:
   type: "multiline"
-  description: "please provide a list of parameters used for the analysis (one per line)"
+  doc: "please provide a list of parameters used for the analysis (one per line)"
   required: true
 
 Results obtained:
   type: "multiline"
-  description: "What results were obtained"
+  doc: "What results were obtained"
   required: true
 
     #Critical observations:
     #  type: "multiline"
-    #  description: "What can you see as trend and how was the quality of the results"
+    #  doc: "What can you see as trend and how was the quality of the results"
     #  required: true
 
 Zip archive:
   type: "file"
-  description: "Please upload the results as a zip archive, but also as representative images of figures!"
+  doc: "Please upload the results as a zip archive, but also as representative images of figures!"
   required: true
 
 script:
   type: "file"
-  description: "Please provide a link to the script you used, or provide a link to the software you employed if it was an external binary tool (part of the text field)"
+  doc: "Please provide a link to the script you used, or provide a link to the software you employed if it was an external binary tool (part of the text field)"
   required: false
 
 experiment:
   type: "file"
-  description: "link to the experiment metadata where the data was taken from"
+  doc: "link to the experiment metadata where the data was taken from"
 
 website:
   type: "url"
-  description: "website of the software used"
+  doc: "website of the software used"
   required: true
 
 software:
   type: "text"
-  description: "name of the software used"
+  doc: "name of the software used"
   required: true
 
 software version:
   type: "file"
-  description: "version of the used software"
+  doc: "version of the used software"
   required: true
 
 dependencies:
   type: "list"
-  description: "a comma separated list of libraries your code relied on"
+  doc: "a comma separated list of libraries your code relied on"
   required: false

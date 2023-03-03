@@ -2,14 +2,9 @@
 
 doc: |
   Dynamic light scattering (DLS) also called photon correlation spectroscopy is
-  a light scattering 
+  a light scattering method to detect diffusion of colloids in a medium.
   Single or a series of measurements run as a temperature or time series.
   Please attach every recorded file in the series.
-
-  #sample ID:
-    # type: text
-    #  description: "The institute standard sample ID: possibly subsample of the sample folder"
-    #required: true
 
 # specify a template version so one can compare if needed
 template: dls.yaml
@@ -17,7 +12,7 @@ template version: 2023-02-23
 
 DLS device:
   type: select
-  description:  "Which device was used?"
+  doc:  "Which device was used?"
   options:
     - ALV/CGS-3
     - Zetasizer Nano ZS
@@ -29,59 +24,49 @@ DLS device:
     # add what else
   required: true
 
-    #sample description:
-    #type: text
-    #description: a short description of the sample
-    #required: true
-
 solvent:
   type: text
-  description: what solvent was used in the measurement (e.g. water, PBS, ethanol)
+  doc: what solvent was used in the measurement (e.g. water, PBS, ethanol)
   required: true
 
 sample volume, ml:
   type: numeric
-  description: what volume was measured
+  doc: what volume was measured
   required: true
 
 #measurement type:
 #  # we may want to go here for a select field with a fixed list of options
 #  type: text
-#  description: "the measurement type the system has: homodyne, heterodyne, multi color..."
+#  doc: "the measurement type the system has: homodyne, heterodyne, multi color..."
 #  required: true
 #  value: "homodyne"
 
 wavelength:
   type: select
-  description: the wavelength of illumination
+  doc: the wavelength of illumination
   options:
     - 632.8 nm
     - 640 nm
   required: true
 
-measurement starting time:
-  type: text
-  description: "date and time when the experiment was performed as: YYYY-MM-DD HH:mm (M: for month, m: for minutes, like in ISO-8601)"
-  required: true
-
 duration, s:
   type: numeric
-  description: duration of data acquisition (should be the same at every measurement step)
+  doc: duration of data acquisition (should be the same at every measurement step)
   required: true
 
 first correlation delay, ms:
   type: numeric
-  description: if your system requires this value to be specified, please record it here
+  doc: if your system requires this value to be specified, please record it here
   required: false
 
 software:
   type: text
-  description: "Which sofrtware was used for the experiment / default evaluation?"
+  doc: "Which sofrtware was used for the experiment / default evaluation?"
   required: true
 
 software version:
   type: text
-  description: "version of the software used"
+  doc: "version of the software used"
   required: true
 
 
@@ -91,47 +76,47 @@ parameters of runs:
   form:
     relative time point, s:
       type: numeric
-      description: relative time point of  the current experiment in the series
+      doc: relative time point of  the current experiment in the series
       required: true
 
     refractive index:
       type: numeric
-      description: refractive index of the medium, used in the primary analysis (e.g. water, 1.33)
+      doc: refractive index of the medium, used in the primary analysis (e.g. water, 1.33)
       required: true
 
     temperature, K:
       type: numeric
-      description: temperatures of the sample in the instrument
+      doc: temperatures of the sample in the instrument
       required: true
 
     viscosity, mPas:
       type: numeric
-      description: viscosity values in centiPoise or mPas (the same)
+      doc: viscosity values in centiPoise or mPas (the same)
       required: true
 
     detection angle, degrees:
       type: numeric
-      description: scattering angle used for the measurements
+      doc: scattering angle used for the measurements
       required: true
 
   # results of default analysis
     average diffusion coefficient, micron^2/s:
       type: numeric
-      description: average diffusion coefficients reported by a cumulant analysis
+      doc: average diffusion coefficients reported by a cumulant analysis
       required: true
 
     second cumulant (expansion parameter):
       type: numeric
-      description: the parabolic terms in the cumulant fits, deviation from ideal translation diffusion
+      doc: the parabolic terms in the cumulant fits, deviation from ideal translation diffusion
       required: true
 
     hydrodynamic radius, nm:
       type: numeric
-      description: (equivalent) hydrodynamic radii
+      doc: (equivalent) hydrodynamic radii
       required: true
 
     data file:
       type: file
-      description: "link to the data file(s) measured with this parameter"
+      doc: "link to the data file(s) measured with this parameter"
       required: true
   # end of subset

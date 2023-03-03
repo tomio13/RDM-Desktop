@@ -1,0 +1,62 @@
+# Experiment recording for microwave plasma activation
+#
+doc: | 
+  Microwave plasma is often used to clean, activate or modify solid
+  surfaces. The chemical reaction always have an oxidative nature,
+  but the exact process also depends on the gas used.
+  
+  There are various devices on the marked, which control the gas flow
+  and / or pressure, microwave power and processing time.
+  Often the actual plasma activity is shorter than the processing time
+  set, because at low power/pressure for older systems, ignition may
+  be delayed (see TEPLA 100 or 100E).
+
+# specify a template version so one can compare if needed
+template: microwave-plasma.yaml
+template version: 2023-02-28
+
+plasma device:
+  type: select
+  doc: "Which device was used for the measurement"
+  options:
+    - TEPLA 100E
+    - Plasma Technology fleco10USB-MFC
+  value: TEPLA 100E
+  required: true
+
+duration, s:
+  type: numeric
+  doc: "duration of plasma treatment in seconds (e.g. 40s)"
+  required: true
+
+gas:
+  type: select
+  doc: "Gas used to form the plasma"
+  options:
+    - air
+    - oxygen
+    - hydrogen
+    - ammonia
+    # there may be more, e.g. tetrafluoro methane, carbon dioxide
+  required: true
+
+vacuum, mbar:
+  type: numeric
+  doc: "what level of vacuum was achieved before adding the reaction gas to the system?"
+  required: true
+
+pressure, mbar:
+  type: numeric
+  doc: "final presure set for the gas. (In TEPLA it may take a few minutes to achieve it)"
+  required: true
+
+gas flow rate, ml/min:
+  type: numeric
+  doc: "flow rate set by the user (for TEPLA)"
+  required: false
+
+microwave power, W:
+  type: numeric
+  doc: "The electric power set for the magnetron, e.g. 200W"
+  required: true
+

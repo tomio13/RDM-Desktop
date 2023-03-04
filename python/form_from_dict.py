@@ -17,6 +17,7 @@ from tkinter.messagebox import showerror
 
 from project_config import replace_text
 
+from rdm_help import rdmHelp
 from rdm_widgets import (EntryBox, MultilineText,
     FilePickerTextField, CheckBox, MultiSelect, DateRoller)
 
@@ -135,6 +136,9 @@ class FormBuilder():
         # to destroy, we have to unbind the canvas first
         self.window.bind('<Escape>', lambda event: self.destroy(canvas))
         self.window.bind('<Return>', lambda event: self.collect_results())
+        self.window.bind('<F1>',
+                         lambda event: rdmHelp(self.window,
+                                                       self.template))
         # self.scroll_frame.grid(column=0, row=0, sticky='nsw')
         # with this, we have a window, containing a canvas,
         # in which we have frame

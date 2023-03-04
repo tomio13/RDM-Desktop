@@ -134,6 +134,7 @@ class FormBuilder():
         canvas.configure(yscrollcommand= scrollbar.set)
         # to destroy, we have to unbind the canvas first
         self.window.bind('<Escape>', lambda event: self.destroy(canvas))
+        self.window.bind('<Return>', lambda event: self.collect_results())
         # self.scroll_frame.grid(column=0, row=0, sticky='nsw')
         # with this, we have a window, containing a canvas,
         # in which we have frame

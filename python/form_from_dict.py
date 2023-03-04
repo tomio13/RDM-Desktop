@@ -604,6 +604,13 @@ class SubSet():
         window.lift()
         # ESC will close the window
         window.bind('<Escape>', lambda event: window.destroy())
+        window.bind('<Return>', lambda event: self.edit_selected(
+                                        tree_view,
+                                        title,
+                                        root_path,
+                                        config
+                                        )
+                    )
 
         frame= ttk.Frame(window)
         frame.grid(column=0, row=0, sticky='news')

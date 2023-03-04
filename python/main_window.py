@@ -119,9 +119,6 @@ class ListWidget():
         if not self.target:
             self.target= 'dir' # default target
 
-        # the window and its default parameters
-        self.child_windows = []
-
         # we have all configuration filled up,
         # generate the GUI:
         # the window first
@@ -275,15 +272,12 @@ class ListWidget():
         else:
             # in a data folder we look what is
             # defined already as a yaml file
-            self.child_windows.append(
-                ListWidget(
-                title= item,
-                root_path= full_path,
-                parent= self.window,
-                config= self.config,
-                level= self.level+1
-                )
-            )
+            ListWidget(
+            title= item,
+            root_path= full_path,
+            parent= self.window,
+            config= self.config,
+            level= self.level+1)
     # end activate item
 
 

@@ -121,6 +121,8 @@ class rdmHelp():
         # end for
         if text:
             self.text.insert('0.0', text)
+            # make the content read only
+            self.text.configure(state='disabled')
     # end add_content
 
 # end of rdmHelp

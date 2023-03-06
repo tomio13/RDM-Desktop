@@ -608,6 +608,15 @@ class SubSet():
         window.lift()
         # ESC will close the window
         window.bind('<Escape>', lambda event: window.destroy())
+        # add double click to edit:
+        window.bind('<Double-Button-1>', lambda event: self.edit_selected(
+                                        tree_view,
+                                        title,
+                                        root_path,
+                                        config
+                                        )
+                    )
+        # pressing enter also edits
         window.bind('<Return>', lambda event: self.edit_selected(
                                         tree_view,
                                         title,

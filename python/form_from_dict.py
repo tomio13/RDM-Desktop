@@ -135,7 +135,7 @@ class FormBuilder():
         canvas.configure(yscrollcommand= scrollbar.set)
         # to destroy, we have to unbind the canvas first
         self.window.bind('<Escape>', lambda event: self.destroy(canvas))
-        self.window.bind('<Return>', lambda event: self.collect_results())
+        self.window.bind('<Control-Return>', lambda event: self.collect_results())
         self.window.bind('<F1>',
                          lambda event: rdmHelp(self.window,
                                                        self.template))

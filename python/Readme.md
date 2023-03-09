@@ -138,3 +138,13 @@ However, you should change:
 
 Do not change the version, because the software uses it to update the
 missing fields if a new version comes out.
+
+
+# keyboard binding
+The GUI has some keyboard bindings. In the window listing, or listing content,
+ENTER will go to edit the given element (or enter a directory). In the form
+window CTRL-ENTER will submit the form (ENTER is needed in multiline
+text fields).
+ESC will quit the given window in all cases.
+In the form windows, F1 will provide the documentation content of the used
+template, so one can see information about the listed fields.

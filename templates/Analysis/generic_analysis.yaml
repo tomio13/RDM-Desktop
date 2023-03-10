@@ -8,7 +8,7 @@
 #  doc: "please describe what information you try extracting"
 #  required: true
 
-template: analysis.yaml
+template: "Analysis/analysis.yaml"
 template version: 2023-02-15
 
 Parameters:

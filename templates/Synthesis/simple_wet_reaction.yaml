@@ -6,7 +6,7 @@ doc: |
   treat the mixture (or just wait), and optionally add further
   components.
 
-template: simple_wet_reaction
+template: "Synthesis/simple_wet_reaction"
 template version: 2023-02-25
 
 Steps:

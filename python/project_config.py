@@ -65,8 +65,8 @@ def get_default_config() -> dict:
             'filemanager':  filemanager,
             'version':      version,
             'editor':       editor,
-            'chemicals':    os.path.join(projects_dir, 'Chemicals'),
-            'equipment':    os.path.join(projects_dir, 'Equipment'),
+            'chemicals':    'Chemicals',
+            'equipment':    'Equipment',
             'ignore':       ['References', 'Chemicals', 'Equipment'],
             # for connecting to an existing upload source,
             # we may have a default configuration here

@@ -157,7 +157,11 @@ class MultilineText():
         frame.rowconfigure(0, weight=1)
         frame.columnconfigure(0, weight=1)
 
-        self.text = tk.Text(frame, width= 50, height= 10)
+        self.text = tk.Text(frame,
+                            width= 50,
+                            height= 10,
+                            wrap= 'word')
+
         self.text.grid(column=0, row=0, sticky='we')
         self.required= False
         self.error = False

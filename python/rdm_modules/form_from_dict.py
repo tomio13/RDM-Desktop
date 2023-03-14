@@ -15,10 +15,10 @@ from  tkinter import ttk
 # from tkinter.filedialog import FileDialog
 from tkinter.messagebox import showerror
 
-from project_config import replace_text
+from .project_config import replace_text
 
-from rdm_help import rdmHelp
-from rdm_widgets import (EntryBox, MultilineText,
+from .rdm_help import rdmHelp
+from .rdm_widgets import (EntryBox, MultilineText,
     FilePickerTextField, CheckBox, MultiSelect, DateRoller)
 
 

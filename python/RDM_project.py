@@ -9,8 +9,8 @@
     Warranty:   None
 """
 
-import main_window as mw
-from project_config import get_config
+import rdm_modules.main_window as mw
+from rdm_modules.project_config import get_config
 
 
 if __name__ == '__main__':

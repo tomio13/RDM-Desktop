@@ -20,9 +20,9 @@ import yaml
 
 
 # now the local elements:
-from project_config import replace_text
-from project_dir import make_dir
-from form_from_dict import FormBuilder
+from .project_config import replace_text
+from .project_dir import make_dir
+from .form_from_dict import FormBuilder
 
 # important global variables (within the package)
 __version__= '0.1.5'

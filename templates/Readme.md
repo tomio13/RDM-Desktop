@@ -30,8 +30,8 @@ Otherwise every entry has the following structure:
 
 label, unit:
   type: "text|numeric|integer|list|numericlist|file|select|checkbox|url|date|subset"
-  description: "documentation text"
-  options: "a help description about the field"
+  doc: "documentation text"
+  options: "list of alternate values for select fields"
   value: "optional default value"
   required: true/false -- whether this field is mandatory
 
@@ -40,3 +40,6 @@ A file field can be one or more files, each a relative path from the current sam
 # types
 Well, there is a nice list of them already, see the Readme.md in the python folder.
 
+# description -> doc
+Changed description to doc, because this way we can use 'description' in field names.
+'Doc' is not probable to show up as such (it would be docs anyway).

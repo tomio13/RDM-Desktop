@@ -5,24 +5,24 @@ created: "%D"
 
 aim:
   type: "multiline"
-  description: "What is the aim of this experiment?"
+  doc: "What is the aim of this experiment?"
 
 observation:
   type: "multiline"
-  description: "free text observations beyond the measurement"
+  doc: "free text observations beyond the measurement"
 
 sample preparation log:
     type: "file"
-    description: "link to the sample synthesis or readme file"
+    doc: "link to the sample synthesis or readme file"
 
 sample description:
   type: text
-  description: "a short description of the sample"
+  doc: "a short description of the sample"
   required: true
 
 sample ID: "%3"
 
 experiment start:
     type: date
-    description: "Experiment starting date and time in ISO 8601 format"
+    doc: "Experiment starting date and time in ISO 8601 format"
     required: true

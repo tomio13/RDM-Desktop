@@ -117,7 +117,7 @@ If you need to reset the configuration, simply delete or rename the file.
 It will be recreated at next start of the program.
 
 # If you ever need a different default
-you have to edit the [project_config.py](../python/modules/project_config.py) file
+you have to edit the [project_config.py](../python/rdm_modules/project_config.py) file
 in the get_default_config() function.
 However, do not change field names, because they are used in various functions
 of the code.

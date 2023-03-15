@@ -115,3 +115,54 @@ Such an update will add new fields, but not change existing ones.
 
 If you need to reset the configuration, simply delete or rename the file.
 It will be recreated at next start of the program.
+
+# If you ever need a different default
+you have to edit the [project_config.py](../python/modules/project_config.py) file
+in the get_default_config() function.
+However, do not change field names, because they are used in various functions
+of the code.
+
+# example content of config
+on a Linux box
+
+``` yaml
+chemicals: /home/john/Projects/Chemicals
+defaultTemplate:
+- readmeProject
+- readmeSample
+- defaultForm
+editor: scite
+equipment: /home/john/Projects/Equipment
+filemanager: xdg-open
+ignore:
+- References
+projectDir: /home/john/Projects
+projectsTitle: Projects
+readme: readme.md
+searchFolders:
+- ''
+- Data
+- ''
+searchNames:
+- project
+- sample
+- experiment
+searchPattern:
+- ''
+- ''
+- yaml$
+searchTargets:
+- dir
+- dir
+- file
+server:
+  server: ''
+  token: ''
+templateDir: ../templates
+templates:
+- folderlist
+- ''
+- ''
+userID: J. Doe
+version: 0.3
+```

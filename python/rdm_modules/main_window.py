@@ -192,12 +192,16 @@ class ListWidget():
 
         self.make_listbox(frame)
 
+        open_icon = tk.PhotoImage(file='./icons/folder.png')
         self.openButton = tk.Button(
                 frame,
-                text='Open',
+                image= open_icon,
                 command= self.file_manager
                 )
-        self.openButton.grid(column=2, columnspan=3, row=9)
+        # to hav the image shown, you have to set it here too
+        self.openButton.image = open_icon
+
+        self.openButton.grid(column=4, columnspan=3, row=9)
         # third (last) row is the button to look up content
         button = tk.Button(
                 frame,
@@ -273,11 +277,12 @@ class ListWidget():
             # in a data folder we look what is
             # defined already as a yaml file
             ListWidget(
-            title= item,
-            root_path= full_path,
-            parent= self.window,
-            config= self.config,
-            level= self.level+1)
+                title= item,
+                root_path= full_path,
+                parent= self.window,
+                config= self.config,
+                level= self.level+1
+                )
     # end activate item
 
 

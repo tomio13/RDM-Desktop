@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="93mm"
+   height="93mm"
+   viewBox="0 0 93 92.999999"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="folder.svg"
+   inkscape:export-filename="folder.png"
+   inkscape:export-xdpi="17.47957"
+   inkscape:export-ydpi="17.47957"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#999999"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.69656486"
+     inkscape:cx="40.197262"
+     inkscape:cy="133.51233"
+     inkscape:window-width="1900"
+     inkscape:window-height="1058"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g345" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-28.948593,-74.431839)">
+    <g
+       id="g345"
+       transform="matrix(1,-0.12957806,0,1,0,9.7422732)">
+      <g
+         id="g120"
+         transform="translate(0.26450785,14.028249)">
+        <g
+           id="g115"
+           transform="matrix(1,-0.00599226,0,1.0462444,0,-6.3255702)"
+           style="stroke-width:0.97765">
+          <rect
+             style="fill:#aa8800;fill-opacity:0.598434;stroke:#000000;stroke-width:0.522736;stroke-linejoin:round;stroke-opacity:1;stop-color:#000000"
+             id="rect111"
+             width="71.997177"
+             height="48.498848"
+             x="67.586105"
+             y="89.008003"
+             rx="0.38408962"
+             ry="0.32713774"
+             transform="matrix(0.99998822,0.0048548,-0.20635996,0.97847614,0,0)" />
+          <rect
+             style="fill:#ffdd55;fill-opacity:0.598434;stroke:#000000;stroke-width:0.521424;stroke-linejoin:round;stroke-opacity:1;stop-color:#000000"
+             id="rect111-5"
+             width="71.999794"
+             height="53.925701"
+             x="-85.66304"
+             y="83.476486"
+             rx="0.38401875"
+             ry="0.34458843"
+             transform="matrix(-0.99995194,0.00980422,0.18559277,0.98262675,0,0)" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

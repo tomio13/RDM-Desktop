@@ -48,12 +48,14 @@ class rdmUploader():
         level:int,
         parent:tk.Misc = None
         )->None:
-        """ A GUI coorrdinating the upload of an experiment
+        """ A GUI coordinating the upload of an experiment
             to the server.
             It uses the generic converters to form a JSON
             ready dict from the experiment and its templates,
             then takes a selected uploader to do the transfer.
-            Every ELN or srevice can have its own uploader type.
+            Every ELN or srevice can have its own uploader function.
+            (These functions also do internal conversion of the record
+            to match the requirements of the DB.)
         """
         if parent is None:
             window = tk.Tk()

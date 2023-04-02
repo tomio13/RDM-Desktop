@@ -57,6 +57,7 @@ No special environment is needed, so you can save yourself from things like
 anaconda, conda, docker, etc.
 
 # Libraries used
+- json
 - os
 - sys
 - time

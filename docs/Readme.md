@@ -5,3 +5,4 @@ Here you can read in more detail about the concept, components, features.
 - [Install](Install.md): how to get the code
 - [Configuration](Configuration.md): the content and editing the configuraiton
 - [Templates](Templates.md): explains the template formats
+- [Shortcuts](Shortcuts.mg): keyboard bindings

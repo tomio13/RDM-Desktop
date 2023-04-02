@@ -139,6 +139,8 @@ def body_meta_from_record(record:dict)->tuple:
 
             if 'type' in v:
                 if v['type'] == 'subset':
+                    # ElabFTW cannot handle this one, so keep it in the
+                    # general metadata
                     meta[k] = v
 
                 elif v['type'] == 'multiline' and 'value' in v:
@@ -178,10 +180,11 @@ def body_meta_from_record(record:dict)->tuple:
                 meta[k] = v
 
         else:
-            # it is not a dict, some key/value pair, like a subset
-            # Elab cannot handle such a thing right now
+            # it is not a dict, some key/value pair,
+            # so we keep it around... if it is a multiline text,
+            # add to the body
             if isinstance(v, str) and '\n' in v:
-                body= f'{body}\n\n#{k}\n{v}'
+                body= f'{body}\n\n# {k}\n{v}'
             else:
                 meta[k] = v
 

@@ -20,9 +20,11 @@ import yaml
 
 
 # now the local elements:
+from .form_from_dict import FormBuilder
 from .project_config import replace_text
 from .project_dir import make_dir
-from .form_from_dict import FormBuilder
+from .rdm_uploader import rdmUploader
+
 
 # important global variables (within the package)
 __version__= '0.1.5'
@@ -192,16 +194,27 @@ class ListWidget():
 
         self.make_listbox(frame)
 
+        if self.target=='file':
+            upload_icon = tk.PhotoImage(file='./icons/upload.png')
+            upload_button = tk.Button(
+                    frame,
+                    image= upload_icon,
+                    text="upload",
+                    command= self.upload
+                    )
+            upload_button.image = upload_icon
+            upload_button.grid(column=2, columnspan=2, row=9)
+
         open_icon = tk.PhotoImage(file='./icons/folder.png')
-        self.openButton = tk.Button(
+        open_button = tk.Button(
                 frame,
                 image= open_icon,
                 command= self.file_manager
                 )
         # to hav the image shown, you have to set it here too
-        self.openButton.image = open_icon
+        open_button.image = open_icon
+        open_button.grid(column=4, columnspan=3, row=9)
 
-        self.openButton.grid(column=4, columnspan=3, row=9)
         # third (last) row is the button to look up content
         button = tk.Button(
                 frame,
@@ -635,4 +648,33 @@ class ListWidget():
                 return
         self.listbox_fill()
     # end of add_new
+
+    def upload(self) -> None:
+        """ pick the selected file, and try an upload to
+            a server.
+        """
+        if not self.target == 'file':
+             return
+
+        indx = self.listbox.curselection()
+        if not indx:
+            print('Nothing was selected')
+            return
+
+        # get what is selected:
+        item = self.listbox.get(indx)
+        if not item.endswith('yaml'):
+            item = f'{item}.yaml'
+        # turn it to a full path:
+        record = os.path.join(
+                self.root_path,
+                item)
+
+        rdmUploader(
+                record,
+                self.config,
+                self.level,
+                self.window
+                )
+    # end upload
 # end of class ListWidget

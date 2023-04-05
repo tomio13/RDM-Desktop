@@ -101,8 +101,10 @@ class FilePickerTextField():
     def get(self) -> str|list:
         """ get the file paht(s) out of the widget, and return
             as a string or list.
-            Turn each path to a relative path in relation
-            to the current directory (self.dir).
+            Assumes paths are relative (the get_file above
+            does convert the path to relative paths).
+            It does not test if a file exists, so users can name
+            files they would add later.
 
             Using the list allows a type check to see if
             multiple files are selected.
@@ -114,25 +116,32 @@ class FilePickerTextField():
 
         if ',' in fn:
             fn = fn.split(', ')
-            fn = [f'file:{i}' for i in fn \
-                    if os.path.isfile(os.path.join(self.dir, i))]
+            # to allow only existing files we can filter:
+            #fn = [f'file:{i}' for i in fn \
+            #        if os.path.isfile(os.path.join(self.dir, i))]
+            #
+            # or the user may specify files which do not exist
+            # but do not emit empty elements
+            fn = [f'file:{i}' for i in fn if i]
+
+            if not fn:
+                return None
+
             return fn
 
-        # we could check to see if a file exists,
-        # but it may be useful to allow non-existent
-        # file names as well...
-        #if os.path.isfile(fn):
-        #    fn = os.path.relpath(
-        #            fn,
-        #            self.dir
-        #            )
-        #
-        #    return f'file:{fn}'
-
-        # we still return, to allow for non-existent files
         return f'file:{fn}'
-
     # end get
+
+    def set(self, data:list)->None:
+        """ set the content from a list of file names
+        """
+
+        if not data:
+            return
+
+        text = ', '.join(data)
+        self.content.set(text)
+    # end of set
 # end FilePickerTextField
 
 

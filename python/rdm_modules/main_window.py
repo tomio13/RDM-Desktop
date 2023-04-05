@@ -557,11 +557,22 @@ class ListWidget():
                       'wt',
                       encoding='UTF-8') as fp:
 
-                fp.write(yaml.safe_dump(form.result,
-                         sort_keys= False,
-                         allow_unicode= True,
-                         width= 70,
-                         default_style= None))
+                # this is messy on multiline text:
+                #fp.write(yaml.safe_dump(form.result,
+                #         sort_keys= False,
+                #         allow_unicode= True,
+                #         width= 70,
+                #         default_style= None))
+                out_txt = yaml.safe_dump(form.result,
+                                         sort_keys= False,
+                                         allow_unicode= True,
+                                         width= 70,
+                                         default_style= None)
+                # remove the multiple new lines produced by yaml
+                # strip may not be needed actually
+                # fp.write(out_txt.strip().replace('\n\n', '\n'))
+                fp.write(out_txt.replace('\n\n', '\n'))
+
             return True
 
         # nothing saved, do not refresh

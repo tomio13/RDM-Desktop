@@ -264,6 +264,9 @@ class FormBuilder():
                 if 'required' in v and v['required']:
                     entry.required = True
 
+                if 'value' in v:
+                    entry.set(v['value'])
+
             elif v['type'] == 'multiline':
                 # another text widget
                 entry = MultilineText(frame)

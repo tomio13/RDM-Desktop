@@ -370,7 +370,8 @@ class MultiSelect():
             self.parent = tk.Tk()
         # end empty window
         self.select = tk.Listbox(self.parent,
-                                 selectmode='multiple')
+                                 # selectmode='multiple')
+                                 selectmode='extended')
 
         for i,j in enumerate(options):
             self.select.insert(i,j)
@@ -394,6 +395,18 @@ class MultiSelect():
 
         return l
     # end get
+
+    def set(self, selected:list)->None:
+        """ Set all items in the list selected, based on
+            a value returned by get before...
+        """
+        for i in selected:
+            # this will throw a value error if the value is
+            # not in the option list
+            self.select.select_set(self.options.index(i))
+
+    # end set
+
 # end class MultiSelect
 
 

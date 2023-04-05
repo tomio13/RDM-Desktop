@@ -203,6 +203,13 @@ class MultilineText():
         return v.strip()
     # end of get
 
+    def set(self, content)->None:
+        """ set the content of the widget
+        """
+        if text:
+            self.text.insert('END', content)
+    # end set
+
 # end of MultilineText
 
 

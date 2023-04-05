@@ -122,7 +122,7 @@ class FilePickerTextField():
             #
             # or the user may specify files which do not exist
             # but do not emit empty elements
-            fn = [f'file:{i}' for i in fn if i]
+            fn = [f'file:{i.strip()}' for i in fn if i.strip()]
 
             if not fn:
                 return None

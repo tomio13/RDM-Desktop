@@ -61,7 +61,7 @@ def upload_record(
     body, meta, filelist = body_meta_from_record(record)
 
     upload_dict = {'title': title,
-                   'body_html': body,
+                   'body': body,
                    'metadata': meta,
                    # 'action': 'lock'
                    }
@@ -183,11 +183,14 @@ def body_meta_from_record(record:dict)->tuple:
                         print(table)
                         body = f'{body}{table}</table>\n\n'
 
-                    else:
+                    #else:
                         # no value, then it is not so nice to use...
                         # ElabFTW cannot handle this one, so keep it in the
                         # general metadata
-                        meta[k] = v
+                    #   meta[k] = v
+
+                    # drop the rest into the metadata
+                    meta[k] = v
 
                 elif v['type'] == 'multiline' and 'value' in v:
                     body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'

@@ -188,8 +188,11 @@ class rdmUploader():
         # combine the content of the two files
         template = merge_templates(tfile, dtfile)
 
+        # simple is True by default for handling subsets
         record = convert_record_to_JSON(
-                        combine_template_data(template, record)
+                        combine_template_data(template,
+                                              record,
+                                              simple= True)
                     )
         return(record)
     # end prepare_record
@@ -283,7 +286,7 @@ class rdmUploader():
             if isinstance(uploaded, list):
                 uploaded.append(upload_result)
             else:
-                uploaded = [v, upload_result]
+                uploaded = [upload_result]
         else:
             uploaded = upload_result
         # now, write back the record

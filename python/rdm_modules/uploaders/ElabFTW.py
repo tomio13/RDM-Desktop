@@ -6,6 +6,7 @@
     Warranty:   None
 """
 import json
+import os
 from requests import request
 from tkinter.messagebox import showerror
 import time
@@ -57,9 +58,10 @@ def upload_record(
 
     # Create parts to be uploaded:
     # here we have to take apart the record...
-    body, meta = body_meta_from_record(record)
+    body, meta, filelist = body_meta_from_record(record)
+
     upload_dict = {'title': title,
-                   'body': body,
+                   'body_html': body,
                    'metadata': meta,
                    # 'action': 'lock'
                    }
@@ -94,6 +96,7 @@ def upload_record(
             return None
 
     # MISSING STILL: handle file links as attachments...
+    # for fn in filelist...
 
     exp_id = link.rsplit('/',1)[-1]
     res['server'] = server
@@ -112,13 +115,15 @@ def upload_record(
 def body_meta_from_record(record:dict)->tuple:
     """ Split up a record to meta data and body parts, ready
         to be uploaded to an ElabFTW server.
-        The body is in markdown, containing all multiline entries.
+        The body is in HTML (markdown needs an editing step
+        in Elab to be compiled), containing all multiline entries.
 
         parameters:
         record      a dict with the complete record (merged with its template)
 
         return:
-        a tuple of body content and meta data content as strings
+        a tuple of body content and meta data content as strings, and
+        a list of files mentioned in the record as potential attachments
     """
 
     if not record:
@@ -129,9 +134,14 @@ def body_meta_from_record(record:dict)->tuple:
     body = ''
     meta = {}
     extra = {}
+    filelist = []
 
     j = 1
     for k,v in record.items():
+        # exception:
+        if k == 'doc':
+            k = 'description'
+
         if isinstance(v, dict):
             # Elab has description fields where we have 'doc':
             if 'doc' in v:
@@ -139,21 +149,56 @@ def body_meta_from_record(record:dict)->tuple:
 
             if 'type' in v:
                 if v['type'] == 'subset':
-                    # ElabFTW cannot handle this one, so keep it in the
-                    # general metadata
-                    meta[k] = v
+                    # Subsets are translated to a plain dict
+                    if 'value' in v:
+                        val = v.pop('value')
+                        table = f'<h1>{k}</h1>\n<table>\n'
+
+                        # with lists for values (simple= True)
+                        if isinstance(val, dict):
+                            table_keys = list(val.keys())
+                            table_vals = list(zip(* val.values()))
+
+                        #
+                        # ElabFTW cannot handle this one
+                        # we can try to make it to some kind of table
+                        elif isinstance(val, list)\
+                            and val\
+                            and isinstance(val[0], dict):
+
+                            table_keys = list(val[0].keys())
+                            table_vals = [list(i.values()) for i in val]
+
+
+                        # common table writing:
+                        table = f'{table}<tr><th>' + \
+                                '</th><th>'.join(table_keys)+ '</th></tr>'
+
+                        # add values row-by-row
+                        for i in table_vals:
+                            table = f'{table}\n<tr><td>'
+                            table = f'{table}' + '</td><td>'.join([str(ii) for ii in i])
+                            table = f'{table}</td></tr>\n'
+
+                        print(table)
+                        body = f'{body}{table}</table>\n\n'
+
+                    else:
+                        # no value, then it is not so nice to use...
+                        # ElabFTW cannot handle this one, so keep it in the
+                        # general metadata
+                        meta[k] = v
 
                 elif v['type'] == 'multiline' and 'value' in v:
-
-                    body = f'{body}\n\n# {k}\n{v["value"]}'
+                    body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
 
                 elif v['type'] == 'text' and 'value' in v\
                         and '\n' in v['value']:
-
-                    body = f'{body}\n\n# {k}\n{v["value"]}'
+                    body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
 
                 else:
-                    if v['type'] in ['list', 'numericlist', 'file']:
+                    # all other cases go to the extra_fiels -> form
+                    if v['type'] in ['list', 'numericlist']:
                         v['type'] = 'text'
                         if 'value' in v:
                             if v['value'] is None:
@@ -162,6 +207,18 @@ def body_meta_from_record(record:dict)->tuple:
                                 v['value'] = ', '.join(str(v['value']))
                         else:
                             v['value'] = ''
+
+                    # a file list is something we can use for adding
+                    # attachments in the future
+                    elif v['type'] == 'file':
+                        if 'value' in v:
+                            fl = [i.replace('file:', '') for i in v]
+                            filelist += fl
+                            v['value'] = ', '.join(fl)
+                        else:
+                            v['value'] = ''
+
+
                     elif v['type'] == 'date':
                         if 'value' in v and v['value']:
                             # cut the date time to date only (yyyy-mm-dd HH:MM -> yyyy-mm-dd)
@@ -184,7 +241,7 @@ def body_meta_from_record(record:dict)->tuple:
             # so we keep it around... if it is a multiline text,
             # add to the body
             if isinstance(v, str) and '\n' in v:
-                body= f'{body}\n\n# {k}\n{v}'
+                body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
             else:
                 meta[k] = v
 
@@ -197,5 +254,8 @@ def body_meta_from_record(record:dict)->tuple:
     else:
         meta = None
 
-    return (body, meta)
+    # clean up filelist
+    filelist = [i for i in  filelist if os.path.isfile(i)]
+
+    return (body, meta, filelist)
 # end body_meta_from_record

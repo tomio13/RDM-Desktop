@@ -569,6 +569,7 @@ class ListWidget():
                                          width= 70,
                                          default_style= None)
                 # remove the multiple new lines produced by yaml
+                # which breaks multiline entries badly apart
                 # strip may not be needed actually
                 # fp.write(out_txt.strip().replace('\n\n', '\n'))
                 fp.write(out_txt.replace('\n\n', '\n'))

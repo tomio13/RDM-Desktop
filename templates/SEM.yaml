@@ -70,6 +70,7 @@ glue type:
 image set:
   type: subset
   doc: "Eas image series taken with the same detector settings and magnification"
+  required: true
 
   form:
     measurement mode:

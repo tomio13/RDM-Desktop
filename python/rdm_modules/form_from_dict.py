@@ -202,11 +202,17 @@ class FormBuilder():
             main window accordingly.
         """
 
+        # make a static copy of keys,
+        # so not problem comes if we change them
         keys = list(self.template.keys())
 
+        # go through the template
         for j,i in enumerate(keys):
             v = self.template[i]
 
+            # no type field means it is not part of the form,
+            # but we take it over
+            # Texts may have substituted parts (e.g. user ID)
             if not isinstance(v, dict) or 'type' not in v:
                 if isinstance(v, str):
                     self.default_result[i] = replace_text(v, self.config, self.root_path)

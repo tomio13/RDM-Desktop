@@ -180,7 +180,6 @@ def body_meta_from_record(record:dict)->tuple:
                             table = f'{table}' + '</td><td>'.join([str(ii) for ii in i])
                             table = f'{table}</td></tr>\n'
 
-                        print(table)
                         body = f'{body}{table}</table>\n\n'
 
                     #else:

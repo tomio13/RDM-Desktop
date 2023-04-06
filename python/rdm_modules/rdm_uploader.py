@@ -297,11 +297,13 @@ class rdmUploader():
         # dump the record back
         # if one had comments in this YAML, those are gone...
         with open(record_path, 'wt', encoding='UTF-8') as fp:
-            fp.write(yaml.safe_dump(record,
+            out_text = yaml.safe_dump(record,
                      sort_keys= False,
                      allow_unicode= True,
                      width= 70,
-                     default_style= None))
+                     default_style= None)
+            out_text = out_text.replace('\n\n','\n')
+            fp.write(out_text)
 
         self.window.destroy()
     # end of upload

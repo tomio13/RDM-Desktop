@@ -10,6 +10,7 @@ import os
 from requests import request
 from tkinter.messagebox import showerror
 import time
+import yaml
 
 
 def upload_record(
@@ -186,7 +187,20 @@ def body_meta_from_record(record:dict)->tuple:
                             #table = f'{table}\n<tr><td>'
                             #table = f'{table}' + '</td><td>'.join([str(ii) for ii in i])
                             #table = f'{table}</td></tr>\n'
-                            table = f'{table}|' + '|'.join([str(ii) for ii in i]) + '|\n'
+                            ii_new = []
+                            for ii in i:
+                                if isinstance(ii, list):
+                                    ii_text = '-'+'<BR>-'.join(ii)
+                                    ii_text.replace('file:', '')
+                                elif isinstance(ii, dict):
+                                    ii_text = yaml.safe_dump(ii)
+                                    ii_text = ii_text.replace('\n','<BR>')
+                                else:
+                                    ii_text = str(ii)
+                                ii_new.append(ii_text)
+
+                            #table = f'{table}|' + '|'.join([str(ii) for ii in i]) + '|\n'
+                            table = f'{table}|' + '|'.join(ii_new) + '|\n'
 
                         # body = f'{body}{table}</table>\n\n'
                         body = f'{body}{table}\n\n'
@@ -254,7 +268,8 @@ def body_meta_from_record(record:dict)->tuple:
             # so we keep it around... if it is a multiline text,
             # add to the body
             if isinstance(v, str) and '\n' in v:
-                body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
+                #body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
+                body= f'{body}# {k}>\n{v}\n\n'
             else:
                 meta[k] = v
 

@@ -53,14 +53,16 @@ def upload_record(
 
     empty_content = {
                     'category_id': -1,
-                    'tags':['RDM Desktop', 'uploaded']
+                    'tags':['RDM Desktop', 'uploaded'],
                      }
 
     # Create parts to be uploaded:
     # here we have to take apart the record...
     body, meta, filelist = body_meta_from_record(record)
 
-    upload_dict = {'title': title,
+    upload_dict = {
+                   'content_type': 2,
+                   'title': title,
                    'body': body,
                    'metadata': meta,
                    # 'action': 'lock'
@@ -152,7 +154,9 @@ def body_meta_from_record(record:dict)->tuple:
                     # Subsets are translated to a plain dict
                     if 'value' in v:
                         val = v.pop('value')
-                        table = f'<h1>{k}</h1>\n<table>\n'
+                        # table = f'<h1>{k}</h1>\n<table>\n'
+                        # MD:
+                        table = f'# {k}\n'
 
                         # with lists for values (simple= True)
                         if isinstance(val, dict):
@@ -171,16 +175,21 @@ def body_meta_from_record(record:dict)->tuple:
 
 
                         # common table writing:
-                        table = f'{table}<tr><th>' + \
-                                '</th><th>'.join(table_keys)+ '</th></tr>'
+                        table = f'{table}\n|' + \
+                                '|'.join(table_keys)+ '|\n'
+
+                        head_line = '|' + '|'.join(['-'*len(i) for i in table_keys]) + '|'
+                        table = f'{table}{head_line}\n'
 
                         # add values row-by-row
                         for i in table_vals:
-                            table = f'{table}\n<tr><td>'
-                            table = f'{table}' + '</td><td>'.join([str(ii) for ii in i])
-                            table = f'{table}</td></tr>\n'
+                            #table = f'{table}\n<tr><td>'
+                            #table = f'{table}' + '</td><td>'.join([str(ii) for ii in i])
+                            #table = f'{table}</td></tr>\n'
+                            table = f'{table}|' + '|'.join([str(ii) for ii in i]) + '|\n'
 
-                        body = f'{body}{table}</table>\n\n'
+                        # body = f'{body}{table}</table>\n\n'
+                        body = f'{body}{table}\n\n'
 
                     #else:
                         # no value, then it is not so nice to use...
@@ -192,11 +201,13 @@ def body_meta_from_record(record:dict)->tuple:
                     meta[k] = v
 
                 elif v['type'] == 'multiline' and 'value' in v:
-                    body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
+                    # body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
+                    body = f'{body}# {k}\n{v["value"]}\n\n'
 
                 elif v['type'] == 'text' and 'value' in v\
                         and '\n' in v['value']:
-                    body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
+                    # body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
+                    body = f'{body}# {k}\n{v["value"]}\n\n'
 
                 else:
                     # all other cases go to the extra_fiels -> form

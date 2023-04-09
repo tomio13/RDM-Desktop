@@ -204,3 +204,40 @@ def combine_template_data(template:dict,
 
     return res
 # end of combine template data
+
+def find_in_dict(data:dict, search:str:'file')->list:
+    """ make a deep search into the dict and find every field with a key file_id,
+        return all values as a simple list.
+        This code is practically identical to that in dictDigUtils.
+
+        parameters:
+        data:       dict, typically a record
+        search:    a key under which e.g. files are listed
+
+        return:
+        a list of hits merged together
+    """
+    if not isinstance(data, dict):
+        raise ValueError('inproper input type')
+
+    res = []
+    for k,v in data.items():
+        if ((isinstance(k, str) and search in k)
+            or k == search):
+            res.append(v)
+
+        elif isinstance(v, dict):
+            newres = find_in_dict(search, v)
+
+            if newres:
+                res += newres
+
+        elif isinstance(v, list):
+            for i in v:
+                if isinstance(i, dict):
+                    newres = dict_search_in_key(search, i)
+                    if newres:
+                        res += newres
+    # end of for in data
+    return res
+# end of find_in_dict

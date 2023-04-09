@@ -7,6 +7,7 @@
 """
 import json
 import os
+from rdm_templates import find_in_dict
 from requests import request
 from tkinter.messagebox import showerror
 import time
@@ -74,7 +75,10 @@ def upload_record(
                    f'{server}/api/v2/experiments',
                    headers= header,
                   json= empty_content,
-                  verify= verify)
+                  verify= verify,
+                  # set a default 10 seconds timout
+                  # for connect, 30 for read
+                  timeout= (10, 30))
 
     if rep.ok and rep.status_code == 201:
         print('experiment is created')
@@ -90,7 +94,8 @@ def upload_record(
                      link,
                       headers= header,
                       json= {k:v},
-                      verify= verify)
+                      verify= verify,
+                      timeout= (10, 30))
 
         if rep.ok and rep.status_code == 200:
             print(f'{k} is added')
@@ -137,7 +142,7 @@ def body_meta_from_record(record:dict)->tuple:
     body = ''
     meta = {}
     extra = {}
-    filelist = []
+    filelist = find_in_dict(record, 'file')
 
     j = 1
     for k,v in record.items():
@@ -155,7 +160,6 @@ def body_meta_from_record(record:dict)->tuple:
                     # Subsets are translated to a plain dict
                     if 'value' in v:
                         val = v.pop('value')
-                        # table = f'<h1>{k}</h1>\n<table>\n'
                         # MD:
                         table = f'# {k}\n'
 
@@ -184,9 +188,6 @@ def body_meta_from_record(record:dict)->tuple:
 
                         # add values row-by-row
                         for i in table_vals:
-                            #table = f'{table}\n<tr><td>'
-                            #table = f'{table}' + '</td><td>'.join([str(ii) for ii in i])
-                            #table = f'{table}</td></tr>\n'
                             ii_new = []
                             for ii in i:
                                 if isinstance(ii, list):
@@ -199,10 +200,8 @@ def body_meta_from_record(record:dict)->tuple:
                                     ii_text = str(ii)
                                 ii_new.append(ii_text)
 
-                            #table = f'{table}|' + '|'.join([str(ii) for ii in i]) + '|\n'
                             table = f'{table}|' + '|'.join(ii_new) + '|\n'
 
-                        # body = f'{body}{table}</table>\n\n'
                         body = f'{body}{table}\n\n'
 
                     #else:
@@ -215,16 +214,13 @@ def body_meta_from_record(record:dict)->tuple:
                     meta[k] = v
 
                 elif v['type'] == 'multiline' and 'value' in v:
-                    # body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
                     body = f'{body}# {k}\n{v["value"]}\n\n'
 
                 elif v['type'] == 'text' and 'value' in v\
                         and '\n' in v['value']:
-                    # body = f'{body}<h1>{k}</h1>\n<p>{v["value"]}\n\n'
                     body = f'{body}# {k}\n{v["value"]}\n\n'
 
                 else:
-                    # all other cases go to the extra_fiels -> form
                     if v['type'] in ['list', 'numericlist']:
                         v['type'] = 'text'
                         if 'value' in v:
@@ -240,7 +236,6 @@ def body_meta_from_record(record:dict)->tuple:
                     elif v['type'] == 'file':
                         if 'value' in v:
                             fl = [i.replace('file:', '') for i in v]
-                            filelist += fl
                             v['value'] = ', '.join(fl)
                         else:
                             v['value'] = ''
@@ -284,6 +279,36 @@ def body_meta_from_record(record:dict)->tuple:
 
     # clean up filelist
     filelist = [i for i in  filelist if os.path.isfile(i)]
+    print('attached existing files:', filelist)
 
     return (body, meta, filelist)
 # end body_meta_from_record
+
+
+# for upload:
+# use POST, experiments/id/uploads/
+# Content-Type: 'multipart/form-data'
+# file pointer sent as: data= fp
+# or files= fp
+# json is ignored if data or files are set in request
+# files can be:
+# files = {'file':(file.name.dat, open(file.name.dat, 'rb'), 'application/...')}
+# you can also ignore the last one
+#
+# possible to have streamed upload and chunked ones
+# this latter needs an interator through the data stream
+#
+# stream = True in the request call ?
+# A file object is an iterator, so it dan do for a chunked upload
+#
+#
+# comment goes into the form_parameters as
+# 'comment': comment
+#
+# to read a file, use GET and
+# 'Accept':['application/json',
+#           'application/octet-stream',
+#           'application/zip']
+# add content PATCH
+#
+# For every request set a timeout

@@ -103,6 +103,8 @@ def list_to_dict(data:list,
         # however, it can also be None
         for i in element.values():
             if isinstance(i, list):
+                # a subset is a list of dicts
+                # however, this does not dig into the lower levels
                 if any([isinstance(j, dict) for j in i]):
                     return {k:v for k,v in enumerate(data)}
 
@@ -150,6 +152,8 @@ def combine_template_data(template:dict,
         simple:     if we have subsets in subsets, keep their
                     record list structure in value instead of
                     diving into them recursively
+                    If false, handle every subset as an own
+                    record iteratively
 
         return:
         the merged dict
@@ -173,15 +177,19 @@ def combine_template_data(template:dict,
                 # The content there can be further subsets...
                 if 'form' in v:
                     if simple:
-                        res[k]['value'] = list_to_dict(data[k],
-                                                       simple= simple)
+                        #res[k]['value'] = list_to_dict(data[k],
+                        #                               simple= simple)
+                        res[k]['value'] = data[k]
                         # keep form for future use (if needed)
                     else:
                         print('calling subset on', k)
-                        res[k]['value'] = combine_template_data(
+                        # res[k]['value'] = combine_template_data(
+                        new_input = combine_template_data(
                             v['form'],
-                            list_to_dict(data[k], simple= simple)
+                            list_to_dict(data[k], simple= False),
+                            simple= False
                             )
+                        res[k].update(new_input)
                         # we folded the form into the
                         # values out, so drop it
                         res[k].pop('form')
@@ -205,10 +213,10 @@ def combine_template_data(template:dict,
     return res
 # end of combine template data
 
-def find_in_dict(data:dict, search:str:'file')->list:
-    """ make a deep search into the dict and find every field with a key file_id,
-        return all values as a simple list.
-        This code is practically identical to that in dictDigUtils.
+
+def find_in_record(data:dict, search:str='file')->list:
+    """ make a deep search into the dict and find every field with a type
+        in variable search, and return all values as a simple list.
 
         parameters:
         data:       dict, typically a record
@@ -217,27 +225,86 @@ def find_in_dict(data:dict, search:str:'file')->list:
         return:
         a list of hits merged together
     """
-    if not isinstance(data, dict):
+    if not data:
+        return []
+
+    if not isinstance(data, (dict, list)):
         raise ValueError('inproper input type')
+
+    search = search.lower()
 
     res = []
     for k,v in data.items():
-        if ((isinstance(k, str) and search in k)
-            or k == search):
-            res.append(v)
+        if isinstance(v, dict):
+            if 'type' in v:
+                if v['type'].lower() == search:
+                    if 'value' in v:
+                        if isinstance(v, list):
+                            res += v['value']
+                        else:
+                            res.append(v['value'])
+                    else:
+                        print(f'key found without value in {k}')
 
-        elif isinstance(v, dict):
-            newres = find_in_dict(search, v)
+                elif (v['type'] == 'subset'
+                      and 'form' in v
+                      and 'value' in v):
+                    # now, it gets tricky, because here
+                    # form contains types under keys,
+                    # value contains a list of dicts
+                    klist = find_key_in_record(v['form'], search)
 
-            if newres:
-                res += newres
-
-        elif isinstance(v, list):
-            for i in v:
-                if isinstance(i, dict):
-                    newres = dict_search_in_key(search, i)
-                    if newres:
-                        res += newres
+                    if klist:
+                        vv = v['value']
+                        for kk in klist:
+                            # vv = v['value'] is a list of dicts
+                            res += list(set([this_vv[kk] for this_vv in vv]))
+                        # end collecting results
+                    # now, check other subsets
+                    klist = find_key_in_record(v['form'], 'subset')
+                    if klist:
+                        vf = v['form']
+                        for kk in klist:
+                            this_record = vf[kk]
+                            this_record['value']= v['value'][kk]
+                            res += find_in_record(this_record, search)
+                    # end digging deeper
+            # no else
     # end of for in data
+    print('found', search,':', res)
     return res
-# end of find_in_dict
+# end of find_in_record
+
+
+def find_key_in_record(data:list|list, search:str)->list:
+    """ Find a key in a dict or a list of dicts, which has type in search.
+        Typical run in subsets
+
+        parameter
+        data    a dict dicts to search in
+        search  a string to search for in types
+
+        return
+        a list of keys under which the type was found
+    """
+    if not data:
+        return []
+
+    if isinstance(data, dict):
+        data = [data]
+
+    res = []
+
+    for dat in data:
+        for k,v in dat.items():
+            # now, we have a dict most probably
+            if isinstance(v, dict):
+                if ('type' in v and
+                    v['type'] == search and
+                    'value' in v):
+                    res.append(k)
+    return res
+# end of find_key_in_record
+
+
+

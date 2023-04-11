@@ -53,11 +53,11 @@ def upload_record(
               'charset': 'UTF-8',
               'Authorization': token}
 
+    # category or category_id cannot be written in any way
+    # other than the -1 below results in a bad request
     empty_content = {
                     'category_id': -1,
                     'tags':['RDM Desktop', 'uploaded'],
-                    # this does not work (read only?)
-                    # 'category': 'success',
                      }
 
     # Create parts to be uploaded:
@@ -69,7 +69,7 @@ def upload_record(
                    'title': title,
                    'body': body,
                    'metadata': meta,
-                   # 'action': 'lock'
+                   # 'action': 'lock',
                    }
 
     # create the experiment

@@ -272,9 +272,13 @@ def find_in_record(data:dict, search:str='file')->list:
                     if klist:
                         vf = v['form']
                         for kk in klist:
-                            this_record = vf[kk]
-                            this_record['value']= v['value'][kk]
-                            res += find_in_record(this_record, search)
+                            for this_vv in v['value']:
+                                if not this_vv[kk] or this_vv[kk] is None:
+                                    continue
+
+                                this_record = vf[kk]
+                                this_record['value']= this_vv[kk]
+                                res += find_in_record(this_record, search)
                     # end digging deeper
             # no else
     # end of for in data

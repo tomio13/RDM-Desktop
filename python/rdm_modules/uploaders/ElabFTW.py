@@ -56,7 +56,8 @@ def upload_record(
     empty_content = {
                     'category_id': -1,
                     'tags':['RDM Desktop', 'uploaded'],
-                    'category':'completed',
+                    # this does not work (read only?)
+                    # 'category': 'success',
                      }
 
     # Create parts to be uploaded:

@@ -56,6 +56,7 @@ def upload_record(
     empty_content = {
                     'category_id': -1,
                     'tags':['RDM Desktop', 'uploaded'],
+                    'category':'completed',
                      }
 
     # Create parts to be uploaded:
@@ -315,7 +316,7 @@ def body_meta_from_record(record:dict)->tuple:
 # this latter needs an interator through the data stream
 #
 # stream = True in the request call ?
-# A file object is an iterator, so it dan do for a chunked upload
+# A file object is an iterator, so it then goes for a chunked upload
 #
 #
 # comment goes into the form_parameters as

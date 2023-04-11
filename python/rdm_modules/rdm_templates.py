@@ -228,7 +228,7 @@ def find_in_record(data:dict, search:str='file')->list:
     if not data:
         return []
 
-    if not isinstance(data, (dict, list)):
+    if not isinstance(data, dict):
         raise ValueError('inproper input type')
 
     search = search.lower()
@@ -258,7 +258,14 @@ def find_in_record(data:dict, search:str='file')->list:
                         vv = v['value']
                         for kk in klist:
                             # vv = v['value'] is a list of dicts
-                            res += list(set([this_vv[kk] for this_vv in vv]))
+                            for this_vv in v['value']:
+                                if not this_vv[kk] or this_vv[kk] is None:
+                                    continue
+
+                                if isinstance(this_vv[kk], list):
+                                    res += this_vv[kk]
+                                else:
+                                    res.append(this_vv[kk])
                         # end collecting results
                     # now, check other subsets
                     klist = find_key_in_record(v['form'], 'subset')
@@ -271,14 +278,15 @@ def find_in_record(data:dict, search:str='file')->list:
                     # end digging deeper
             # no else
     # end of for in data
+    # clean up res:
     print('found', search,':', res)
     return res
 # end of find_in_record
 
 
-def find_key_in_record(data:list|list, search:str)->list:
+def find_key_in_record(data:dict|list, search:str)->list:
     """ Find a key in a dict or a list of dicts, which has type in search.
-        Typical run in subsets
+        Typical run in subsets, form part, thus value may not be present.
 
         parameter
         data    a dict dicts to search in
@@ -300,8 +308,7 @@ def find_key_in_record(data:list|list, search:str)->list:
             # now, we have a dict most probably
             if isinstance(v, dict):
                 if ('type' in v and
-                    v['type'] == search and
-                    'value' in v):
+                    v['type'] == search):
                     res.append(k)
     return res
 # end of find_key_in_record

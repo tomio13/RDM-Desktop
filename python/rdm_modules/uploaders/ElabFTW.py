@@ -7,7 +7,7 @@
 """
 import json
 import os
-from rdm_templates import find_in_dict
+from rdm_modules.rdm_templates import find_in_record
 from requests import request
 from tkinter.messagebox import showerror
 import time
@@ -142,7 +142,7 @@ def body_meta_from_record(record:dict)->tuple:
     body = ''
     meta = {}
     extra = {}
-    filelist = find_in_dict(record, 'file')
+    filelist = find_in_record(record, 'file')
 
     j = 1
     for k,v in record.items():
@@ -157,26 +157,27 @@ def body_meta_from_record(record:dict)->tuple:
 
             if 'type' in v:
                 if v['type'] == 'subset':
-                    # Subsets are translated to a plain dict
+                    # Subsets are lists of dicts,
+                    # if extraction was simple, value is a list of dicts too
                     if 'value' in v:
-                        val = v.pop('value')
-                        # MD:
+                        #val = v.pop('value')
+                        # keep a copy of the full set in the metadata, so
+                        # keep the values there too...
+                        val = v['value']
+                        # add the table to the body with the key as title
                         table = f'# {k}\n'
 
                         # with lists for values (simple= True)
-                        if isinstance(val, dict):
-                            table_keys = list(val.keys())
-                            table_vals = list(zip(* val.values()))
-
-                        #
-                        # ElabFTW cannot handle this one
-                        # we can try to make it to some kind of table
-                        elif isinstance(val, list)\
-                            and val\
-                            and isinstance(val[0], dict):
-
+                        if isinstance(val, list):
                             table_keys = list(val[0].keys())
-                            table_vals = [list(i.values()) for i in val]
+                            table_vals = []
+                            for row in val:
+                                # using list(row.vals()) is not good for deeper dicts
+                                table_row = [i for i in row.values()]
+                                table_vals.append(table_row)
+
+                            print('keys:', table_keys)
+                            print('got values:', table_vals)
 
 
                         # common table writing:
@@ -188,18 +189,31 @@ def body_meta_from_record(record:dict)->tuple:
 
                         # add values row-by-row
                         for i in table_vals:
+                            # vals is a list of dicts, which may
+                            # contain further lists of dicts
                             ii_new = []
                             for ii in i:
                                 if isinstance(ii, list):
-                                    ii_text = '-'+'<BR>-'.join(ii)
-                                    ii_text.replace('file:', '')
+                                    if ii and isinstance(ii[0], dict):
+                                        ii_text = yaml.safe_dump(ii)
+                                        ii_text = ii_text.replace('\n','<BR>')
+                                    else:
+                                        ii_text = '-'+'<BR>-'.join(ii)
+                                        ii_text.replace('file:', '')
+
                                 elif isinstance(ii, dict):
+                                    # this should not really come up, but be safe
                                     ii_text = yaml.safe_dump(ii)
                                     ii_text = ii_text.replace('\n','<BR>')
+
                                 else:
                                     ii_text = str(ii)
-                                ii_new.append(ii_text)
 
+                                # add the row to the text list:
+                                ii_new.append(ii_text)
+                            # end running in the rows
+
+                            # write out the resulted table
                             table = f'{table}|' + '|'.join(ii_new) + '|\n'
 
                         body = f'{body}{table}\n\n'
@@ -278,6 +292,8 @@ def body_meta_from_record(record:dict)->tuple:
         meta = None
 
     # clean up filelist
+    filelist = [i.replace('file:','') for i in filelist if isinstance(i,str)]
+    print('found files in record:', filelist)
     filelist = [i for i in  filelist if os.path.isfile(i)]
     print('attached existing files:', filelist)
 

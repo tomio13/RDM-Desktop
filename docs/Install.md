@@ -15,6 +15,7 @@ you can run the installer, then in a command terminal (win-button+R
 type cmd or powershell, then ENTER), run
 ```
 pip install pyyaml
+pip install requests
 ```
 
 ## On Linux

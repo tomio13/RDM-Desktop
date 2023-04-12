@@ -9,7 +9,7 @@ import json
 import os
 from rdm_modules.rdm_templates import find_in_record
 from requests import request
-from tkinter.messagebox import showerror
+from tkinter.messagebox import showerror, askyesno
 import time
 import yaml
 
@@ -17,6 +17,7 @@ import yaml
 def upload_record(
         title:str,
         record:dict,
+        record_path:str,
         server:str,
         token:str,
         verify= True)->dict:
@@ -24,11 +25,14 @@ def upload_record(
         a confirmation with information about the upload
 
         parameters:
-        title:  a title of the experiment
-        record: a dict containing form information and values
-        server: the https link to the server
-        token:  the security token to be used
-        verify: check certificate validity (False for self signed certificates)
+        title:          a title of the experiment
+        record:         a dict containing form information and values
+        record_path:    the path to the folder,
+                        so attachments can be found
+        server:         the https link to the server
+        token:          the security token to be used
+        verify:         check certificate validity
+                        (False for self signed certificates)
 
         return:
         a dict containing:
@@ -107,6 +111,42 @@ def upload_record(
 
     # MISSING STILL: handle file links as attachments...
     # for fn in filelist...
+    if filelist:
+        filelist = [i for i in  filelist\
+                if os.path.isfile(
+                    os.path.join(record_path, i)
+                    )]
+        if filelist:
+            print('Uploading', len(filelist), 'attachments')
+            go_on = True
+
+            if len(filelist) > 10:
+                go_on = askyesno("Upload",
+                    "Too many attachments found!\n"
+                         "Consider uploading a zip file manually\n"
+                         "Continue with this upload?")
+            if go_on:
+                print('Start uploading attachments')
+                # not setting Content-Type, let requests handle it
+                header = {'Accept': 'application/json',
+                          # 'charset': 'UTF-8',
+                          'Authorization': token}
+
+                i = 0
+                for fn in filelist:
+                    with open(os.path.join(record_path, fn), 'rb') as fp:
+                        rep = request('POST',
+                                      f'{link}/uploads',
+                                      files= {'file': fp},
+                                      headers= header,
+                                      verify= verify)
+                        if rep.ok and rep.status_code == 201:
+                            print('Uploaded', fn)
+                            i += 1
+                        else:
+                            showerror('error', rep.text)
+
+                print('All together uploaded', i, 'files')
 
     exp_id = link.rsplit('/',1)[-1]
     res['server'] = server
@@ -296,8 +336,6 @@ def body_meta_from_record(record:dict)->tuple:
     # clean up filelist
     filelist = [i.replace('file:','') for i in filelist if isinstance(i,str)]
     print('found files in record:', filelist)
-    filelist = [i for i in  filelist if os.path.isfile(i)]
-    print('attached existing files:', filelist)
 
     return (body, meta, filelist)
 # end body_meta_from_record

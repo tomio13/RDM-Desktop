@@ -26,7 +26,15 @@ import yaml
 # In this dict we combine the name of ELNs and the functions
 # to do the upload
 # Every function receives a dict for the record to be processed
-# the server URL and the security token
+# the server URL and the security token as:
+#
+#   title:str,
+#   record:dict,
+#   record_path:str,
+#   server:str,
+#   token:str,
+#   verify= True
+#
 # It is the job of the functions to tune the format to the actual ELN.
 # The functions return a dict containing:
 # server:   link to server (https...)
@@ -278,6 +286,7 @@ class rdmUploader():
         upload_result= up_func(
                         title,
                         upload_record,
+                        os.path.dirname(record_path),
                         server,
                         token,
                         verify= verify)

@@ -44,3 +44,10 @@ Currently ElabFTW is supported, but in the future the user can select
 from the supported server types.
 At the end of the upload, an uploaded field is added to the record,
 describing the new record in the ELN.
+
+## attachments
+The uploader can also take the files specified in the record and upload
+them as attachments. The example ElabFTW uploader does this, but in
+the case of more than 10 files, it recommends doing a manual upload using
+a zip archive.
+YAML files will not be uploaded, they should be linked within the system.

@@ -109,13 +109,15 @@ def upload_record(
             showerror('error', rep.text)
             return None
 
-    # MISSING STILL: handle file links as attachments...
-    # for fn in filelist...
+    # filelist provides all potential attachments
+    # YAML files are supposed to be other records
+    # these would not be uploaded
     if filelist:
         filelist = [i for i in  filelist\
                 if os.path.isfile(
                     os.path.join(record_path, i)
-                    )]
+                    ) and not i.endswith('.yaml')
+                    ]
         if filelist:
             print('Uploading', len(filelist), 'attachments')
             go_on = True
@@ -339,32 +341,3 @@ def body_meta_from_record(record:dict)->tuple:
 
     return (body, meta, filelist)
 # end body_meta_from_record
-
-
-# for upload:
-# use POST, experiments/id/uploads/
-# Content-Type: 'multipart/form-data'
-# file pointer sent as: data= fp
-# or files= fp
-# json is ignored if data or files are set in request
-# files can be:
-# files = {'file':(file.name.dat, open(file.name.dat, 'rb'), 'application/...')}
-# you can also ignore the last one
-#
-# possible to have streamed upload and chunked ones
-# this latter needs an interator through the data stream
-#
-# stream = True in the request call ?
-# A file object is an iterator, so it then goes for a chunked upload
-#
-#
-# comment goes into the form_parameters as
-# 'comment': comment
-#
-# to read a file, use GET and
-# 'Accept':['application/json',
-#           'application/octet-stream',
-#           'application/zip']
-# add content PATCH
-#
-# For every request set a timeout

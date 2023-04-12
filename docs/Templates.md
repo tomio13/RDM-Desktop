@@ -69,9 +69,8 @@ The type can be one of:
 - select            a selection menu, with a single choice. The options
                     subfield contains a list of possible values to select from
 - multieselect      the same as select, but multiple selection
-- file              a file picker for one or more files (result is
-                    recorded as file:path);
-                    if the file name is typed as a comma separated list,
+- file              a file picker for one or more files;
+                    If the file name is typed as a comma separated list,
                     the file does not have to exist (user can add them later this way)
 - url               a text field for an url
 - subset            a subset: grouping a new list of menu items to be

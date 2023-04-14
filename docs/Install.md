@@ -18,6 +18,20 @@ pip install pyyaml
 pip install requests
 ```
 
+## alternatively: use the exe
+An executable is generated packing together the python interpreted and
+libraries with the source code, using pyinstaller.
+
+The code is super simple, run int he python folder as:
+```bash
+pyinstaller -F ./rdm_project.py
+```
+
+The resulted exe file requires that the icons folder is in the same
+subfolder, and the templates are one folder up. In the zip file this
+is all packed up in a simple folder tree, so one can extract and use
+the resulted program as is.
+
 ## On Linux
 python is most probably installed by your system, just make sure you
 also have pyyaml installed.

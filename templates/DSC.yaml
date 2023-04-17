@@ -12,7 +12,7 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: DSC.yaml
-template version: "2023-02-16"
+template version: "2023-04-17"
 
 DSC device:
   type: select
@@ -35,24 +35,24 @@ pan piercing:
   value: true
   required: true
 
-initial sample mass, mg:
+initial sample mass (mg):
   type: numeric
   doc: "encapsulated sample mass before DSC"
   required: true
 
-final sample mass, mg:
+final sample mass (mg):
   type: numeric
   doc: "encapsulated sample mass after DSC"
   required: true
 
-mass loss, percent:
+mass loss (percent):
   type: numeric
   doc: "calculated as 100%*(init-fin)/init"
   required: true
 
 pure gas:
   type: text
-  doc: "atmosphere for the exepriment, typically: nitrogen, synthetic air or other"
+  doc: "atmosphere for the exepriment (typically): nitrogen, synthetic air or other"
   required: true
 
 pan damage:

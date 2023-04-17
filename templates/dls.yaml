@@ -8,7 +8,7 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: dls.yaml
-template version: 2023-02-23
+template version: 2023-04-17
 
 DLS device:
   type: select
@@ -29,7 +29,7 @@ solvent:
   doc: what solvent was used in the measurement (e.g. water, PBS, ethanol)
   required: true
 
-sample volume, ml:
+sample volume (ml):
   type: numeric
   doc: what volume was measured
   required: true
@@ -49,12 +49,12 @@ wavelength:
     - 640 nm
   required: true
 
-duration, s:
+duration (s):
   type: numeric
   doc: duration of data acquisition (should be the same at every measurement step)
   required: true
 
-first correlation delay, ms:
+first correlation delay (ms):
   type: numeric
   doc: if your system requires this value to be specified, please record it here
   required: false
@@ -74,7 +74,7 @@ parameters of runs:
   type: "subset"
   required: true
   form:
-    relative time point, s:
+    relative time point (s):
       type: numeric
       doc: relative time point of  the current experiment in the series
       required: true
@@ -84,23 +84,23 @@ parameters of runs:
       doc: refractive index of the medium, used in the primary analysis (e.g. water, 1.33)
       required: true
 
-    temperature, K:
+    temperature (K):
       type: numeric
       doc: temperatures of the sample in the instrument
       required: true
 
-    viscosity, mPas:
+    viscosity (mPas):
       type: numeric
       doc: viscosity values in centiPoise or mPas (the same)
       required: true
 
-    detection angle, degrees:
+    detection angle (degrees):
       type: numeric
       doc: scattering angle used for the measurements
       required: true
 
   # results of default analysis
-    average diffusion coefficient, micron^2/s:
+    average diffusion coefficient (micron^2/s):
       type: numeric
       doc: average diffusion coefficients reported by a cumulant analysis
       required: true
@@ -110,7 +110,7 @@ parameters of runs:
       doc: the parabolic terms in the cumulant fits, deviation from ideal translation diffusion
       required: true
 
-    hydrodynamic radius, nm:
+    hydrodynamic radius (nm):
       type: numeric
       doc: (equivalent) hydrodynamic radii
       required: true

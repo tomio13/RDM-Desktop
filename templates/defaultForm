@@ -2,6 +2,7 @@
 
 user: "%u"
 created: "%D"
+sample ID: "%3"
 
 aim:
   type: "multiline"
@@ -20,9 +21,12 @@ sample description:
   doc: "a short description of the sample"
   required: true
 
-sample ID: "%3"
-
 experiment start:
     type: date
     doc: "Experiment starting date and time in ISO 8601 format"
     required: true
+
+attachments / links:
+    type: file
+    doc: "Any attachments, like figures or other experiments you find important to be coupled to this experiment. Data if there is no specific place for it in the form below."
+    required: false

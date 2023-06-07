@@ -20,10 +20,13 @@ import yaml
 
 
 # now the local elements:
-from .form_from_dict import FormBuilder
+from .form_from_dict import FormBuilder, SubSet
 from .project_config import replace_text
 from .project_dir import make_dir
 from .rdm_uploader import rdmUploader
+
+from rdm_templates import (merge_templates,
+                           combine_template_dataA)
 
 
 # important global variables (within the package)
@@ -227,7 +230,9 @@ class ListWidget():
 
 
     def get_config_element(self, key:str) -> str:
-        """ To dig into a list within config, get the
+        """ Get a config value out of the dict.
+            If it is one of the lists, then
+            dig into a list within config, get the
             element at self.level.
 
             Parameters
@@ -237,11 +242,14 @@ class ListWidget():
             if self.config[key] is a list return its
             self.level value or ''
         """
-        if key in self.config\
-            and isinstance(self.config[key], list)\
-            and len(self.config[key]) > self.level:
+        if key in self.config:
+            if isinstance(self.config[key], list):
+                if len(self.config[key]) > self.level:
+                    return self.config[key][self.level]
 
-            return self.config[key][self.level]
+            # if not a list, just return it
+            else:
+                return config[key]
 
         return ''
     # end get_config_element
@@ -283,8 +291,11 @@ class ListWidget():
 
         # a file we open with the default editor
         if os.path.isfile(full_path):
-            cmd= (self.config['editor'], full_path)
-            subprocess.call(cmd)
+            if config['editor'].lower() == 'form':
+                self.edit_form(full_path)
+            else:
+                cmd= (self.config['editor'], full_path)
+                subprocess.call(cmd)
 
         else:
             # in a data folder we look what is
@@ -580,6 +591,35 @@ class ListWidget():
         return False
     # end run_form
 
+    def edit_form(self, full_path:str) ->None:
+        """ take a yaml file, and try turning it back to
+            a form. Display this form then.
+
+            parameters
+            full_path:  path to the yaml file
+
+            return:
+            nothing
+        """
+        default_template = self.get_config_element(
+                'defaultTemplate'
+                )
+        # the path was checked before the call...
+        with open(full_path, 'rt', encoding= 'UTF-8') as fp:
+            form_data = yaml.safe_load(fp)
+
+        if not form_data:
+            return
+
+        if 'template' in form_data:
+            template_file = form_data['template']
+
+            if template_file and template_dir:
+                template_file = os.path.join(template_dir,
+                                         template_file)
+        # form = SubSet(
+    #end edit_form
+
 
     def add_new(self) -> None:
         """ create a new item. Depending on the level and
@@ -604,8 +644,7 @@ class ListWidget():
 
         print('creating', new_name)
 
-        k = 'templateDir'
-        template_dir = self.config[k] if k in self.config else ''
+        template_dir = self.get_config('templateDir')
 
         default_template = self.get_config_element(
                 'defaultTemplate'

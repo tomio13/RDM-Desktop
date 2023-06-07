@@ -38,7 +38,16 @@ class FormBuilder():
                  ) -> None:
         """ Create a window, and populate it with input fields from
             template.
-            At submittion, save a YAML file of the results.
+
+            Parameters:
+            title:      title displayed for the window
+            root_path:  where the data shall be saved (data folder)
+            parent:     parent window object or None
+            template:   template dict to base the work on
+            config:     configuration settings
+
+            Return;
+                At submittion, save a YAML file of the results.
         """
         if not config or not template:
             print('Not enough information to proceed')
@@ -48,16 +57,15 @@ class FormBuilder():
         self.parent = parent
         self.template = template
 
-        if root_path:
-            self.root_path = root_path
-        else:
-            self.root_path = config['projectDir']
+        self.root_path = root_path if root_path\
+                            else config['projectDir']
 
         self.root_path = os.path.abspath(
                 os.path.expanduser(
                     self.root_path
                     )
                 )
+
         if not title:
             title='Form'
 
@@ -233,7 +241,9 @@ class FormBuilder():
                        pady=(2,2),
                        sticky='w')
 
-            if v['type'] in ['text', 'url', 'numeric', 'integer', 'list', 'numericlist']:
+            if v['type'] in ['text', 'url',
+                             'numeric', 'integer',
+                             'list', 'numericlist']:
                 # entry = ttk.Entry(frame, textvariable= var)
                 entry = EntryBox(frame, v['type'])
                 if 'value' in v:

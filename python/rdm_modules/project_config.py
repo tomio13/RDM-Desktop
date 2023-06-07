@@ -38,7 +38,7 @@ def get_default_config() -> dict:
         return value
         a dict containing the configuration parameters.
     """
-    version = 0.3
+    version = 0.35
 
     if os.name == 'posix':
         home_dir = os.getenv('HOME')
@@ -64,6 +64,7 @@ def get_default_config() -> dict:
             'readme':       'readme.md',
             'filemanager':  filemanager,
             'version':      version,
+            'use form':     True,
             'editor':       editor,
             'chemicals':    'Chemicals',
             'equipment':    'Equipment',

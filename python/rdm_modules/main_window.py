@@ -25,8 +25,8 @@ from .project_config import replace_text
 from .project_dir import make_dir
 from .rdm_uploader import rdmUploader
 
-from rdm_templates import (merge_templates,
-                           combine_template_dataA)
+from .rdm_templates import (merge_templates,
+                           combine_template_data)
 
 
 # important global variables (within the package)
@@ -72,13 +72,11 @@ class ListWidget():
         self.level = level
         self.content_list = []
 
-        if 'projectDir' not in self.config:
-            raise ValueError('projectDir not provided!')
+        self.root_path = root_path if root_path \
+                    else self.get_config_element('projectDir')
 
-        if root_path:
-            self.root_path = root_path
-        else:
-            self.root_path = self.config['projectDir']
+        if not self.root_path:
+            raise ValueError('projectDir not provided!')
 
         self.root_path = os.path.abspath(
                 os.path.expanduser(
@@ -103,9 +101,8 @@ class ListWidget():
 
         # we should provide a title at clicks, but if not,
         # use the projects title:
-        k = 'projectsTitle'
-        if not title and k in self.config:
-            title= self.config[k]
+        if not title:
+            title = self.get_config_element('projectsTitle')
 
         # at each level we may ask for a directory listing or
         # searching for files
@@ -249,7 +246,7 @@ class ListWidget():
 
             # if not a list, just return it
             else:
-                return config[key]
+                return self.config[key]
 
         return ''
     # end get_config_element
@@ -258,8 +255,9 @@ class ListWidget():
     def file_manager(self) -> None:
         """ Open the current folder in a file manager
         """
-        if 'filemanager' in self.config:
-            cmd= [self.config['filemanager'], self.root_path]
+        fm = self.get_config_element('filemanager')
+        if fm:
+            cmd= [fm, self.root_path]
             # open in a subprocess, but do not wait for it!
             with subprocess.Popen(cmd) as pop:
                 print('child started:', pop)
@@ -291,11 +289,11 @@ class ListWidget():
 
         # a file we open with the default editor
         if os.path.isfile(full_path):
-            if config['editor'].lower() == 'form':
+            use_form = self.get_config_element('use form')
+            if use_form:
                 self.edit_form(full_path)
             else:
-                cmd= (self.config['editor'], full_path)
-                subprocess.call(cmd)
+                self.open_editor(full_path)
 
         else:
             # in a data folder we look what is
@@ -482,17 +480,23 @@ class ListWidget():
                                   new_path)
                     )
 
+            readme_path = self.get_config_element('readme')
+            if not readme_path:
+                raise ValueError('Readme should be defined!')
+
             with open(os.path.join(
                     new_path,
-                    self.config['readme']),
+                    readme_path),
                     'wt',
                     encoding='UTF-8') as fp:
                 fp.write(txt)
 
-        cmd= (self.config['editor'],
-              os.path.join(new_path, self.config['readme']))
+        ed = self.get_config_element('editor')
 
-        subprocess.call(cmd)
+        if ed :
+            cmd= (ed, os.path.join(new_path, readme_path))
+            subprocess.call(cmd)
+
     # end make_readme
 
 
@@ -520,33 +524,34 @@ class ListWidget():
         template_dict= {}
 
         # we pull the default template first
-        print('Default template:', default_template)
-        if os.path.isfile(default_template):
-            with open(default_template,
-                      'rt',
-                      encoding='UTF-8') as fp:
-                template_dict= yaml.safe_load(fp)
+        #if os.path.isfile(default_template):
+        #    with open(default_template,
+        #              'rt',
+        #              encoding='UTF-8') as fp:
+        #        template_dict= yaml.safe_load(fp)
 
-        new_template = {}
+        #new_template = {}
         fn = askopenfilename(title='Select template form',
                 filetypes=[('yaml', '*.yaml'), ('yml', '*.yml')],
                 initialdir= template_dir,
                 defaultextension='yaml')
-        if fn:
-            with open(fn, 'rt', encoding='UTF-8') as fp:
+        #if fn:
+        #    with open(fn, 'rt', encoding='UTF-8') as fp:
 
-                new_template = yaml.safe_load(fp)
-            # end loading templates
+        #        new_template = yaml.safe_load(fp)
+        #    # end loading templates
+
+        if fn:
+            print('Default template:', default_template)
+            template_dict= merge_templates(fn, default_template)
+            if not template_dict:
+                print('Empty template!')
+                return False
 
         else:
             print('No template requested')
             return False
 
-        if template_dict and new_template:
-            template_dict.update(new_template)
-
-        elif new_template:
-            template_dict = new_template
 
         form = FormBuilder(
                 title= f'Form of {label}',
@@ -591,6 +596,7 @@ class ListWidget():
         return False
     # end run_form
 
+
     def edit_form(self, full_path:str) ->None:
         """ take a yaml file, and try turning it back to
             a form. Display this form then.
@@ -601,15 +607,20 @@ class ListWidget():
             return:
             nothing
         """
-        default_template = self.get_config_element(
-                'defaultTemplate'
-                )
         # the path was checked before the call...
+        print('Loading file:', full_path, '...', end=' ')
         with open(full_path, 'rt', encoding= 'UTF-8') as fp:
             form_data = yaml.safe_load(fp)
 
         if not form_data:
             return
+        print('loaded')
+
+        default_template = self.get_config_element(
+                'defaultTemplate'
+                )
+
+        template_dir = self.get_config_element('templateDir')
 
         if 'template' in form_data:
             template_file = form_data['template']
@@ -617,8 +628,74 @@ class ListWidget():
             if template_file and template_dir:
                 template_file = os.path.join(template_dir,
                                          template_file)
-        # form = SubSet(
+
+            # this will read and merge the templates
+            template = merge_templates(template_file,
+                                       os.path.join(template_dir, default_template)
+                                       )
+            print('template is loaded')
+
+            k = 'template version'
+            if (k in template and k in form_data
+                and template[k] != form_data[k]):
+
+                print('Template version mismatch!')
+                print('Template has:', template[k])
+                print('Data has', form_data[k])
+                self.open_editor(full_path)
+                return
+
+
+            form_data = combine_template_data(template, form_data, simple= True)
+            print('form data created')
+
+            label = self.get_config_element(
+                'searchNames'
+                )
+            form = FormBuilder(
+                title= f'Form of {label}',
+                root_path= self.root_path,
+                parent= self.window,
+                template= form_data,
+                config= self.config)
+
+            # we have to get stuck here until it comes back
+            # form.window.mainloop()
+            form.window.wait_window()
+            if form.result:
+                print('overwriting file:', full_path)
+                with open(full_path,
+                          'wt',
+                          encoding='UTF-8') as fp:
+
+                    out_txt = yaml.safe_dump(form.result,
+                                         sort_keys= False,
+                                         allow_unicode= True,
+                                         width= 70,
+                                         default_style= None)
+                    # remove the multiple new lines produced by yaml
+                    # which breaks multiline entries badly apart
+                    # strip may not be needed actually
+                    # fp.write(out_txt.strip().replace('\n\n', '\n'))
+                    fp.write(out_txt.replace('\n\n', '\n'))
+
+            return
+
+        # else:
+        print('template not found, calling editor')
+        self.open_editor(full_path)
+
     #end edit_form
+
+
+    def open_editor(self, full_path):
+        """ Open a yaml file using the editor in config
+        """
+        ed = self.get_config_element('editor')
+        if ed:
+            cmd= (ed, full_path)
+            subprocess.call(cmd)
+    # end open_editor
 
 
     def add_new(self) -> None:
@@ -644,7 +721,7 @@ class ListWidget():
 
         print('creating', new_name)
 
-        template_dir = self.get_config('templateDir')
+        template_dir = self.get_config_element('templateDir')
 
         default_template = self.get_config_element(
                 'defaultTemplate'

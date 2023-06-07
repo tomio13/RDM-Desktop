@@ -801,6 +801,8 @@ class SubSet():
 
         # we go an extra circle to set the values
         keys = list(values[0].keys())
+        # print('subset keys:', keys)
+        # print('vs:', list(self.form.keys()))
 
         # this_set = {i:j for i,j in values.items() if i in self.form}
 
@@ -823,6 +825,7 @@ class SubSet():
             return
 
         self.content = [tuple(i.values()) for i in values]
+        print('Updating content:', self.content)
 
         self.update_content()
     # end set

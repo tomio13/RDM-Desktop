@@ -26,7 +26,7 @@ so the user can browse and work on the content of the files.
 # adding new element
 First a name is requested for the new folder, then a read-me is created
 based on the corresponding template. This file is opened in the default editor
-for being filled out by the user.
+(nano for non Windows, Notepad for Windows) for being filled out by the user.
 
 # working on YAML files
 If a new YAML file is created (on the bottom level of the folder tree),

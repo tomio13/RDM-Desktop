@@ -825,7 +825,7 @@ class SubSet():
             return
 
         self.content = [tuple(i.values()) for i in values]
-        print('Updating content:', self.content)
+        # print('Updating content:', self.content)
 
         self.update_content()
     # end set

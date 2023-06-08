@@ -1,0 +1,113 @@
+###########################################################
+# a default template to be used for the RDM-desktop
+#
+# The program loads this file if it founds it, if not,
+# the falls back to some hard coded values.
+# For some variables, like the default path, overriding
+# the automatic detection means to be sure the user
+# has the right to write the specified folder!
+#
+
+# HomeDir: this is the base path
+# to where we place the projects, etc.
+# By default this value is not set,
+# the system tries some default, like
+# the home folder of the user on non-windows systems,
+# or drive D:\ or C:\%HOMEDIR%/Documents on Windows.
+#
+# If you force this, it may not be interoperable between
+# systems. Still, it can be a good idea in some cases.
+# homeDir: D:\
+
+# relative path of the project dir
+projectDir: Projects
+projectsTitle: Projects
+# what names readme files should have:
+readme: readme.md
+
+# chemicals is for future use, a relative path within
+# the project dir
+chemicals: Chemicals
+# default template file names
+# Relative path for equipment data (for future use)
+equipment: Equipment
+
+defaultTemplate:
+- readmeProject
+- readmeSample
+- defaultForm
+# use the form editor to edit experiment records:
+# (make sure the templates are all available!)
+use form: true
+# Which is the default text editor?
+# Uses nano for non-Win systems or Notepad for Windows
+# editor: scite
+
+# Again, for most cases the default automatic setting
+# works the best: xdg-open / Explorer for Win.
+# filemanager: xdg-open
+
+# Local folders  to ignore in Projects dir
+ignore:
+- References
+
+
+# This folder tree is to define the structure within the main
+# folder
+# We have projects with their name in projectDir
+# At next level, all samples are listed under 'projectDir'/Data
+# then all experiments are directly under the sample folder name
+# if you change this, you may have to follow up in the templates,
+# where %1, %2, ... are used to extract the current sample or project
+# name...
+searchFolders:
+- ''
+- Data
+- ''
+# with what name are we referring to the levels above?
+# As it was just mentioned, default are: project / sample / experiment
+searchNames:
+- project
+- sample
+- experiment
+# by what simple pattern we collect the relavant information in the
+# file browser window? For the dirs, we use no pattern (list everything
+# except the ignore list, for files we use files ending as yaml.
+searchPattern:
+- ''
+- ''
+- yaml$
+# to know what we are looking for: files or folder names?
+searchTargets:
+- dir
+- dir
+- file
+# It is possible to upload experiments to servers
+# First ElabFTW is supported, but other uploaders can also
+# be provided.
+# For that we need: a sever URL, an API key or token,
+server:
+  server: ''
+  token: ''
+
+# Templates are in the templateDir, which has a relative path
+# from the place of the executed file (RDM_project.py or an exe file)
+# Here it is possible to make it custom for a group or institute
+# (With the exception of this very file, which has to be found that
+# these values can take effect)
+templateDir: ../templates
+
+# default templates can be used to create folder trees...
+# we definitely use one to make a folder tree for projects
+templates:
+- folderlist
+- ''
+- ''
+# user ID: it is best to leave this automatic, something the users should perhaps
+# set in their local copy. Making the same user for everyone (setting it here)
+# will often cause problems.
+# userID: AnonymousCoward
+#
+# The version of this configuration. If it is newer than what the users have,
+# then the local configuration gets automatically updated.
+version: 0.35

@@ -35,6 +35,9 @@ def get_default_config() -> dict:
     """ Read some system variables to set some default values
         for the configuration.
 
+        Read the ../templates/default_configuration if possible,
+        or go for default values.
+
         return value
         a dict containing the configuration parameters.
     """
@@ -57,16 +60,25 @@ def get_default_config() -> dict:
 
     #template_dir = os.path.join(config_dir, 'Templates')
     template_dir = '../templates'
-    projects_dir = os.path.join(home_dir, 'Projects')
+    # now, get the YAML file if it exists:
+    template_path = os.path.join(template_dir,
+                         'default_configuration')
+    if os.path.isfile(template_path):
+        with open(template_path, 'rt', encoding='UTF-8') as fp:
+            custom_config= yaml.safe_load(fp)
+
+    # projects_dir = os.path.join(home_dir, 'Projects')
 
     userID = os.getlogin()
 
     # we may still need:
     # - readme template (MD files)
     # - default template for forms
-    return {'userID': userID,
+    default_config= {
+            'homeDir': home_dir,
+            'userID': userID,
             'templateDir':  template_dir,
-            'projectDir':   projects_dir,
+            'projectDir':   'Projects',
             'readme':       'readme.md',
             'filemanager':  filemanager,
             'version':      version,
@@ -119,6 +131,30 @@ def get_default_config() -> dict:
                 'readmeSample',
                 'defaultForm']
             }
+
+    # take over the custom settings, if there is any:
+    if custom_config:
+        default_config.update(custom_config)
+
+    # now, clean up:
+    home_dir = default_config.pop('homeDir')
+
+    default_config['projectDir'] = os.path.join(
+             home_dir,
+             default_config['projectDir']
+                )
+    for k in ['chemicals', 'equipment']:
+        dck = default_config[k]
+        if not (dck.startswith('/')
+            or dck[1:].startswith(':/')
+            or dck[1:].startswith(':\\')):
+            # relative path is specified
+            default_config[k] = os.path.join(
+                    default_config['projectDir'],
+                    dck)
+    # end cleaning up paths
+
+    return(default_config)
 # end get_default_config
 
 
@@ -126,20 +162,26 @@ def get_config() -> dict:
     """ Find the config folder, and try pulling up the configuration.
         Substitute non-existing values with their default counterpart.
 
+        Read the ../templates/default_configuration if possible,
+        or go for default values.
+
         return
         a dict with the configuration
     """
     # is there a configuration already saved?
     config_dir= get_config_dir()
-    if not os.path.isdir(config_dir):
+    config_path = os.path.join(config_dir, 'config.yaml')
+
+    if not os.path.isfile(config_path):
         print('Configuration not found')
         conf = get_default_config()
         print('Creating default configuration')
         save_config(conf)
         return conf
 
-    with open(os.path.join(config_dir, 'config.yaml'),
-              'rt', encoding='utf8') as fp:
+    with open(config_path,
+              'rt',
+              encoding='utf8') as fp:
         conf = yaml.safe_load(fp)
     # we got a config
 

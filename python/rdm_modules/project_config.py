@@ -45,7 +45,13 @@ def get_default_config() -> dict:
         editor='nano'
         filemanager='xdg-open'
     else:
-        home_dir = 'd:/' if os.path.isdir('d:/') else 'c:/'
+        # let us try come up with a preference list
+        # for default location:
+        # we can default to:
+        # os.getenv('HOMEDRIVE')
+        # os.getenv('HOMEDPATH')
+        home_dir = 'd:/' if os.path.isdir('d:/')\
+                else os.path.join(os.getenv('HOMEPATH'), 'Documents')
         editor= 'notepad'
         filemanager= 'explorer'
 

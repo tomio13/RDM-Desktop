@@ -195,6 +195,9 @@ class FormBuilder():
             From event we can figure out where it moved,
             on canvas we can apply
         """
+        if not canvas.winfo_exists():
+            return
+
         # in windows, delta is nonzero
         if event.delta != 0:
             canvas.yview_scroll(int(-1*(event.delta/120)), 'units')

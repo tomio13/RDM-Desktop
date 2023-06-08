@@ -32,8 +32,21 @@ for being filled out by the user.
 If a new YAML file is created (on the bottom level of the folder tree),
 a template has to be selected after defining the name of the new file.
 The form editor is opened with this template, and once the content is
-submitted, the YAML file is created. The user can open it in the default
-editor double clicking on its name.
+submitted, the YAML file is created.
+The resulted YAML file does not contain the field definition and documentation,
+in order to minimize storage. However, these are needed for future editing or
+uploading / publishing, to provide there a full record, which can be tested
+against expectations (standards).
+
+## Opening a recorded experiment
+The configuration file contains a field: 'use form' set true. This instructs
+the program to regenerate the form GUI widget opening the file. If the editing
+is interrupted using e.g. escape [ESC], then nothing is done.
+If the form is resubmitted, the original file is overwritten.
+
+If there the setting is false, or there is a mismatch of the template
+(different version date or file not found), then the text editor set in
+the configuration is called up with the file.
 
 # upload
 On the level of YAML files, a new icon appears at the bottom of the window,

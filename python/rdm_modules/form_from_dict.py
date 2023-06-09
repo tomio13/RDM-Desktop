@@ -391,8 +391,14 @@ class FormBuilder():
         # if the process was cancelled in any way,
         # self.result should be empty
         # now, that we have a submission, we fill it up
-        self.result = self.default_result.copy()
+        if ('full record' in self.config
+            and self.config['full record']):
+            self.result = self.template.copy()
+            self.result.update(self.default_result)
+        else:
+            self.result = self.default_result.copy()
 
+        print(self.result)
         for i,v in self.entrydict.items():
             # we have the chance to insert the
             # keys from a subset to the whole

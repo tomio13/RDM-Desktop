@@ -25,6 +25,8 @@
 # be used every time.
 # Useful when running from an USB drive for example.
 save config: true
+# To save the merged record with its template
+full record: true
 
 # relative path of the project dir
 projectDir: Projects

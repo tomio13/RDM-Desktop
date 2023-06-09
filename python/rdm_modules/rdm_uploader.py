@@ -168,33 +168,36 @@ class rdmUploader():
             dict        the merged record
         """
 
-        # start pulling together the template
-        k = 'templateDir'
-        if k in  config:
-            tempdir = config[k]
-            if 'template' in record:
-                tfile = os.path.join(
+        if not ('full record' in record
+            and record['full record']):
+            # start pulling together the template
+            k = 'templateDir'
+            if k in  config:
+                tempdir = config[k]
+                if 'template' in record:
+                    tfile = os.path.join(
+                            tempdir,
+                            record['template']
+                            )
+                else:
+                    tfile= ''
+            else:
+                print('Template dir is not available!')
+                tempdir = ''
+                tfile = ''
+
+            k = 'defaultTemplate'
+            if k in config and len(config[k]) > level:
+                dtfile = os.path.join(
                         tempdir,
-                        record['template']
+                        config[k][level]
                         )
             else:
-                tfile= ''
-        else:
-            print('Template dir is not available!')
-            tempdir = ''
-            tfile = ''
+                dtfile= ''
 
-        k = 'defaultTemplate'
-        if k in config and len(config[k]) > level:
-            dtfile = os.path.join(
-                    tempdir,
-                    config[k][level]
-                    )
-        else:
-            dtfile= ''
-
-        # combine the content of the two files
-        template = merge_templates(tfile, dtfile)
+            # combine the content of the two files
+            template = merge_templates(tfile, dtfile)
+        # end loading templates if not full record
 
         # simple is True by default for handling subsets
         record = convert_record_to_JSON(

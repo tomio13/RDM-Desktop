@@ -197,14 +197,16 @@ class rdmUploader():
 
             # combine the content of the two files
             template = merge_templates(tfile, dtfile)
+
+            # simple is True by default for handling subsets
+            record = combine_template_data(template,
+                                           record,
+                                           simple= True)
         # end loading templates if not full record
 
-        # simple is True by default for handling subsets
-        record = convert_record_to_JSON(
-                        combine_template_data(template,
-                                              record,
-                                              simple= True)
-                    )
+
+        print(record)
+        record = convert_record_to_JSON(record)
         return(record)
     # end prepare_record
 
@@ -260,6 +262,7 @@ class rdmUploader():
         server = self.server_address.get()
         token = self.server_token.get()
         uploader_key = self.eln_type.get()
+
         if uploader_key in uploader_dict:
             up_func = uploader_dict[uploader_key]
         else:

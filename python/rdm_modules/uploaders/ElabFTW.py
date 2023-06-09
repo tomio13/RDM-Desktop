@@ -274,8 +274,11 @@ def body_meta_from_record(record:dict)->tuple:
                 elif v['type'] == 'multiline' and 'value' in v:
                     body = f'{body}# {k}\n{v["value"]}\n\n'
 
-                elif v['type'] == 'text' and 'value' in v\
-                        and '\n' in v['value']:
+                # optional text may be None
+                elif (v['type'] == 'text'
+                      and 'value' in v
+                      and v['value'] is not None
+                      and '\n' in v['value']):
                     body = f'{body}# {k}\n{v["value"]}\n\n'
 
                 else:
@@ -292,7 +295,7 @@ def body_meta_from_record(record:dict)->tuple:
                     # a file list is something we can use for adding
                     # attachments in the future
                     elif v['type'] == 'file':
-                        if 'value' in v:
+                        if 'value' in v and v['value'] is not None:
                             fl = [i.replace('file:', '') for i in v]
                             v['value'] = ', '.join(fl)
                         else:
@@ -322,7 +325,7 @@ def body_meta_from_record(record:dict)->tuple:
             # add to the body
             if isinstance(v, str) and '\n' in v:
                 #body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
-                body= f'{body}# {k}>\n{v}\n\n'
+                body= f'{body}# {k}\n{v}\n\n'
             else:
                 meta[k] = v
 

@@ -395,10 +395,14 @@ class FormBuilder():
             and self.config['full record']):
             self.result = self.template.copy()
             self.result.update(self.default_result)
+            self.result['full record'] = True
+            full_record= True
+
         else:
             self.result = self.default_result.copy()
+            full_record= False
 
-        print(self.result)
+        # print(self.result)
         for i,v in self.entrydict.items():
             # we have the chance to insert the
             # keys from a subset to the whole
@@ -431,7 +435,12 @@ class FormBuilder():
 #                    self.result[i] = j
 
             # add even if val is None
-            self.result[i] = val
+
+            if full_record:
+                self.result[i]['value'] = val
+            else:
+                self.result[i] = val
+
         # end pulling results
         # if all good, close:
         self.window.destroy()

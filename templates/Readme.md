@@ -6,6 +6,12 @@ There are three main sets of files here:
 - default template
 - experiment templates
 
+# default_configuration
+is a well commented configuration file, where administrators
+can customize the settings for an installation.
+It contains all default fields either as they are or commented
+out.
+
 # readme templates
 These are to template the Readme.md files for new projects or
 samples.
@@ -43,3 +49,8 @@ Well, there is a nice list of them already, see the Readme.md in the python fold
 # description -> doc
 Changed description to doc, because this way we can use 'description' in field names.
 'Doc' is not probable to show up as such (it would be docs anyway).
+
+# units
+Now, indicate units in the name of the fields at the end in (), like:
+'test element (m):'
+

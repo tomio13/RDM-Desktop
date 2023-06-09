@@ -26,7 +26,7 @@
 # Useful when running from an USB drive for example.
 save config: true
 # To save the merged record with its template
-full record: true
+# full record: true
 
 # relative path of the project dir
 projectDir: Projects
@@ -120,4 +120,6 @@ templates:
 # The version of this configuration. If it is newer than what the users have,
 # then the local configuration gets automatically updated.
 # The default is set by the software in get_default_config
+# One may increment it in the next empty digit to make changes in full record,
+# or similar parts propagating through
 # version: 0.36

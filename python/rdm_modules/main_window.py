@@ -616,74 +616,76 @@ class ListWidget():
             return
         print('loaded')
 
-        default_template = self.get_config_element(
+        if not ('full record' in form_data
+            and form_data['full record']):
+
+            default_template = self.get_config_element(
                 'defaultTemplate'
                 )
 
-        template_dir = self.get_config_element('templateDir')
+            template_dir = self.get_config_element('templateDir')
 
-        if 'template' in form_data:
-            template_file = form_data['template']
+            if 'template' in form_data:
+                template_file = form_data['template']
 
-            if template_file and template_dir:
-                template_file = os.path.join(template_dir,
+                if template_file and template_dir:
+                    template_file = os.path.join(template_dir,
                                          template_file)
 
-            # this will read and merge the templates
-            template = merge_templates(template_file,
+                # this will read and merge the templates
+                template = merge_templates(template_file,
                                        os.path.join(template_dir, default_template)
                                        )
-            print('template is loaded')
+                print('template is loaded')
 
-            k = 'template version'
-            if (k in template and k in form_data
-                and template[k] != form_data[k]):
+                k = 'template version'
+                if (k in template and k in form_data
+                    and template[k] != form_data[k]):
 
-                print('Template version mismatch!')
-                print('Template has:', template[k])
-                print('Data has', form_data[k])
+                    print('Template version mismatch!')
+                    print('Template has:', template[k])
+                    print('Data has', form_data[k])
+                    self.open_editor(full_path)
+                    return
+
+
+                form_data = combine_template_data(template, form_data, simple= True)
+                print('form data created')
+
+            else:
+                print('template not found, calling editor')
                 self.open_editor(full_path)
-                return
+        # end if not a full record (thus load template)
 
+        label = self.get_config_element(
+            'searchNames'
+            )
+        form = FormBuilder(
+            title= f'Form of {label}',
+            root_path= self.root_path,
+            parent= self.window,
+            template= form_data,
+            config= self.config)
 
-            form_data = combine_template_data(template, form_data, simple= True)
-            print('form data created')
+        # we have to get stuck here until it comes back
+        # form.window.mainloop()
+        form.window.wait_window()
+        if form.result:
+            print('overwriting file:', full_path)
+            with open(full_path,
+                      'wt',
+                      encoding='UTF-8') as fp:
 
-            label = self.get_config_element(
-                'searchNames'
-                )
-            form = FormBuilder(
-                title= f'Form of {label}',
-                root_path= self.root_path,
-                parent= self.window,
-                template= form_data,
-                config= self.config)
-
-            # we have to get stuck here until it comes back
-            # form.window.mainloop()
-            form.window.wait_window()
-            if form.result:
-                print('overwriting file:', full_path)
-                with open(full_path,
-                          'wt',
-                          encoding='UTF-8') as fp:
-
-                    out_txt = yaml.safe_dump(form.result,
-                                         sort_keys= False,
-                                         allow_unicode= True,
-                                         width= 70,
-                                         default_style= None)
-                    # remove the multiple new lines produced by yaml
-                    # which breaks multiline entries badly apart
-                    # strip may not be needed actually
-                    # fp.write(out_txt.strip().replace('\n\n', '\n'))
-                    fp.write(out_txt.replace('\n\n', '\n'))
-
-            return
-
-        # else:
-        print('template not found, calling editor')
-        self.open_editor(full_path)
+                out_txt = yaml.safe_dump(form.result,
+                                     sort_keys= False,
+                                     allow_unicode= True,
+                                     width= 70,
+                                     default_style= None)
+                # remove the multiple new lines produced by yaml
+                # which breaks multiline entries badly apart
+                # strip may not be needed actually
+                # fp.write(out_txt.strip().replace('\n\n', '\n'))
+                fp.write(out_txt.replace('\n\n', '\n'))
 
     #end edit_form
 

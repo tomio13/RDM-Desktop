@@ -8,7 +8,7 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: dls.yaml
-template version: 2023-04-17
+template version: 2023-05-04
 
 DLS device:
   type: select
@@ -84,7 +84,7 @@ parameters of runs:
       doc: refractive index of the medium, used in the primary analysis (e.g. water, 1.33)
       required: true
 
-    temperature (K):
+    temperature (℃):
       type: numeric
       doc: temperatures of the sample in the instrument
       required: true
@@ -100,7 +100,7 @@ parameters of runs:
       required: true
 
   # results of default analysis
-    average diffusion coefficient (micron^2/s):
+    average diffusion coefficient (µm^2/s):
       type: numeric
       doc: average diffusion coefficients reported by a cumulant analysis
       required: true

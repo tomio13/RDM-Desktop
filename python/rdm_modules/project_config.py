@@ -41,7 +41,7 @@ def get_default_config() -> dict:
         return value
         a dict containing the configuration parameters.
     """
-    version = 0.35
+    version = 0.36
 
     if os.name == 'posix':
         home_dir = os.getenv('HOME')
@@ -76,6 +76,7 @@ def get_default_config() -> dict:
     # - default template for forms
     default_config= {
             'homeDir': home_dir,
+            'save config': True,
             'userID': userID,
             'templateDir':  template_dir,
             'projectDir':   'Projects',
@@ -175,8 +176,13 @@ def get_config() -> dict:
     if not os.path.isfile(config_path):
         print('Configuration not found')
         conf = get_default_config()
-        print('Creating default configuration')
-        save_config(conf)
+        if ('save config' in conf
+            and conf['save config']):
+            print('Saving default configuration')
+            save_config(conf)
+        else:
+            print('configuration is not saved')
+
         return conf
 
     with open(config_path,

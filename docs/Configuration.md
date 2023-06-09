@@ -13,6 +13,11 @@ This file is a standard yaml file, one can edit with any text editors.
 It is UTF-8 encoded, most modern systems have no problem with it. It also means
 that international characters are accepted.
 
+# save config
+This sets whether the user profile is saved. If not set or set to false,
+it would not get saved, Such may be a good idea when running a mobile version
+on an external storage.
+
 # userID
 here you can add the user name that can be also used in templates.
 
@@ -32,11 +37,15 @@ Notepad ++ works excellent on Windows, Vim, SciTE or anything similar on
 Linux. If you find something small and fast with YAML capabiltity, it will
 help you editing or checking your records.
 
+## use form
+if set to true, the program tries putting together the full record,
+just like for uploads, and calls the form maker to provide a nice GUI.
+This way one cannot edit fields which are not forms (have no type element).
+
 # filemanager
 On windows this is explorer, on Linux it pulls the default, but you
 can change it to what you like. The 'Open' button in the folder view
 calls this that you can have direct access to the underlying folder.
-
 
 # chemicals and equipment
 These folders are for future use. Users can store here files describing

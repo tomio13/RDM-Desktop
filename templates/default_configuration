@@ -19,6 +19,13 @@
 # systems. Still, it can be a good idea in some cases.
 # homeDir: D:\
 
+# removing this or setting to false,
+# the configuration would not be saved for the user
+# meaning this file here and the default config would
+# be used every time.
+# Useful when running from an USB drive for example.
+save config: true
+
 # relative path of the project dir
 projectDir: Projects
 projectsTitle: Projects
@@ -110,4 +117,5 @@ templates:
 #
 # The version of this configuration. If it is newer than what the users have,
 # then the local configuration gets automatically updated.
-version: 0.35
+# The default is set by the software in get_default_config
+# version: 0.36

@@ -25,8 +25,7 @@ from .project_config import replace_text
 from .project_dir import make_dir
 from .rdm_uploader import rdmUploader
 
-from .rdm_templates import (merge_templates,
-                           combine_template_data)
+from .rdm_templates import (read_record, save_record)
 
 
 # important global variables (within the package)
@@ -523,33 +522,19 @@ class ListWidget():
         # then dump the result...
         template_dict= {}
 
-        # we pull the default template first
-        #if os.path.isfile(default_template):
-        #    with open(default_template,
-        #              'rt',
-        #              encoding='UTF-8') as fp:
-        #        template_dict= yaml.safe_load(fp)
-
-        #new_template = {}
+        # let the user pick the template file name:
         fn = askopenfilename(title='Select template form',
                 filetypes=[('yaml', '*.yaml'), ('yml', '*.yml')],
                 initialdir= template_dir,
                 defaultextension='yaml')
-        #if fn:
-        #    with open(fn, 'rt', encoding='UTF-8') as fp:
 
-        #        new_template = yaml.safe_load(fp)
-        #    # end loading templates
-
-        if fn:
-            print('Default template:', default_template)
-            template_dict= merge_templates(fn, default_template)
-            if not template_dict:
-                print('Empty template!')
-                return False
-
-        else:
-            print('No template requested')
+        # this is a generic reader, that takes care of
+        # merging templates and data, etc...
+        # returns an empty dict on any problem
+        print('Default template:', default_template)
+        template_dict = read_record(None, default_template, fn)
+        if not template_dict:
+            print('Empty template / or no template')
             return False
 
 
@@ -565,32 +550,19 @@ class ListWidget():
         form.window.wait_window()
 
         if form.result:
-            if not new_path.endswith('.yaml'):
-                new_path = f'{new_path}.yaml'
+            full_record= 'full record' in self.config and self.config['full record']
 
-            print('saving file to', new_path)
-            with open(new_path,
-                      'wt',
-                      encoding='UTF-8') as fp:
+            print('saving file to', new_path, end=' ')
+            res= save_record(form.result,
+                             new_path,
+                             overwrite= False,
+                             full_record= full_record)
+            if res:
+                print('...done')
+            else:
+                print('...failed')
 
-                # this is messy on multiline text:
-                #fp.write(yaml.safe_dump(form.result,
-                #         sort_keys= False,
-                #         allow_unicode= True,
-                #         width= 70,
-                #         default_style= None))
-                out_txt = yaml.safe_dump(form.result,
-                                         sort_keys= False,
-                                         allow_unicode= True,
-                                         width= 70,
-                                         default_style= None)
-                # remove the multiple new lines produced by yaml
-                # which breaks multiline entries badly apart
-                # strip may not be needed actually
-                # fp.write(out_txt.strip().replace('\n\n', '\n'))
-                fp.write(out_txt.replace('\n\n', '\n'))
-
-            return True
+            return res
 
         # nothing saved, do not refresh
         return False
@@ -608,54 +580,21 @@ class ListWidget():
             nothing
         """
         # the path was checked before the call...
-        print('Loading file:', full_path, '...', end=' ')
-        with open(full_path, 'rt', encoding= 'UTF-8') as fp:
-            form_data = yaml.safe_load(fp)
+        default_template = self.get_config_element(
+            'defaultTemplate'
+            )
+
+        template_dir = self.get_config_element('templateDir')
+
+        # this should get a full record or an empty template
+        form_data = read_record(full_path,
+                                os.path.join(template_dir,
+                                            default_template),
+                                template_dir)
 
         if not form_data:
-            return
-        print('loaded')
-
-        if not ('full record' in form_data
-            and form_data['full record']):
-
-            default_template = self.get_config_element(
-                'defaultTemplate'
-                )
-
-            template_dir = self.get_config_element('templateDir')
-
-            if 'template' in form_data:
-                template_file = form_data['template']
-
-                if template_file and template_dir:
-                    template_file = os.path.join(template_dir,
-                                         template_file)
-
-                # this will read and merge the templates
-                template = merge_templates(template_file,
-                                       os.path.join(template_dir, default_template)
-                                       )
-                print('template is loaded')
-
-                k = 'template version'
-                if (k in template and k in form_data
-                    and template[k] != form_data[k]):
-
-                    print('Template version mismatch!')
-                    print('Template has:', template[k])
-                    print('Data has', form_data[k])
-                    self.open_editor(full_path)
-                    return
-
-
-                form_data = combine_template_data(template, form_data, simple= True)
-                print('form data created')
-
-            else:
-                print('template not found, calling editor')
-                self.open_editor(full_path)
-        # end if not a full record (thus load template)
+            print('template not found, calling editor')
+            self.open_editor(full_path)
 
         label = self.get_config_element(
             'searchNames'
@@ -671,21 +610,11 @@ class ListWidget():
         # form.window.mainloop()
         form.window.wait_window()
         if form.result:
+            # here we do not have to refresh
+            # the file list, so the return value
+            # does not matter
             print('overwriting file:', full_path)
-            with open(full_path,
-                      'wt',
-                      encoding='UTF-8') as fp:
-
-                out_txt = yaml.safe_dump(form.result,
-                                     sort_keys= False,
-                                     allow_unicode= True,
-                                     width= 70,
-                                     default_style= None)
-                # remove the multiple new lines produced by yaml
-                # which breaks multiline entries badly apart
-                # strip may not be needed actually
-                # fp.write(out_txt.strip().replace('\n\n', '\n'))
-                fp.write(out_txt.replace('\n\n', '\n'))
+            save_record(form.result, full_path, True)
 
     #end edit_form
 

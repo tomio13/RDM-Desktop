@@ -391,16 +391,12 @@ class FormBuilder():
         # if the process was cancelled in any way,
         # self.result should be empty
         # now, that we have a submission, we fill it up
-        if ('full record' in self.config
-            and self.config['full record']):
-            self.result = self.template.copy()
-            self.result.update(self.default_result)
-            self.result['full record'] = True
-            full_record= True
 
-        else:
-            self.result = self.default_result.copy()
-            full_record= False
+        print('recording  full record')
+        self.result = self.template.copy()
+        self.result.update(self.default_result)
+        self.result['full record'] = True
+
 
         # print(self.result)
         for i,v in self.entrydict.items():
@@ -429,17 +425,9 @@ class FormBuilder():
                     # erase our content
                     self.result = {}
                     return
-
-#            if typ == 'subset' and isinstance(val, dict):
-#                for i,j in val.items():
-#                    self.result[i] = j
-
             # add even if val is None
 
-            if full_record:
-                self.result[i]['value'] = val
-            else:
-                self.result[i] = val
+            self.result[i]['value'] = val
 
         # end pulling results
         # if all good, close:

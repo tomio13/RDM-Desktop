@@ -282,7 +282,7 @@ def find_in_record(data:dict, search:str='file')->list:
                     # end digging deeper
             # no else
     # end of for in data
-    # clean up res:
+    # for debugging, indicate the result:
     print('found', search,':', res)
     return res
 # end of find_in_record
@@ -318,4 +318,144 @@ def find_key_in_record(data:dict|list, search:str)->list:
 # end of find_key_in_record
 
 
+def read_record(record:str|None = None,
+                default_template:str|None= None,
+                template:str|None = None)->dict:
+    """ Read a full record based on the file names pointing to
+        the record with values (or a full record), and the corresponding
+        templates.
+        The key point here is to utilize the functions above, and go
+        by checking first if record is a full record, if not, then combine
+        with its templates, also checking for template version matching
+        the version in the record.
+
+        If the record is given, template should be the template dir,
+        the template is picked from the record.
+
+        If the record is not found, then the template is returned, to be
+        used in a fill-out form (via formBuilder).
+        If template is not found either, then an empty dict is returned.
+
+        Full record is defined with a 'full record': true entry and having
+        at least one field with a type subfield in it.
+
+        Parameters:
+        record:             path to the record or None
+        default_template:   path to default template
+        template:           path to template or to the template dir
+
+        Return:
+        a dict with the full record or an epty dict on failure
+    """
+
+    record_dict = {}
+    if (record is not None
+        and os.path.isfile(record)):
+        with open(record, 'rt', encoding='UTF-8') as fp:
+            record_dict = yaml.safe_load(fp)
+            # if we got somehow a messy file:
+            if not record_dict:
+                return {}
+
+            type_in_record = any(['type' in v\
+                                for k,v in record_dict.items()\
+                                if isinstance(v, dict)])
+            if ('full record' in record_dict
+                and record_dict['full record']
+                and type_in_record):
+                return record_dict
+    # end loading record
+
+    if (record_dict and 'template' in record_dict
+        and os.path.isdir(template)):
+        template = os.path.join(template,
+                                record_dict['template'])
+    # end constructing template path
+
+    temp_dict = merge_templates(template,
+                                default_template)
+
+    # if no record, then an empty form:
+    if not record_dict:
+        return temp_dict
+
+    if not record_dict and not temp_dict:
+        return {}
+
+    # we have both, then version check first:
+    k = 'template version'
+    if (k in  temp_dict and k in record_dict
+        and  temp_dict[k] != record_dict[k]):
+        print('Version mismatch!')
+        print('Template has:', temp_dict[k])
+        print('Data has:', record_dict[k])
+        return {}
+    # end if version mismatch
+
+    return combine_template_data(temp_dict,
+                                 record_dict,
+                                 simple= True)
+# end read_record
+
+
+def save_record(record:dict,
+                file_path:str,
+                overwrite:bool= True,
+                full_record:bool= True)->bool:
+    """ dump a dict as a yaml file, with some tiny tuning
+        to get a better formatted output.
+        Existing files would be overwritten.
+
+        parameters
+        record:     the dict to be saved
+        file_path:  file to be saved
+        overwrite:  Bool, if true, overwrite the file
+        full_record: save everything or strip out subdicts
+
+        return:
+        True if done, False upon error
+    """
+    file_path = os.path.abspath(
+            os.path.expanduser(file_path)
+            )
+    if not file_path.endswith('.yaml'):
+        file_path = f'{file_path}.yaml'
+
+    fpath = os.path.dirname(file_path)
+
+    if not os.path.isdir(fpath):
+        os.makedirs(fpath)
+
+    if (not overwrite
+        and os.path.isfile(file_path)):
+        print('File exist, will not overwwite!')
+        return False
+
+    if not full_record:
+        for k,v in record.items():
+            if (isinstance(v, dict)
+                and 'type' in v
+                and 'value' in v):
+                record[k] = v['value']
+    else:
+        # make sure we know there is a full record
+        if 'full record' not in record:
+            record['full record'] = True
+    # end if full_record to be stripped
+
+    with open(file_path,
+              'wt',
+              encoding='UTF-8') as fp:
+        out_txt = yaml.safe_dump(record,
+                                 sort_keys= False,
+                                 allow_unicode= True,
+                                 width= 70,
+                                 default_style= None)
+        # remove the multiple new lines produced by yaml
+        # which breaks multiline entries badly apart
+        # strip may not be needed actually
+        # fp.write(out_txt.strip().replace('\n\n', '\n'))
+        fp.write(out_txt.replace('\n\n', '\n'))
+    return True
+# end of save_record
 

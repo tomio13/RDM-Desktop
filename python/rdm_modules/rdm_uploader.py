@@ -12,8 +12,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showerror
 from rdm_modules.rdm_widgets import (EntryBox, CheckBox)
-from rdm_modules.rdm_templates import (merge_templates,
-                           combine_template_data)
+from rdm_modules.rdm_templates import (read_record, save_record)
 
 from rdm_modules.rdm_converters import convert_record_to_JSON
 
@@ -150,66 +149,6 @@ class rdmUploader():
         button.grid(column=1, row=4, sticky='se')
     # end __init__
 
-    def prepare_record(
-            self,
-            record:dict,
-            config:dict,
-            level:int
-            )->dict:
-        """ combine the record with the template and return
-            the combined result
-
-            parameters:
-            record:     a record dict
-            config:     used to find the templates
-            level:      which default template to load
-
-            return:
-            dict        the merged record
-        """
-
-        if not ('full record' in record
-            and record['full record']):
-            # start pulling together the template
-            k = 'templateDir'
-            if k in  config:
-                tempdir = config[k]
-                if 'template' in record:
-                    tfile = os.path.join(
-                            tempdir,
-                            record['template']
-                            )
-                else:
-                    tfile= ''
-            else:
-                print('Template dir is not available!')
-                tempdir = ''
-                tfile = ''
-
-            k = 'defaultTemplate'
-            if k in config and len(config[k]) > level:
-                dtfile = os.path.join(
-                        tempdir,
-                        config[k][level]
-                        )
-            else:
-                dtfile= ''
-
-            # combine the content of the two files
-            template = merge_templates(tfile, dtfile)
-
-            # simple is True by default for handling subsets
-            record = combine_template_data(template,
-                                           record,
-                                           simple= True)
-        # end loading templates if not full record
-
-
-        print(record)
-        record = convert_record_to_JSON(record)
-        return(record)
-    # end prepare_record
-
 
     def upload(self,
                record_path:str,
@@ -234,25 +173,28 @@ class rdmUploader():
         global uploader_dict
         print('upload was requested')
 
-        if os.path.isfile(record_path):
-            with open(record_path, 'rt', encoding='UTF-8') as fp:
-                record = yaml.safe_load(fp)
-        else:
+        k = 'templateDir'
+        if (config and k in config):
+            template_dir = config[k]
+        k = 'defaultTemplate'
+        if (config and k in config):
+            default_template = os.path.join(template_dir, config[k][level])
+
+        record = read_record(record_path,
+                             default_template,
+                             template_dir)
+        if not record:
             errorshow('error', f'File not found: {record_path}')
             return
+
+        # clean up somewhat
+        record = convert_record_to_JSON(record)
+        print(record)
 
         if 'Uploaded' in record:
             uploaded = record.pop('Uploaded')
         else:
             uploaded = {}
-
-        upload_record = self.prepare_record(
-                        record,
-                        config,
-                        level)
-
-        if upload_record is None:
-            return
 
         title = os.path.splitext(os.path.basename(record_path))[0]
         title = title.replace('_', ' ')
@@ -291,7 +233,7 @@ class rdmUploader():
 
         upload_result= up_func(
                         title,
-                        upload_record,
+                        record,
                         os.path.dirname(record_path),
                         server,
                         token,
@@ -311,15 +253,9 @@ class rdmUploader():
 
         # dump the record back
         # if one had comments in this YAML, those are gone...
-        with open(record_path, 'wt', encoding='UTF-8') as fp:
-            out_text = yaml.safe_dump(record,
-                     sort_keys= False,
-                     allow_unicode= True,
-                     width= 70,
-                     default_style= None)
-            out_text = out_text.replace('\n\n','\n')
-            fp.write(out_text)
+        full_record = ('full record' in config and config['full record'])
 
+        save_record(record, record_path, overwrite=True, full_record= full_record)
         self.window.destroy()
     # end of upload
 # end rdmUpload

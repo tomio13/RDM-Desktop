@@ -697,7 +697,9 @@ class ListWidget():
             self.make_readme(default_template, new_path)
 
         else:
-
+            if os.path.isfile(new_path):
+                print('file already exists!')
+                return
 
         # now, update the list. If nothing changed, just go back.
             if not self.run_form(template_dir,
@@ -707,6 +709,7 @@ class ListWidget():
                 return
         self.listbox_fill()
     # end of add_new
+
 
     def upload(self) -> None:
         """ pick the selected file, and try an upload to

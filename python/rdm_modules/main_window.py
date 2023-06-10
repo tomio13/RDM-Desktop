@@ -595,6 +595,7 @@ class ListWidget():
         if not form_data:
             print('template not found, calling editor')
             self.open_editor(full_path)
+            return
 
         label = self.get_config_element(
             'searchNames'
@@ -608,7 +609,9 @@ class ListWidget():
 
         # we have to get stuck here until it comes back
         # form.window.mainloop()
-        form.window.wait_window()
+        if form:
+            form.window.wait_window()
+
         if form.result:
             # here we do not have to refresh
             # the file list, so the return value

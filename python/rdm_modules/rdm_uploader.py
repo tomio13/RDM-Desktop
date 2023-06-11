@@ -188,13 +188,14 @@ class rdmUploader():
             return
 
         # clean up somewhat
-        record = convert_record_to_JSON(record)
-        print(record)
 
         if 'Uploaded' in record:
             uploaded = record.pop('Uploaded')
         else:
             uploaded = {}
+
+        record_converted = convert_record_to_JSON(record)
+        print('record:\n', record_converted)
 
         title = os.path.splitext(os.path.basename(record_path))[0]
         title = title.replace('_', ' ')
@@ -231,9 +232,10 @@ class rdmUploader():
                         return
         # end checking if record is uploaded to this server
 
+        # we upload the JSON safe version, record_converted
         upload_result= up_func(
                         title,
-                        record,
+                        record_converted,
                         os.path.dirname(record_path),
                         server,
                         token,
@@ -253,7 +255,11 @@ class rdmUploader():
 
         # dump the record back
         # if one had comments in this YAML, those are gone...
-        full_record = ('full record' in config and config['full record'])
+        # If the record has 'full record', then is is a full record
+        # else, we may be switching to full records in config, so we allow that too
+        full_record = (('full record' in record and record['full record'])
+                       or ('full record' in config and config['full record'])
+                       )
 
         save_record(record, record_path, overwrite=True, full_record= full_record)
         self.window.destroy()

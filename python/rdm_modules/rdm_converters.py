@@ -13,7 +13,10 @@
 """
 
 import datetime
+import os
 import yaml
+from yaml.scanner import ScannerError
+
 from rdm_modules.project_config import get_config, replace_text
 from rdm_modules.rdm_templates import (merge_templates,
                            list_to_dict,
@@ -109,14 +112,66 @@ def guess_template(data:dict)->dict:
 
     for k,v in data.items():
         if isinstance(v, dict) and 'type' not in v:
-            if 'value' in v:
-                data[k]['type'] = guess_type(v['value'])
-            else:
-                print('Unknown dict type', v)
+            # guess a type independent of value
+            this_type = guess_type(v['value'])
         else:
             data[k] = dict()
             data['value'] = v
-            data['type'] = guess_type(v)
+            this_type = guess_type(v)
+
+        if this_type is None:
+            print('Unknown type for:', k,':', v)
+            print('set default to text')
+            this_type= 'text'
+
+            if 'value' in v:
+                v['value'] = str(v['value'])
+
+        data[k]['type'] = this_type
 
     return data
 # end off guess_template
+
+
+def is_record(full_path:str,
+              key_list:list = ['template', 'template version', 'user', 'created']
+              )->bool:
+    """ Take a file content, try loading it as yaml,
+        and check if it can be assumed to be an experiment record
+        If the file is not a .yaml or .yml or does not exist, return False.
+
+        parameters
+        full_path:      path to the file
+        key_list:       a list of keys to check for a valid record
+
+        return:
+        True if the file is:
+        - a YAML file
+        - contains a dict of dicts
+        - and has all keys in the list
+    """
+
+    if not os.path.isfile(full_path):
+        return False
+
+    if not (full_path.endswith('.yaml')
+            or full_path.endswith('.yml')):
+        return False
+
+    try:
+        with open(full_path, 'rt', encoding='UTF-8') as fp:
+            a = yaml.safe_load(fp)
+
+    except ScannerError:
+        print(full_path, 'is not YAML file')
+        return False
+
+    if isinstance(a, dict):
+        all_dicts = [isinstance(a[i], dict) for i in a]
+        all_match = [i in a for i in key_list]
+
+        if all(all_dicts) and all(all_match):
+            return True
+
+    return False
+# end is_record

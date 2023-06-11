@@ -8,9 +8,8 @@
 import json
 import os
 from rdm_modules.rdm_templates import find_in_record
-from rdm_modules.rdm_converters import is_record
 from requests import request
-from tkinter.messagebox import showerror, askyesno
+from tkinter.messagebox import showerror
 import time
 import yaml
 
@@ -18,7 +17,6 @@ import yaml
 def upload_record(
         title:str,
         record:dict,
-        record_path:str,
         server:str,
         token:str,
         verify= True)->dict:
@@ -26,14 +24,11 @@ def upload_record(
         a confirmation with information about the upload
 
         parameters:
-        title:          a title of the experiment
-        record:         a dict containing form information and values
-        record_path:    the path to the folder,
-                        so attachments can be found
-        server:         the https link to the server
-        token:          the security token to be used
-        verify:         check certificate validity
-                        (False for self signed certificates)
+        title:  a title of the experiment
+        record: a dict containing form information and values
+        server: the https link to the server
+        token:  the security token to be used
+        verify: check certificate validity (False for self signed certificates)
 
         return:
         a dict containing:
@@ -58,8 +53,6 @@ def upload_record(
               'charset': 'UTF-8',
               'Authorization': token}
 
-    # category or category_id cannot be written in any way
-    # other than the -1 below results in a bad request
     empty_content = {
                     'category_id': -1,
                     'tags':['RDM Desktop', 'uploaded'],
@@ -74,7 +67,7 @@ def upload_record(
                    'title': title,
                    'body': body,
                    'metadata': meta,
-                   # 'action': 'lock',
+                   # 'action': 'lock'
                    }
 
     # create the experiment
@@ -98,7 +91,7 @@ def upload_record(
     # add title, body and metadata
     for k,v in upload_dict.items():
         rep = request('PATCH',
-                      link,
+                     link,
                       headers= header,
                       json= {k:v},
                       verify= verify,
@@ -110,47 +103,8 @@ def upload_record(
             showerror('error', rep.text)
             return None
 
-    # filelist provides all potential attachments
-    # YAML files are supposed to be other records
-    # these would not be uploaded
-    if filelist:
-        filelist = [i for i in  filelist\
-                if os.path.isfile(
-                    os.path.join(record_path, i)
-                    # ) and not i.endswith('.yaml')
-                    ) and not is_record(i)
-                    ]
-        if filelist:
-            print('Uploading', len(filelist), 'attachments')
-            go_on = True
-
-            if len(filelist) > 10:
-                go_on = askyesno("Upload",
-                    "Too many attachments found!\n"
-                         "Consider uploading a zip file manually\n"
-                         "Continue with this upload?")
-            if go_on:
-                print('Start uploading attachments')
-                # not setting Content-Type, let requests handle it
-                header = {'Accept': 'application/json',
-                          # 'charset': 'UTF-8',
-                          'Authorization': token}
-
-                i = 0
-                for fn in filelist:
-                    with open(os.path.join(record_path, fn), 'rb') as fp:
-                        rep = request('POST',
-                                      f'{link}/uploads',
-                                      files= {'file': fp},
-                                      headers= header,
-                                      verify= verify)
-                        if rep.ok and rep.status_code == 201:
-                            print('Uploaded', fn)
-                            i += 1
-                        else:
-                            showerror('error', rep.text)
-
-                print('All together uploaded', i, 'files')
+    # MISSING STILL: handle file links as attachments...
+    # for fn in filelist...
 
     exp_id = link.rsplit('/',1)[-1]
     res['server'] = server
@@ -203,27 +157,36 @@ def body_meta_from_record(record:dict)->tuple:
 
             if 'type' in v:
                 if v['type'] == 'subset':
-                    # Subsets are lists of dicts,
-                    # if extraction was simple, value is a list of dicts too
+                    # Subsets are translated to a plain dict
                     if 'value' in v:
-                        #val = v.pop('value')
-                        # keep a copy of the full set in the metadata, so
-                        # keep the values there too...
-                        val = v['value']
-                        # add the table to the body with the key as title
+                        val = v.pop('value')
+                        print(val)
+                        # val is probably a dict, with integer keys
+
+                        # MD:
                         table = f'# {k}\n'
 
                         # with lists for values (simple= True)
-                        if isinstance(val, list):
-                            table_keys = list(val[0].keys())
-                            table_vals = []
-                            for row in val:
-                                # using list(row.vals()) is not good for deeper dicts
-                                table_row = [i for i in row.values()]
-                                table_vals.append(table_row)
+                        if isinstance(val, dict):
+                            table_keys = list(val.keys())
+                            # table_vals = [i for i in zip(* val.values())]
+                            table_vals = [[i for i in k] for k in val.values()]
 
-                            print('keys:', table_keys)
-                            print('got values:', table_vals)
+                            if not isinstance(table_keys[0], str):
+                                print(table_vals)
+                                table_keys = list(table_vals[0].keys())
+
+                        #
+                        # ElabFTW cannot handle this one
+                        # we can try to make it to some kind of table
+                        #
+                        # if all is well, this should be the case
+                        elif isinstance(val, list)\
+                            and val\
+                            and isinstance(val[0], dict):
+
+                            table_keys = [str(i) for i in list(val[0].keys())]
+                            table_vals = [list(i.values()) for i in val]
 
 
                         # common table writing:
@@ -233,33 +196,40 @@ def body_meta_from_record(record:dict)->tuple:
                         head_line = '|' + '|'.join(['-'*len(i) for i in table_keys]) + '|'
                         table = f'{table}{head_line}\n'
 
+                        print('keys:', table_keys)
+                        print('vals:', table_vals)
                         # add values row-by-row
                         for i in table_vals:
                             # vals is a list of dicts, which may
                             # contain further lists of dicts
+                            if isinstance(i, dict):
+                                print('Invalid row value!', i)
+
                             ii_new = []
                             for ii in i:
                                 if isinstance(ii, list):
                                     if ii and isinstance(ii[0], dict):
                                         ii_text = yaml.safe_dump(ii)
                                         ii_text = ii_text.replace('\n','<BR>')
+                                        print(ii_text)
                                     else:
                                         ii_text = '-'+'<BR>-'.join(ii)
                                         ii_text.replace('file:', '')
+                                        print('full list', ii)
 
                                 elif isinstance(ii, dict):
-                                    # this should not really come up, but be safe
+                                    # this should not really come up
                                     ii_text = yaml.safe_dump(ii)
                                     ii_text = ii_text.replace('\n','<BR>')
+                                    print('dict row', ii)
 
                                 else:
                                     ii_text = str(ii)
+                                    print('anything else', ii)
 
-                                # add the row to the text list:
                                 ii_new.append(ii_text)
                             # end running in the rows
 
-                            # write out the resulted table
                             table = f'{table}|' + '|'.join(ii_new) + '|\n'
 
                         body = f'{body}{table}\n\n'
@@ -276,11 +246,8 @@ def body_meta_from_record(record:dict)->tuple:
                 elif v['type'] == 'multiline' and 'value' in v:
                     body = f'{body}# {k}\n{v["value"]}\n\n'
 
-                # optional text may be None
-                elif (v['type'] == 'text'
-                      and 'value' in v
-                      and v['value'] is not None
-                      and '\n' in v['value']):
+                elif v['type'] == 'text' and 'value' in v\
+                        and '\n' in v['value']:
                     body = f'{body}# {k}\n{v["value"]}\n\n'
 
                 else:
@@ -297,7 +264,7 @@ def body_meta_from_record(record:dict)->tuple:
                     # a file list is something we can use for adding
                     # attachments in the future
                     elif v['type'] == 'file':
-                        if 'value' in v and v['value'] is not None:
+                        if 'value' in v:
                             fl = [i.replace('file:', '') for i in v]
                             v['value'] = ', '.join(fl)
                         else:
@@ -327,7 +294,7 @@ def body_meta_from_record(record:dict)->tuple:
             # add to the body
             if isinstance(v, str) and '\n' in v:
                 #body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
-                body= f'{body}# {k}\n{v}\n\n'
+                body= f'{body}# {k}>\n{v}\n\n'
             else:
                 meta[k] = v
 
@@ -341,8 +308,38 @@ def body_meta_from_record(record:dict)->tuple:
         meta = None
 
     # clean up filelist
-    filelist = [i.replace('file:','') for i in filelist if isinstance(i,str)]
     print('found files in record:', filelist)
+    filelist = [i for i in  filelist if os.path.isfile(i)]
+    print('attached existing files:', filelist)
 
     return (body, meta, filelist)
 # end body_meta_from_record
+
+
+# for upload:
+# use POST, experiments/id/uploads/
+# Content-Type: 'multipart/form-data'
+# file pointer sent as: data= fp
+# or files= fp
+# json is ignored if data or files are set in request
+# files can be:
+# files = {'file':(file.name.dat, open(file.name.dat, 'rb'), 'application/...')}
+# you can also ignore the last one
+#
+# possible to have streamed upload and chunked ones
+# this latter needs an interator through the data stream
+#
+# stream = True in the request call ?
+# A file object is an iterator, so it dan do for a chunked upload
+#
+#
+# comment goes into the form_parameters as
+# 'comment': comment
+#
+# to read a file, use GET and
+# 'Accept':['application/json',
+#           'application/octet-stream',
+#           'application/zip']
+# add content PATCH
+#
+# For every request set a timeout

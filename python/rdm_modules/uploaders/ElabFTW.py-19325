@@ -8,7 +8,6 @@
 import json
 import os
 from rdm_modules.rdm_templates import find_in_record
-from rdm_modules.rdm_converters import is_record
 from requests import request
 from tkinter.messagebox import showerror, askyesno
 import time
@@ -98,7 +97,7 @@ def upload_record(
     # add title, body and metadata
     for k,v in upload_dict.items():
         rep = request('PATCH',
-                      link,
+                     link,
                       headers= header,
                       json= {k:v},
                       verify= verify,
@@ -117,8 +116,7 @@ def upload_record(
         filelist = [i for i in  filelist\
                 if os.path.isfile(
                     os.path.join(record_path, i)
-                    # ) and not i.endswith('.yaml')
-                    ) and not is_record(i)
+                    ) and not i.endswith('.yaml')
                     ]
         if filelist:
             print('Uploading', len(filelist), 'attachments')

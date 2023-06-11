@@ -38,6 +38,13 @@ in order to minimize storage. However, these are needed for future editing or
 uploading / publishing, to provide there a full record, which can be tested
 against expectations (standards).
 
+If the configuration setting 'full record' exists and is set to true,
+then every detail is saved in the file, and it can be used without the template.
+The resulted file is more complicated looking, so this setting is not set by
+default.
+The same setting gets saved into the file as well, to ensure the program recognizes
+this state even when the configuraiton is changed later.
+
 ## Opening a recorded experiment
 The configuration file contains a field: 'use form' set true. This instructs
 the program to regenerate the form GUI widget opening the file. If the editing
@@ -63,4 +70,15 @@ The uploader can also take the files specified in the record and upload
 them as attachments. The example ElabFTW uploader does this, but in
 the case of more than 10 files, it recommends doing a manual upload using
 a zip archive.
-YAML files will not be uploaded, they should be linked within the system.
+RDM record YAML files will not be uploaded, they should be linked within the system.
+These are detected based on being:
+- a file with yaml or yml extension
+- and an existing file
+- and a valid YAML file that contains:
+ - a dict of dicts (all field is a dict)
+ - fields with the name:
+  - user
+  - created
+  - template
+  - template version
+If any of these is missing, the file gets attached.

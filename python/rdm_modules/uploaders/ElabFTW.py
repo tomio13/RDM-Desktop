@@ -74,7 +74,7 @@ def upload_record(
                    'title': title,
                    'body': body,
                    'metadata': meta,
-                   # 'action': 'lock',
+                   'action': 'lock',
                    }
 
     # create the experiment

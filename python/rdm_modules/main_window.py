@@ -550,7 +550,7 @@ class ListWidget():
         form.window.wait_window()
 
         if form.result:
-            full_record= 'full record' in self.config and self.config['full record']
+            full_record= ('full record' in self.config and self.config['full record'])
 
             print('saving file to', new_path, end=' ')
             res= save_record(form.result,

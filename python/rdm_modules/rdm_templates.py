@@ -432,12 +432,15 @@ def save_record(record:dict,
         return False
 
     if not full_record:
-        for k,v in record.items():
+        k_list = list(record.keys())
+        for k in k_list:
+            v = record[k]
             if (isinstance(v, dict)
                 and 'type' in v
                 and 'value' in v):
                 record[k] = v['value']
     else:
+        # it is full_record, so we add the label:
         # make sure we know there is a full record
         if 'full record' not in record:
             record['full record'] = True

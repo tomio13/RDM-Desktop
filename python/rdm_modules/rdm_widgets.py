@@ -130,7 +130,8 @@ class FilePickerTextField():
 
             return fn
 
-        return f'file:{fn}'
+        # return f'file:{fn}'
+        return fn
     # end get
 
     def set(self, data:list)->None:

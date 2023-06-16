@@ -617,11 +617,15 @@ class ListWidget():
             # the file list, so the return value
             # does not matter
             print('overwriting file:', full_path)
-            full_record = (('full record' in form.result
-                           and form.result['full record'])
-                           or ('full record' in self.config
+            #full_record = (('full record' in form.result
+            #               and form.result['full record'])
+            #               or ('full record' in self.config
+            #                   and self.config['full record'])
+            #               )
+            # If config says to save a full record, do it.
+            # But inside we do use one...
+            full_record = ('full record' in self.config
                                and self.config['full record'])
-                           )
             save_record(form.result,
                         full_path,
                         overwrite= True,

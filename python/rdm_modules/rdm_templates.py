@@ -439,6 +439,12 @@ def save_record(record:dict,
                 and 'type' in v
                 and 'value' in v):
                 record[k] = v['value']
+        # we are saving a reduced record,
+        # so if there is a full record in it,
+        # that is wrong:
+        if 'full record' in record:
+            record.pop('full record')
+
     else:
         # it is full_record, so we add the label:
         # make sure we know there is a full record

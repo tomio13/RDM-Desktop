@@ -394,8 +394,6 @@ class FormBuilder():
 
         self.result = self.template.copy()
         self.result.update(self.default_result)
-        # self.result['full record'] = True
-
 
         # print(self.result)
         for i,v in self.entrydict.items():

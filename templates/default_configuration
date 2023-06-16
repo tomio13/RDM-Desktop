@@ -36,7 +36,7 @@ save config: true
 # record, and does not search for templates.
 # The resulted files will be more interchangeable with other
 # systems.
-# full record: true
+full record: true
 
 # path of the project dir relative to the homeDir:
 projectDir: Projects

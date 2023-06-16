@@ -405,7 +405,7 @@ class FormBuilder():
             # within the subset vs. main tree
             val = v.get()
             typ = self.template[i]['type']
-            # print('getting:', i,'/', typ, ':', val)
+            print('getting:', i,'/', typ, ':', val)
 
             # If we have a problem, do not close the
             # widget, inform the user
@@ -431,6 +431,7 @@ class FormBuilder():
             # print('resulting in:', i, ':', self.result[i])
 
         # end pulling results
+        print('Resulted in:\n', self.result)
         # if all good, close:
         self.window.destroy()
     # end collect_results
@@ -611,7 +612,8 @@ class SubSet():
 
         if input_form.result:
             self.content.append(
-                    list(input_form.result.values())
+                    [v['value'] for v in input_form.result.values() if 'value' in v]
+                    #list(input_form.result.values())
                     )
             self.update_content()
     # end add_new
@@ -761,14 +763,14 @@ class SubSet():
             # .... we changed, not the form result is a full dict
             # self.content[index] = list(input_form.result.values())
             # ... thus we extract as:
-            self.content[index] = [v['value'] for k,v in input_form.result.items() if 'value' in v]
+            # self.content[index] = [v['value'] for k,v in input_form.result.items() if 'value' in v]
+            self.content[index] = [v['value'] for v in input_form.result.values() if 'value' in v]
             # problem: here the values come back flattened for
             # subsets... How can we put them back? The keys
             # do not match
             tree_widget.item(element,
-                            value= tuple(
-                                [v['value'] for k,v in input_form.result.items() if 'value' in v]
-                                ))
+                            value= tuple(self.content[index]))
+                                #[v['value'] for k,v in input_form.result.items() if 'value' in v]
         # since the number of rows did not change,
         # we need no other update on content
     # end edit
@@ -776,7 +778,6 @@ class SubSet():
     def get(self) -> None:
         """ return the results as a dict
         """
-        # print('\nContent:', self.content)
         keys = list(self.form.keys())
         vals = list(zip(*self.content))
 
@@ -796,6 +797,7 @@ class SubSet():
             row = dict(zip(*list([keys, val_row])))
             res.append(row)
 
+        print('\nContent:', res)
         return res
     # end of get
 

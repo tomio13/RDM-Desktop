@@ -19,7 +19,7 @@ from .project_config import replace_text
 
 from .rdm_help import rdmHelp
 from .rdm_widgets import (EntryBox, MultilineText,
-    FilePickerTextField, CheckBox, MultiSelect, DateRoller)
+    FilePickerTextField, CheckBox, MultiSelect, Select, DateRoller)
 
 
 class FormBuilder():
@@ -261,20 +261,14 @@ class FormBuilder():
                     entry.set(v['value'])
 
             elif v['type'] == 'select':
-                entry = ttk.Combobox(frame)
-                # two parameters we need, they do not have:
-                entry.required = False
-                entry.error= False
+                entry = Select(frame, v['options'])
 
-                entry['values'] = v['options']
                 # make it read only, so user cannot insert new values
                 # alternative would be state 'normal'
-                entry['state'] = 'readonly'
                 if 'value' in v:
                     entry.set(v['value'])
-                else:
-                    entry.set(v['options'][0])
 
+                # required makes no sense here, but let it be:
                 if 'required' in v and v['required']:
                     entry.required = True
 

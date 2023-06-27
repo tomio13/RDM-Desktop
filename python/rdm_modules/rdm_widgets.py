@@ -422,10 +422,52 @@ class MultiSelect():
             # this will throw a value error if the value is
             # not in the option list
             self.select.select_set(self.options.index(i))
-
     # end set
-
 # end class MultiSelect
+
+
+class Select():
+    """ a simple class to select an item from a list.
+        Basically for the sake of completedness,
+        a combo box.
+    """
+
+    def __init__(self,
+                 parent:tk.Misc,
+                 options:list) -> None:
+        """ Create a combo box with the list of options
+            in it.
+            Required is kind of unimportant here, since the
+            selector always stands on a value... so, it is
+            always set to something.
+        """
+        self.options = options
+        self.parent = parent
+        self.required= False
+        self.error = False
+
+        if self.parent is None:
+            self.parent = tk.Tk()
+        # end empty window
+        self.select = ttk.Combobox(self.parent)
+        self.select['values'] = options
+        self.select['state'] = 'readonly'
+        self.set(options[0])
+    # end __init__
+
+    def set(self, value):
+        self.select.set(value)
+    # end of set
+
+    def get(self):
+        return self.select.get()
+    # end of get
+
+    def grid(self, **kwargs):
+        self.select.grid(**kwargs)
+
+
+#end of class Select
 
 
 class DateRoller():

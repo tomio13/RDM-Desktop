@@ -24,6 +24,10 @@ the search pattern for the yaml files, and a default editor command.
 If the user has e.g. ghost\_writer on the machine, change the default editor!
 Changing this file requires a restart of the program.
 
+Configuration has a very default version, and another central one in the templates
+which can be customized for a specific deployment. See also in
+[Templates](../docs/Templates.md).
+
 # form\_from\_dict
 A set of widgets to operate a form editor. It takes a dict template to build
 a form.
@@ -64,6 +68,7 @@ anaconda, conda, docker, etc.
 - subprocess
 - yaml
 - tkinter
+- requests
 
 # field types
 - text          single line text

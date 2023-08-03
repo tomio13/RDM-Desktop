@@ -408,6 +408,7 @@ class FormBuilder():
                           message=f'Invalid value in {i} {typ}')
                     # erase our content
                     self.result = {}
+                    self.window.lift()
                     return
 
                 if v.required:
@@ -416,6 +417,7 @@ class FormBuilder():
                           message=f'{i} is required!')
                     # erase our content
                     self.result = {}
+                    self.window.lift()
                     return
             # add even if val is None
 
@@ -427,6 +429,7 @@ class FormBuilder():
         # if all good, close:
         self.window.destroy()
     # end collect_results
+
 
     def destroy(self, canvas):
         """ destroy the widget, but make sure the events are
@@ -571,6 +574,7 @@ class SubSet():
         # now, add them again
         self.add_labels()
     # end update_content
+
 
     def add_new(self,
                 title:str,
@@ -766,6 +770,7 @@ class SubSet():
         # since the number of rows did not change,
         # we need no other update on content
     # end edit
+
 
     def get(self) -> None:
         """ return the results as a dict

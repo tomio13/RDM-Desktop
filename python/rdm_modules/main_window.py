@@ -297,13 +297,16 @@ class ListWidget():
         else:
             # in a data folder we look what is
             # defined already as a yaml file
-            ListWidget(
-                title= item,
-                root_path= full_path,
-                parent= self.window,
-                config= self.config,
-                level= self.level+1
-                )
+            new_list= ListWidget(
+                            title= item,
+                            root_path= full_path,
+                            parent= self.window,
+                            config= self.config,
+                            level= self.level+1
+                        )
+            self.window.withdraw()
+            new_list.window.wait_window()
+            self.window.deiconify()
     # end activate item
 
 
@@ -495,7 +498,6 @@ class ListWidget():
         if ed :
             cmd= (ed, os.path.join(new_path, readme_path))
             subprocess.call(cmd)
-
     # end make_readme
 
 
@@ -547,7 +549,9 @@ class ListWidget():
 
         # we have to get stuck here until it comes back
         # form.window.mainloop()
+        self.window.withdraw()
         form.window.wait_window()
+        self.window.deiconify()
 
         if form.result:
             full_record= ('full record' in self.config and self.config['full record'])
@@ -610,7 +614,9 @@ class ListWidget():
         # we have to get stuck here until it comes back
         # form.window.mainloop()
         if form:
+            self.window.withdraw()
             form.window.wait_window()
+            self.window.deiconify()
 
         if form.result:
             # here we do not have to refresh

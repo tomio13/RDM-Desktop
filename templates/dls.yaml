@@ -94,13 +94,13 @@ parameters of runs:
       doc: viscosity values in centiPoise or mPas (the same)
       required: true
 
-    detection angle (degrees):
+    detection angle (°):
       type: numeric
       doc: scattering angle used for the measurements
       required: true
 
   # results of default analysis
-    average diffusion coefficient (µm^2/s):
+    average diffusion coefficient (µm²/s):
       type: numeric
       doc: average diffusion coefficients reported by a cumulant analysis
       required: true

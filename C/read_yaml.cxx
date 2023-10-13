@@ -252,6 +252,10 @@ record_t* yaml_parse_inside(yaml_parser_t *parser, int map_block){
                         current->type= RECORD_STRING;
                     }
                     record= append_record(record, current);
+                    /* Notice we do not free the memory, because those address
+                     * values are now part of the list.
+                     * We can clean the pointers for reuse...
+                     */
                     current = NULL;
                     content = NULL;
                 }
@@ -374,7 +378,7 @@ record_t *read_yaml(char *filename) {
         case YAML_MAPPING_END_EVENT:
         case YAML_ALIAS_EVENT:
         case YAML_SCALAR_EVENT:
-            fputs("there should not happen here!\n", stderr);
+            fputs("this should not happen here!\n", stderr);
             break;
       }
 

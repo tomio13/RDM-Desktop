@@ -68,7 +68,7 @@ The type can be one of:
 - numericlist       a comma delimited list of numbers
 - select            a selection menu, with a single choice. The options
                     subfield contains a list of possible values to select from
-- multieselect      the same as select, but multiple selection
+- multiselect      the same as select, but multiple selection
 - checkbox          a simple yes/no (true/false) selector
 - file              a file picker for one or more files;
                     If the file name is typed as a comma separated list,

@@ -294,6 +294,9 @@ class EntryBox():
         # but if the conversion fails, we make a message and
         # return None. The main FormBuilder then refuses to close
 
+        if value is None or value is '':
+            return
+
         if self.type == 'list':
             self.var.set(', '.join(value))
         elif self.type == 'numericlist':

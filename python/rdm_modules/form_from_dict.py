@@ -587,12 +587,10 @@ class SubSet():
         if self.content:
             row = self.content[-1]
 
-
             keylist = list(this_template.keys())
             for i,j in enumerate(keylist):
-                # subsets may go too deep, it is better
-                # to keep those empty (reset)
-                # inherit the values of the rest
+                # subsets have their own value handling for the
+                # whole form
                 if this_template[j]['type'] != 'subset':
                     # print('setting up values for', this_template[j]['type'])
                     this_template[j]['value'] = row[i]
@@ -613,6 +611,16 @@ class SubSet():
                     )
             self.update_content()
     # end add_new
+
+
+    def to_str(self, data) -> str:
+        """ just call str, but return '' for None
+        """
+        if data is None:
+            return ''
+        else:
+            return str(data)
+    # end to_str
 
 
     def show(self,
@@ -662,7 +670,10 @@ class SubSet():
             tree_view.heading(head, text= head)
 
         for line in self.content:
-            tree_view.insert('','end', values= line)
+            # the str() originall has the annoying property to fill up None
+            # values with 'None' as text...
+            show_line = tuple((self.to_str(i) for i in line))
+            tree_view.insert('','end', values= show_line)
 
         tree_view.grid(column=0,
                        row=0,

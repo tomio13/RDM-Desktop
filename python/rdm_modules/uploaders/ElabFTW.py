@@ -304,10 +304,12 @@ def body_meta_from_record(record:dict)->tuple:
                             v['value'] = ''
 
 
+                    # change in ElabFTW, now there is a datetime-local type
                     elif v['type'] == 'date':
-                        if 'value' in v and v['value']:
-                            # cut the date time to date only (yyyy-mm-dd HH:MM -> yyyy-mm-dd)
-                            v['value'] = v['value'].split(' ',1)[0]
+                        #if 'value' in v and v['value']:
+                        #    # cut the date time to date only (yyyy-mm-dd HH:MM -> yyyy-mm-dd)
+                        #    v['value'] = v['value'].split(' ',1)[0]
+                        v['type'] = 'datetime-local'
 
                     else:
                         if 'value' not in v or v['value'] is None:

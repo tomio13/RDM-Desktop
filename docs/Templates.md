@@ -52,7 +52,7 @@ applies to the values.
 These are small trees themselves, constructed as:
 
 ```YAML
-field name, unit:
+field name [unit]:
   type: textd$|numeric|int|list|numericlist|select|checkbox|file|url|subset
   doc:  documentation / description of this field
   value: optional default value
@@ -86,6 +86,9 @@ subset)
 
 The required field sets if a field is requited, thus empty value will not
 be accepted.
+
+## units
+At the moment they are not supported as separate fields, but can be added to the name separated with a comma, in () or [] etc.
 
 # examples
 A couple of example templates are available in the templates folder,

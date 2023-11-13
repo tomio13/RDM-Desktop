@@ -7,7 +7,7 @@ doc: |
    produced.
 
 template: SEM.yaml
-template version: 2023-04-17
+template version: 2023-11-13
 
 sample pre-treatment:
   type: multiline
@@ -52,7 +52,7 @@ sample coating:
     - Au
   required: true
 
-coating thickness (nm):
+coating thickness [nm]:
   type: numeric
   doc: "how thick layer was set"
   required: true

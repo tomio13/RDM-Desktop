@@ -34,7 +34,7 @@ Some fields can be substituted in here automatically, such as
 
 Otherwise every entry has the following structure:
 
-label, unit:
+label [unit]:
   type: "text|numeric|integer|list|numericlist|file|select|checkbox|url|date|subset"
   doc: "documentation text"
   options: "list of alternate values for select fields"

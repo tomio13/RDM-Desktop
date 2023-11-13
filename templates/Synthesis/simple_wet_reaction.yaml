@@ -7,7 +7,7 @@ doc: |
   components.
 
 template: "Synthesis/simple_wet_reaction.yaml"
-template version: 2023-04-17
+template version: 2023-11-13
 
 Steps:
   type: subset
@@ -43,8 +43,8 @@ Steps:
           type: select
           doc:  "How was the amount measured?"
           options:
-            - volume (ml)
-            - weight (g)
+            - volume [ml]
+            - weight [g]
           required: true
 
         amount:
@@ -66,9 +66,9 @@ Steps:
           type: select
           doc: "Pick the parameter type"
           options:
-            - temperature (℃)
+            - temperature [℃]
             - atmorsphere
-            - pressure (bar)
+            - pressure [bar]
         parameter value:
           type: text
           doc: "the actual value you have set (text is accepted as well)"

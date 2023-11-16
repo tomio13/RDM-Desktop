@@ -256,14 +256,17 @@ class CheckBox(tk.Checkbutton):
 
 class EntryBox():
     """ an entry box which can also check its content
-        to be: text, file, url, integer, numeric
+        to be: text, file, url, integer, numeric,
+        list, numericlist
     """
 
     def __init__(self,
                  parent:tk.Misc,
                  vartype:str='text',
+                 units:list|None= None,
                  **kwarg:dict) -> None:
         """ Initiate an entry widget, based on its type
+            units: a list of usable units
         """
         # internally we use strings for any variable
         self.var = tk.StringVar()
@@ -272,21 +275,38 @@ class EntryBox():
         self.error = False
         self.error = False
 
-        self.parent = parent
         self.required= False
 
-        if self.parent is None:
-            self.parent = tk.Tk()
+        self.parent = tk.Tk() if parent is None else parent
+        frame = tk.Frame(self.parent)
+        self.grid = frame.grid
 
-        self.entry = ttk.Entry(self.parent,
+        self.entry = ttk.Entry(frame,
                                textvariable= self.var,
+                               width= 10,
                                **kwarg)
+        self.entry.grid(column=0, row=0)
+
+        if units is not None:
+            if not isinstance(units, list):
+                units = [units]
+            self.units = ttk.Combobox(frame, width=6)
+            self.units['values'] = units
+            self.units['state'] = 'readonly'
+            self.units.set(units[0])
+            self.units.grid(column=1, row=0)
+        else:
+            self.units= None
     # end __init__
 
-    def set(self, value:str|int|float|list) -> None:
+
+    def set(self, value:str|int|float|list, unit:str|None= None) -> None:
         """ Set the internal variable from value
             Use a text tk variable, so convert the incoming
             types to it.
+
+            For numerical fields, we should also receive the unit
+            if there is one.
         """
         # since tk does not handle invalid numbers well,
         # we have to take it out of its hands...
@@ -294,8 +314,17 @@ class EntryBox():
         # but if the conversion fails, we make a message and
         # return None. The main FormBuilder then refuses to close
 
-        if value is None or value is '':
+        if value is None or value == '':
             return
+
+        # for the case we got back a [value, unit] list:
+        if isinstance(value, list)\
+                and self.type  in ['integer', 'numeric', 'numericlist']\
+                and isinstance(value[1], str):
+            # we set the unit, and leave value as value
+            # it should never be a single element list!
+            self.unit = value[1]
+            value = value[0]
 
         if self.type == 'list':
             self.var.set(', '.join(value))
@@ -305,6 +334,7 @@ class EntryBox():
         else:
             self.var.set(str(value))
     # end of set
+
 
     def get(self) -> str|int|float|list:
         """ return the value as a proper python variable
@@ -320,6 +350,9 @@ class EntryBox():
                 the value obtained or None if there was no entry
                 Upon conversion error, return None
                 and set self.error to True
+
+                For numeric values with unit set, return a list
+                of [value, unit]
         """
         # reset the error, so it is a clear indication of
         # conversion problems
@@ -361,8 +394,32 @@ class EntryBox():
 
         # any other text types...
         return s
-
     # end get()
+
+
+    @property
+    def unit(self):
+        if self.units is None:
+            return None
+
+        return self.units.get()
+    # get the current unit
+
+
+    @unit.setter
+    def unit(self, this_unit:str=""):
+        if self.units is None:
+            return
+
+        # if this unit is not yet in, we can add it
+        # however, this may be not optimal for the
+        # case of typos.
+        if not this_unit in  self.units['values']:
+            self.units.option_add(this_unit)
+
+        self.units.set(this_unit)
+    # end set unit
+
 
     def grid(self, **kwargs:dict) -> None:
         """ propagate the grid to the internal

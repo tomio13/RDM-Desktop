@@ -8,7 +8,7 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: dls.yaml
-template version: 2023-11-13
+template version: 2023-11-16
 
 DLS device:
   type: select
@@ -29,9 +29,11 @@ solvent:
   doc: what solvent was used in the measurement (e.g. water, PBS, ethanol)
   required: true
 
-sample volume [ml]:
+sample volume:
   type: numeric
   doc: what volume was measured
+  units: ["ml"]
+  unit: "ml"
   required: true
 
 #measurement type:
@@ -49,14 +51,18 @@ wavelength:
     - 640 nm
   required: true
 
-duration [s]:
+duration:
   type: numeric
   doc: duration of data acquisition (should be the same at every measurement step)
+  units: ["s"]
+  unit: "s"
   required: true
 
-first correlation delay [ms]:
+first correlation delay:
   type: numeric
   doc: if your system requires this value to be specified, please record it here
+  units: ["ms"]
+  unit: "ms"
   required: false
 
 software:
@@ -74,9 +80,10 @@ parameters of runs:
   type: "subset"
   required: true
   form:
-    relative time point [s]:
+    relative time point:
       type: numeric
       doc: relative time point of  the current experiment in the series
+      units: ["s"]
       required: true
 
     refractive index:
@@ -84,25 +91,29 @@ parameters of runs:
       doc: refractive index of the medium, used in the primary analysis (e.g. water, 1.33)
       required: true
 
-    temperature [℃]:
+    temperature:
       type: numeric
       doc: temperatures of the sample in the instrument
+      units: ["℃"]
       required: true
 
-    viscosity [mPas]:
+    viscosity:
       type: numeric
       doc: viscosity values in centiPoise or mPas (the same)
+      units: ["mPas"]
       required: true
 
-    detection angle [°]:
+    detection angle:
       type: numeric
       doc: scattering angle used for the measurements
+      units: [°]
       required: true
 
   # results of default analysis
-    average diffusion coefficient [µm²/s]:
+    average diffusion coefficient:
       type: numeric
       doc: average diffusion coefficients reported by a cumulant analysis
+      units: [µm²/s]
       required: true
 
     second cumulant (expansion parameter):
@@ -110,9 +121,10 @@ parameters of runs:
       doc: the parabolic terms in the cumulant fits, deviation from ideal translation diffusion
       required: true
 
-    hydrodynamic radius [nm]:
+    hydrodynamic radius:
       type: numeric
       doc: (equivalent) hydrodynamic radii
+      units: ["nm"]
       required: true
 
     data file:

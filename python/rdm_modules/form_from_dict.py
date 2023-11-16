@@ -248,9 +248,15 @@ class FormBuilder():
                              'numeric', 'integer',
                              'list', 'numericlist']:
                 # entry = ttk.Entry(frame, textvariable= var)
-                entry = EntryBox(frame, v['type'])
+                entry = EntryBox(frame,
+                                 v['type'],
+                                 units=(v['units'] if 'units' in v else None))
+
                 if 'value' in v:
                     entry.set(v['value'])
+
+                if 'unit' in v:
+                    entry.unit= v['unit']
 
                 if 'required' in v and v['required']:
                     entry.required = True
@@ -422,6 +428,9 @@ class FormBuilder():
             # add even if val is None
 
             self.result[i]['value'] = val
+
+            if 'units' in self.template[i]:
+                self.result[i]['unit'] = v.unit
             # print('resulting in:', i, ':', self.result[i])
 
         # end pulling results
@@ -605,10 +614,18 @@ class SubSet():
         input_form.window.wait_window()
 
         if input_form.result:
-            self.content.append(
-                    [v['value'] for v in input_form.result.values() if 'value' in v]
-                    #list(input_form.result.values())
-                    )
+            next_row= []
+            for v in input_form.result.values():
+                if 'value' in v:
+                    next_row.append(
+                            [v['value'],v['unit']] if 'unit' in v else v['value']
+                                    )
+            # end for making the line
+            self.content.append(next_row)
+            #            self.content.append(
+            #        [v['value'] for v in input_form.result.values() if 'value' in v]
+            #        #list(input_form.result.values())
+            #        )
             self.update_content()
     # end add_new
 
@@ -771,7 +788,15 @@ class SubSet():
             # self.content[index] = list(input_form.result.values())
             # ... thus we extract as:
             # self.content[index] = [v['value'] for k,v in input_form.result.items() if 'value' in v]
-            self.content[index] = [v['value'] for v in input_form.result.values() if 'value' in v]
+            # self.content[index] = [v['value'] for v in input_form.result.values() if 'value' in v]
+            next_row= []
+            for v in input_form.result.values():
+                if 'value' in v:
+                    next_row.append(
+                            [v['value'],v['unit']] if 'unit' in v else v['value']
+                                    )
+            # end for making the line
+            self.content[index] = next_row
             # problem: here the values come back flattened for
             # subsets... How can we put them back? The keys
             # do not match

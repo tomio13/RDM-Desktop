@@ -88,7 +88,8 @@ The required field sets if a field is requited, thus empty value will not
 be accepted.
 
 ## units
-At the moment they are not supported as separate fields, but can be added to the name separated with a comma, in () or [] etc.
+Units are now available for numeric, integer and numericlist fields. The widget checks the type first, and whether a units list is provided. If this is not the case, they are not shown.
+If units is provided, it is displayed and one is selectable.
 
 # examples
 A couple of example templates are available in the templates folder,

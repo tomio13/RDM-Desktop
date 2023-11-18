@@ -13,7 +13,7 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: microwave-plasma.yaml
-template version: 2023-11-13
+template version: 2023-11-18
 
 plasma device:
   type: select
@@ -24,10 +24,12 @@ plasma device:
   value: TEPLA 100E
   required: true
 
-duration [s]:
+duration
   type: numeric
   doc: "duration of plasma treatment in seconds (e.g. 40s)"
   required: true
+  units: ["s"]
+  unit: "s"
 
 gas:
   type: select
@@ -40,23 +42,31 @@ gas:
     # there may be more, e.g. tetrafluoro methane, carbon dioxide
   required: true
 
-vacuum [mbar]:
+vacuum:
   type: numeric
   doc: "what level of vacuum was achieved before adding the reaction gas to the system?"
   required: true
+  units: ["mbar", "psi"]
+  unit: "mbar"
 
-pressure [mbar]:
+pressure:
   type: numeric
   doc: "final presure set for the gas. [In TEPLA it may take a few minutes to achieve it]"
   required: true
+  units: ["mbar", "psi"]
+  unit: "mbar"
 
-gas flow rate [ml/min]:
+gas flow rate:
   type: numeric
   doc: "flow rate set by the user [for TEPLA]"
   required: false
+  units: ["ml/min"]
+  unit: "ml/min"
 
-microwave power [W]:
+microwave power:
   type: numeric
   doc: "The electric power set for the magnetron, e.g. 200W"
   required: true
+  units: ["W"]
+  unit: "W"
 

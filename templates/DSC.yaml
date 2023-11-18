@@ -12,7 +12,7 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: DSC.yaml
-template version: 2023-11-13
+template version: 2023-11-18
 
 DSC device:
   type: select
@@ -35,19 +35,25 @@ pan piercing:
   value: true
   required: true
 
-initial sample mass [mg]:
+initial sample mass:
   type: numeric
   doc: "encapsulated sample mass before DSC"
+  unit: "mg"
+  units: ["mg"]
   required: true
 
-final sample mass [mg]:
+final sample mass:
   type: numeric
   doc: "encapsulated sample mass after DSC"
+  unit: "mg"
+  units: ["mg"]
   required: true
 
-mass loss [%]:
+mass loss:
   type: numeric
   doc: "calculated as 100%*(init-fin)/init"
+  units: ["%"]
+  unit: "%"
   required: true
 
 pure gas:

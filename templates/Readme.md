@@ -34,7 +34,7 @@ Some fields can be substituted in here automatically, such as
 
 Otherwise every entry has the following structure:
 
-label [unit]:
+label:
   type: "text|numeric|integer|list|numericlist|file|select|checkbox|url|date|subset"
   doc: "documentation text"
   options: "list of alternate values for select fields"
@@ -51,6 +51,9 @@ Changed description to doc, because this way we can use 'description' in field n
 'Doc' is not probable to show up as such (it would be docs anyway).
 
 # units
-Now, indicate units in the name of the fields at the end in (), like:
-'test element (m):'
+for numeric elements we can have units defined as:
+  units: ["m", "km"]
+  unit: "m"
+
+Here the unit is the default value, it has to be one in the list of units.
 

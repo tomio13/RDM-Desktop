@@ -592,6 +592,8 @@ class SubSet():
                 )->None:
         """ add values to the lists
         """
+        # since python 3.11 dict copy is a shallow copy
+        # this_template = self.form.copy()
         this_template = self.form.copy()
         if self.content:
             row = self.content[-1]
@@ -600,6 +602,9 @@ class SubSet():
             for i,j in enumerate(keylist):
                 # subsets have their own value handling for the
                 # whole form
+                # all the others receive their default / preset value
+                # from the value field in the dict, so set it
+                # For fields with unit, the list [value, unit] is also recognized
                 if this_template[j]['type'] != 'subset':
                     # print('setting up values for', this_template[j]['type'])
                     this_template[j]['value'] = row[i]
@@ -810,6 +815,11 @@ class SubSet():
 
     def get(self) -> None:
         """ return the results as a dict
+            Go through the collected content, and form a list of
+            dicts as the result. This is a special output for
+            subsets.
+            However, every field contains its last value and unit,
+            which we clean out on the fly.
         """
         keys = list(self.form.keys())
         vals = list(zip(*self.content))
@@ -820,6 +830,16 @@ class SubSet():
         #pylint: disable=use-implicit-booleaness-not-comparison
         if vals == []:
             return None
+
+        # do some cleaning: value and unit are in the content,
+        # those in the local fields are not needed
+        # this occurs because in python 3.11 dict copies are shallow copies,
+        # thus only link to the original
+        for k in keys:
+            if 'value' in self.form[k]:
+                self.form[k].pop('value')
+            if 'unit' in self.form[k]:
+                self.form[k].pop('unit')
 
         # column based, kind of flattened:
         # return {i:list(v) for i,v in zip(keys, vals)}

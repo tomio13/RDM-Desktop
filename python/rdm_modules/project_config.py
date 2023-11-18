@@ -41,7 +41,7 @@ def get_default_config() -> dict:
         return value
         a dict containing the configuration parameters.
     """
-    version = 0.36
+    version = 0.40
 
     if os.name == 'posix':
         home_dir = os.getenv('HOME')

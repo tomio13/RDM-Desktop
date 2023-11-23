@@ -205,6 +205,10 @@ def body_meta_from_record(record:dict)->tuple:
                 if v['type'] == 'subset':
                     # Subsets are lists of dicts,
                     # if extraction was simple, value is a list of dicts too
+                    #
+                    # but now since numeric values are presented as lists,
+                    # we either take their type from form or we have to check
+                    # carefully cases of lists of two, one number the other text
                     if 'value' in v:
                         #val = v.pop('value')
                         # keep a copy of the full set in the metadata, so
@@ -240,11 +244,15 @@ def body_meta_from_record(record:dict)->tuple:
                             ii_new = []
                             for ii in i:
                                 if isinstance(ii, list):
+                                    # try catching numeric + unit parts:
                                     if ii and isinstance(ii[0], dict):
                                         ii_text = yaml.safe_dump(ii)
                                         ii_text = ii_text.replace('\n','<BR>')
                                     else:
-                                        ii_text = '-'+'<BR>-'.join(ii)
+                                        if len(ii) == 2 and isinstance(ii[1],str):
+                                            ii_text = f'{ii[0]} {ii[1]}'
+                                        else:
+                                            ii_text = '-'+'<BR>-'.join(ii)
                                         ii_text.replace('file:', '')
 
                                 elif isinstance(ii, dict):

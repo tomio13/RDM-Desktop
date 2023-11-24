@@ -1,0 +1,6 @@
+template: empty.yaml
+version: 2023-11-24
+doc: |
+  This is simple empty template giving the user the possibility to edit
+  a simple text file containing the aim of the experiment and the
+  observations.

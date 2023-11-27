@@ -43,6 +43,13 @@ def merge_templates(filename:str, default_file:str)->dict:
     with open(filename, 'rt', encoding='UTF-8') as fp:
         template = yaml.safe_load(fp)
 
+    # allow skipping default
+    nk = 'no_default'
+    if nk in template \
+            and template[nk] == True:
+        template.pop(nk)
+        return template
+
     default_template.update(template)
 
     return default_template
@@ -360,6 +367,9 @@ def read_record(record:str|None = None,
             type_in_record = any(['type' in v\
                                 for k,v in record_dict.items()\
                                 if isinstance(v, dict)])
+
+            # the user has a full record that includes
+            # its own template:
             if ('full record' in record_dict
                 and record_dict['full record']
                 and type_in_record):
@@ -372,6 +382,7 @@ def read_record(record:str|None = None,
                                 record_dict['template'])
     # end constructing template path
 
+    # we allow the user to disable the default template
     temp_dict = merge_templates(template,
                                 default_template)
 

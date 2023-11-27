@@ -3,13 +3,23 @@
 # However, this is only a very generic template, it may be
 # much better to make individual ones for specific cases.
 #
-#Aim of the analysis:
-#  type: "multiline"
-#  doc: "please describe what information you try extracting"
-#  required: true
+
+# the default experiment header is not good here
+no_default: true
+
+Aim of the analysis:
+  type: "multiline"
+  doc: "please describe what information you try extracting"
+  required: true
+
 
 template: "Analysis/analysis.yaml"
 template version: 2023-02-15
+
+Analysis date:
+  type: date
+  doc: "when the analysis was performed"
+  required: true
 
 Parameters:
   type: "multiline"

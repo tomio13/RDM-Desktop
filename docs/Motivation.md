@@ -73,7 +73,7 @@ Please do not misunderstand: they are excellent tools, but more specific clients
 may prove to be better.
 
 ### Issue 2: server load
-Many of the solutions are based on the cloud, that is server clusters running
+Many of the solutions are based on the cloud, that is on a server clusters running
 everything needed.
 
 An interesting trend is to add external software, contained applications (e.g.
@@ -87,6 +87,8 @@ This however also has some issues:
     (who promises not to look into it)
   * not every institute can afford having a large cluster
   * all processing happens on the server side
+  * you need constant network access and the web interface to do anything useful
+    to your data (e.g. analysis, plotting)
 
 ### Issue 3: templates
 Most of the available solutions are databases, which can take literally anything.
@@ -118,13 +120,15 @@ uploaded / synchronized to the ELN or data repository server.
 
 ## folder tree
 Research data management starts at the file system level ([see for example
-here](https://datamanagement.hms.harvard.edu/collect/directory-structure) or
-[here](https://dmeg.cessda.eu/Data-Management-Expert-Guide/2.-Organise-Document/File-naming-and-folder-structure)).
+this summary at Longwood Research Data Management](https://datamanagement.hms.harvard.edu/collect/directory-structure) or
+[this summary at the Data Management Expert Guide](https://dmeg.cessda.eu/Data-Management-Expert-Guide/2.-Organise-Document/File-naming-and-folder-structure)).
+
 If data is stored in a well defined folder tree and using some, also well
 defined common file names and types, we already have a half document database.
 
 Thus, a simple tool that ensures folder trees are generated according to
-templates also enables maintaining a uniform structure across institutes.
+templates also enables maintaining a uniform structure across a whole
+organization.
 
 ## common content
 Recording experiments, project ideas, summaries, etc. is a common task in
@@ -160,7 +164,7 @@ Such synching take the folders necessary for the specific type of storage.
 Multiple storage tools are available, e.g. ELN and backup simultaneously.
 
 ## archiving
-is not more complicated than providing a backup of a part of the whole set.
+is not more complicated than providing a backup of a part or the whole set.
 
 ## distributing the load
 Because the data is stored locally, and only parts are uploaded, we can
@@ -249,7 +253,7 @@ critical part. Thus, we need graphical user interface elements to collect the
 input, and present structured output.
 Still, a program can be at least relatively small. It is to be expected that
 programs change from a 20 kB command line tool to a 13 MB mini GUI, but it is
-still way better than my browser will request to pop up a simple javascript
+still way better than what my browser will request to pop up a simple javascript
 form.
 
 ### FLTK

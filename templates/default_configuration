@@ -47,10 +47,10 @@ readme: readme.md
 # chemicals is for future use, a relative path within
 # the project dir
 chemicals: Chemicals
-# default template file names
 # Relative path for equipment data (for future use)
 equipment: Equipment
 
+# default template file names
 defaultTemplate:
 - readmeProject
 - readmeSample
@@ -67,18 +67,23 @@ use form: true
 # filemanager: xdg-open
 
 # Local folders  to ignore in Projects dir
+# (We assume in the Projects dir every folder is a
+# separate project. Thus they get listed in the first
+# browser window.)
 ignore:
 - References
 
 
 # This folder tree is to define the structure within the main
-# folder
+# folder of projects.
 # We have projects with their name in projectDir
 # At next level, all samples are listed under 'projectDir'/Data
-# then all experiments are directly under the sample folder name
-# if you change this, you may have to follow up in the templates,
-# where %1, %2, ... are used to extract the current sample or project
-# name...
+# then all experiments (YAML fiels) are directly under the sample
+#  folder name if you change this, you may have to follow up in
+#  the templates, where %1, %2, ... are used to extract the current
+#  sample or project name...
+# (For listing the experiments, extra folder names are ignored, so
+# leave that element blank, it is here for the completedness.)
 searchFolders:
 - ''
 - Data
@@ -89,6 +94,7 @@ searchNames:
 - project
 - sample
 - experiment
+
 # by what simple pattern we collect the relavant information in the
 # file browser window? For the dirs, we use no pattern (list everything
 # except the ignore list, for files we use files ending as yaml.
@@ -132,4 +138,4 @@ templates:
 # The default is set by the software in get_default_config
 # One may increment it in the next empty digit to make changes in full record,
 # or similar parts propagating through
-# version: 0.36
+# version: 0.8

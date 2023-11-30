@@ -2,7 +2,9 @@
 Currently the key components are in the python code.
 
 # python part
-First get python from [the Python website](https://www.python.org).
+First get python from [the Python website](https://www.python.org),
+or from your Linux distribution using your package manager.
+
 Make sure that you have:
 - Tkinter
 - pip
@@ -22,7 +24,7 @@ pip install requests
 An executable is generated packing together the python interpreted and
 libraries with the source code, using pyinstaller.
 
-The code is super simple, run int he python folder as:
+The code is super simple, run in the python folder as:
 ```bash
 pyinstaller -F ./rdm_project.py
 ```
@@ -34,13 +36,20 @@ the resulted program as is.
 
 ## On Linux
 python is most probably installed by your system, just make sure you
-also have pyyaml installed.
+also have pyyaml and requests installed.
 
 ## get the source
 simply in the main repository, get the code as a zip file, and unpack it
 somewhere you can always find it.
-In the python folder, start the RDM-project.py file, and it should
+In the python folder, start the RDMr\_project.py file, and it should
 work out of the box.
+
+That is, in a terminal you can:
+```bash
+cd To_your_folder
+cd python
+python ./RDM_project.py
+```
 
 # C part
 this is completely experimental, and in a very early stage, most

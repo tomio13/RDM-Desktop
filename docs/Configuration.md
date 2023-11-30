@@ -16,21 +16,24 @@ that international characters are accepted.
 # save config
 This sets whether the user profile is saved. If not set or set to false,
 it would not get saved, Such may be a good idea when running a mobile version
-on an external storage.
+on an external storage or using a network drive from various computers.
 
 # userID
-here you can add the user name that can be also used in templates.
+here you can add the user name that can be also used in templates, thus records
+would indicate this user being the one writing a record.
 
 # projectDir
 the location of all projects. Possibly an empty folder to start with,
 here you will find every experiment / sample you have created. Make sure this
 folder is backed up regularly.
+If you want to use a mobile or network storage, you can specify it as a relative
+path from the executable file.
 
 # projectsTitle
 What to display as a title for Projects.
 
 # readme
-the name of the read-me file generated for every new folder.
+the name of the read-me file generated for every new folder (typically readme.md).
 
 # editor
 Notepad ++ works excellent on Windows, Vim, SciTE or anything similar on
@@ -40,12 +43,16 @@ help you editing or checking your records.
 ## use form
 if set to true, the program tries putting together the full record,
 just like for uploads, and calls the form maker to provide a nice GUI.
-This way one cannot edit fields which are not forms (have no type element).
+
+This way the user can only edit fields which have a type element, the
+rest are hidden default ones.
 
 # filemanager
 On windows this is explorer, on Linux it pulls the default, but you
 can change it to what you like. The 'Open' button in the folder view
-calls this that you can have direct access to the underlying folder.
+calls this program to give you direct access to the underlying folder
+you are currently working in.
+(Useful to add experiment files or check out / modify the local readme.)
 
 # chemicals and equipment
 These folders are for future use. Users can store here files describing
@@ -59,16 +66,24 @@ within which then experiment descriptions are placed in YAML files.
 To make this flexible, a set of variables contain lists, addressing
 the levels of this structure.
 
-# searhTargets
+The variables below can be considered as columns of the following table:
+
+| defaultTemplate | searchFolders | searchNames | searchPattern | searchTargets |
+|-----------------|---------------|-------------|---------------|---------------|
+|  readmeProject  |               |   project   |               |     dir       |
+|  readmeSample   |     Data      |   sample    |               |     dir       |
+|  defaultForm    |               |  experiment |   yaml$       |    file       |
+
+## searchTargets
 defines what we find on the levels. The bottom one should be 'file', meaning
 here we use the form builder to make the yaml files.
 The others are set to 'dir', so the folder listing window will work on them.
 
-# searchNames
+## searchNames
 defines how these levels are called. Currently it is project, then sample, then
 experiment.
 
-# searchFolders
+## searchFolders
 defines if we want to use a specific subfolder for the next level.
 This folder must be defined in the corresponding folder list template one
 level higher, or we have a problem.
@@ -81,14 +96,14 @@ This is why the default set is:
 - Data
 - ''
 
-# searchPattern
+## searchPattern
 the pattern used to find what to display. For folders, it is not used,
 but for files you can specify either the beginning of file names, or the end.
 Default is 'yaml$' meaning any files ending with a yaml extension are picked.
 (This is no regex for speed and simplicity, but s simple string match either
 at the start of end of a file name.)
 
-# ignore
+## ignore
 A list of folder names, which will not be listed in a folder view.
 This allows to have extra information among the projects for example,
 which will be not used for projects themselves.
@@ -130,48 +145,3 @@ you have to edit the [project_config.py](../python/rdm_modules/project_config.py
 in the get_default_config() function.
 However, do not change field names, because they are used in various functions
 of the code.
-
-# example content of config
-on a Linux box
-
-``` yaml
-chemicals: /home/john/Projects/Chemicals
-defaultTemplate:
-- readmeProject
-- readmeSample
-- defaultForm
-editor: scite
-equipment: /home/john/Projects/Equipment
-filemanager: xdg-open
-ignore:
-- References
-projectDir: /home/john/Projects
-projectsTitle: Projects
-readme: readme.md
-searchFolders:
-- ''
-- Data
-- ''
-searchNames:
-- project
-- sample
-- experiment
-searchPattern:
-- ''
-- ''
-- yaml$
-searchTargets:
-- dir
-- dir
-- file
-server:
-  server: ''
-  token: ''
-templateDir: ../templates
-templates:
-- folderlist
-- ''
-- ''
-userID: J. Doe
-version: 0.3
-```

@@ -31,11 +31,11 @@ Field substitution is performed on them before they are saved
 to the output.
 
 # field substitution
-A simple function in project_config, called replace_text() can replace the following:
+A simple function in project_config.py, called replace_text() can replace the following:
 - %u    user ID from the configuration data
 - %d    current date in ISO 8601 format as YYYY-mm-dd
 - %D    current date and time (YYYY-mm-dd HH:MM)
-- %1 - 4:   elements of the path, getting as:
+- %1 - 4:   elements of the path, split up at folder separators (Projects/this-project/Data/one -> %0/%1/%2/%3):
   - %1      name of the project folder
   - %2      'Data' according to the configuration
   - %3      name of the sample folder
@@ -57,6 +57,9 @@ field name [unit]:
   doc:  documentation / description of this field
   value: optional default value
   required: true/false
+  # for numeric fields one can add units:
+  units: ["m", "cm", "mm"]
+  unit: "m"
 ```
 
 The type can be one of:
@@ -90,6 +93,8 @@ be accepted.
 ## units
 Units are now available for numeric, integer and numericlist fields. The widget checks the type first, and whether a units list is provided. If this is not the case, they are not shown.
 If units is provided, it is displayed and one is selectable.
+
+The units field lists the possibilities, unit field specifies what is selected.
 
 # examples
 A couple of example templates are available in the templates folder,

@@ -11,6 +11,7 @@ import os
 import time
 import tkinter as tk
 from tkinter import ttk
+from tkinter import font
 # from tkinter.filedialog import FileDialog
 from tkinter.filedialog import askopenfilenames
 from tkinter import StringVar
@@ -99,7 +100,7 @@ class FilePickerTextField():
 
 
     def get(self) -> str|list:
-        """ get the file paht(s) out of the widget, and return
+        """ get the file path(s) out of the widget, and return
             as a string or list.
             Assumes paths are relative (the get_file above
             does convert the path to relative paths).
@@ -675,3 +676,233 @@ class DateRoller():
     # end of get
 
 # end class datePicker
+
+
+class RdmWindow():
+    """ make a default window, within define some frames:
+        - a main area for content
+        - a lower stripe for buttons
+
+        The class should provide properties to access these frames,
+        such as: .content for the content frame, .menu for the bottom
+        one.
+    """
+
+
+    def __init__(self, parent:tk.Misc= None,
+                 title:str = 'window',
+                 fontsize: int= -1,
+                 with_scrollbar: bool= False
+                 ) -> None:
+        """ do the window definition.
+
+            parameters:
+            parent:     the parent window or None
+            title:      the title to be shown on the window
+            fontsize:   integer, wished for font size, if <0, do nothing
+            with_scrollbar: bool, if set, make a canvas with a scrollbar in the middle
+        """
+        # we have all configuration filled up,
+        # generate the GUI:
+        # the window first
+        if parent is None:
+            self.window = tk.Tk()
+        else:
+            self.window = tk.Toplevel(parent)
+
+        if fontsize > 0:
+            for i in ['TkDefaultFont', 'TkFixedFont', 'TkTextFont', 'TkMenuFont']:
+                this_font = font.nametofont(i)
+
+                this_font.configure(
+                    # family='Segoe Script',
+                    # or
+                    # family='Arial',
+                    size = fontsize
+                    )
+        # end setting font size
+
+        # end looping for fonts
+        # Configure the window
+        self.window.minsize(600,600)
+        # transparency:
+        # self.window.attributes('-alpha', 0.9)
+        # leave the size automatic
+        self.window.geometry('')
+        #self.window.grid()
+        # bring the window to top as a start
+        self.window.lift()
+        # we could force it always on top, but that
+        # would be annoying ...
+        # stacking order ==> always on top
+        # window.attributes('-topmost', 1)
+
+        # a title icon for the window manager
+        # make sure the children can inherit this icon
+        # If I try running the same in a child window, I am getting
+        # an error, so do it only at the top level
+        if parent is None:
+            icon = tk.PhotoImage(file='./icons/RDM_desktop.png')
+            self.window.iconphoto(True, icon)
+
+        self.window.title(title)
+        # we add a frame containing the list box and some buttons
+        # this should scale in size with the window when resized.
+        # Frame is at grid 0,0 make it size count 100% into sizing:
+        # we can define weights for the size ratios
+        # self.window.columnconfigure(0, weight= 1)
+        self.window.columnconfigure(0, weight=20)
+        self.window.columnconfigure(1, weight=1)
+        self.window.rowconfigure(0, weight= 1)
+        self.window.rowconfigure(1, weight= 20)
+        self.window.rowconfigure(2, weight= 1)
+        # header frame:
+        self.header = tk.Frame(self.window)
+        self.header.grid(
+                column= 0,
+                row= 0,
+                sticky= 'new')
+        label= tk.Label(self.header, text= title)
+        label.grid(column=0, row=0)
+
+        # define the content frame:
+
+        if with_scrollbar:
+            canvas= tk.Canvas(self.window, bg='grey')
+            # config the canvas within the window:
+            canvas.grid(column= 0,
+                        row= 1,
+                        padx= 0,
+                        pady= 0,
+                        sticky='nsew')
+
+            scrollbar= ttk.Scrollbar(self.window,
+                                     orient='vertical',
+                                     command= canvas.yview,
+                                     takefocus= True)
+
+            scrollbar.grid(column= 1, row= 1, padx=5, pady= 5, sticky='ns')
+
+            # now the content is a part of this canvas
+            self.content = tk.Frame(canvas)
+            self.content.grid(column=0, row=0, padx=10,pady= 10,sticky='nswe')
+
+            canvas.create_window((0,0),
+                             window= self.content,
+                             # this is not the same as the sticky above!
+                             anchor='nw')
+
+            self.content.bind(
+                            "<Configure>",
+                            lambda e: canvas.configure(
+                                scrollregion= canvas.bbox('all')
+                             )
+                          )
+
+            self.content.bind(
+                    '<Enter>',
+                    lambda event: self.bind_mousewheel(canvas)
+                    )
+            self.content.bind(
+                    '<Leave>',
+                    lambda event: self.unbind_mousewheel(canvas)
+                    )
+            canvas.config(yscrollcommand= scrollbar.set)
+            self.canvas= canvas
+
+        # we expect anything scrolled within the content e.g. listbox
+        else:
+            self.content = tk.Frame(self.window)
+            self.content.grid(
+                column= 0,
+                row= 1,
+                padx= 10,
+                pady= 10,
+                sticky='nswe')
+            self.canvas= None
+
+
+        self.command = tk.Frame(self.window)
+        self.command.grid(
+                column= 0,
+                row= 2,
+                padx= 10,
+                pady= 10,
+                sticky= 's')
+
+        # the quit function is for sure:
+        self.bind('<Escape>', lambda event: self.destroy())
+    # end of __init__
+
+
+    def bind(self, command:str, func):
+        """ a shortcut to bind of the window
+        """
+        return self.window.bind(command, func)
+    # end of bind
+
+
+    def mainloop(self):
+        return self.window.mainloop()
+
+
+    def withdraw(self):
+        return self.window.withdraw()
+
+
+    def wait_window(self):
+        return self.window.wait_window()
+
+
+    def deiconify(self):
+        return self.window.deiconify()
+
+
+    def bind_mousewheel(self, canvas):
+        """ bind the mouse wheel to the frame
+        """
+        canvas.bind_all('<MouseWheel>',
+                        lambda event: self.roll(event, canvas)
+                        )
+        canvas.bind_all('<4>',
+                        lambda event: self.roll(event, canvas),
+                        add='+')
+        canvas.bind_all('<5>',
+                        lambda event: self.roll(event, canvas),
+                        add='+')
+    # end of bind_mousewheel
+
+
+    def unbind_mousewheel(self, canvas):
+        """ release the binding
+        """
+        canvas.unbind_all('<MouseWheel>')
+        canvas.unbind_all('<4>')
+        canvas.unbind_all('<5>')
+    # end unbind_mousewheel
+
+
+    def roll(self, event, canvas):
+        """ what to do if scroll is done
+            From event we can figure out where it moved,
+            on canvas we can apply
+        """
+        if not canvas.winfo_exists():
+            return
+
+        # in windows, delta is nonzero
+        if event.delta != 0:
+            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
+
+        # on Linux, it is 0 but button 4/5 work
+        else:
+            sign = 1 if event.num == 5 else -1
+            canvas.yview_scroll(sign*2, 'units')
+
+    def destroy(self):
+        if self.canvas:
+            self.unbind_mousewheel(self.canvas)
+
+        self.window.destroy()
+    # end destroy window
+# end of rdm_window

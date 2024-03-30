@@ -15,7 +15,7 @@ import subprocess
 import tkinter as tk
 from tkinter import simpledialog as tksd
 from tkinter.filedialog import askopenfilename
-from tkinter import font
+# from tkinter import font
 import yaml
 
 
@@ -26,7 +26,7 @@ from .project_dir import make_dir
 from .rdm_uploader import rdmUploader
 
 from .rdm_templates import (read_record, save_record)
-
+from .rdm_widgets   import RdmWindow
 
 # important global variables (within the package)
 __version__= '0.1.5'
@@ -123,105 +123,46 @@ class ListWidget():
         # we have all configuration filled up,
         # generate the GUI:
         # the window first
-        if parent is None:
-            self.window = tk.Tk()
-        else:
-            self.window = tk.Toplevel(parent)
+        self.window = RdmWindow(parent, title, fontsize)
 
-        for i in ['TkDefaultFont', 'TkFixedFont', 'TkTextFont', 'TkMenuFont']:
-            this_font = font.nametofont(i)
-            this_font.configure(
-                # family='Segoe Script',
-                # or
-                # family='Arial',
-                size = fontsize
-                )
-        # end looping for fonts
-
-        # Configure the window
-        self.window.minsize(600,600)
-        # transparency:
-        # self.window.attributes('-alpha', 0.9)
-        # leave the size automatic
-        self.window.geometry('')
-        self.window.grid()
-        # we add a frame containing the list box and some buttons
-        # this should scale in size with the window when resized.
-        # Frame is at grid 0,0 make it size count 100% into sizing:
-        self.window.rowconfigure(0, weight=1)
-        self.window.columnconfigure(0, weight=1)
-        # bring the window to top as a start
-        self.window.lift()
-        # we could force it always on top, but that
-        # would be annoying ...
-        # stacking order ==> always on top
-        # window.attributes('-topmost', 1)
-
-        # a title icon for the window manager
-        # make sure the children can inherit this icon
-        # If I try running the same in a child window, I am getting
-        # an error, so do it only at the top level
-        if parent is None:
-            icon = tk.PhotoImage(file='./icons/RDM_desktop.png')
-            self.window.iconphoto(True, icon)
-
-        self.window.title(title)
-
-        # Fill in content... we could have all these elements in
-        # internal functions, if the user should be able to
-        # redecorate the content. But it is not the case so:
-        frame= tk.Frame(self.window, bd= 10)
-        frame.grid(
-                column=0,
-                row=0,
-                columnspan=10,
-                rowspan=10,
-                padx= 10,
-                pady=10,
-                sticky='snwe')
-        # now, make sure the listbox in col 0, row 1 is scaled!
-        # This is needed, so resizing the window will resize that
-        # content with it.
-        frame.grid_columnconfigure(0, weight=1)
-        frame.grid_rowconfigure(1, weight=1)
-        self.window.bind('<Escape>', lambda event: self.window.destroy())
+        # destruction is defined in calling the class
+        # self.window.bind('<Escape>', lambda event: self.window.destroy())
         self.window.bind('<Return>', lambda event: self.activate_item())
 
-        # first row is a main label of the content
-        label= tk.Label(frame, text= title)
-        label.grid(column=0, columnspan=10, row=0)
-
-        self.make_listbox(frame)
+        self.make_listbox(self.window.content)
 
         if self.target=='file':
             upload_icon = tk.PhotoImage(file='./icons/upload.png')
             upload_button = tk.Button(
-                    frame,
+                    self.window.command,
                     image= upload_icon,
                     text="upload",
                     command= self.upload
                     )
             upload_button.image = upload_icon
-            upload_button.grid(column=2, columnspan=2, row=9)
+            # upload_button.grid(column=2, columnspan=2, row=9)
+            upload_button.grid(column=1, columnspan= 2, row=0)
 
         open_icon = tk.PhotoImage(file='./icons/folder.png')
         open_button = tk.Button(
-                frame,
+                self.window.command,
                 image= open_icon,
                 command= self.file_manager
                 )
         # to hav the image shown, you have to set it here too
         open_button.image = open_icon
-        open_button.grid(column=4, columnspan=3, row=9)
+        # open_button.grid(column=4, columnspan=3, row=9)
+        open_button.grid(column=4, columnspan= 2, row=0)
 
         # third (last) row is the button to look up content
         button = tk.Button(
-                frame,
+                self.window.command,
                 text='Add New',
                 command= self.add_new
                 )
         # make a nice, large button:
-        button.grid(column= 7, columnspan= 3, row= 9)
+        # button.grid(column= 7, columnspan= 3, row= 9)
+        button.grid(column= 7, columnspan= 2, row=0)
     # end __init__
 
 
@@ -300,7 +241,7 @@ class ListWidget():
             new_list= ListWidget(
                             title= item,
                             root_path= full_path,
-                            parent= self.window,
+                            parent= self.window.window,
                             config= self.config,
                             level= self.level+1
                         )
@@ -390,13 +331,18 @@ class ListWidget():
         # next is the actual directory content (sub directories)
         # listbox with single selection
         self.listbox = tk.Listbox(parent, selectmode= tk.BROWSE)
+        # we define the content filling up the frame with a narrow
+        # scroll-bar on the right
+        parent.columnconfigure(0, weight=10)
+        parent.columnconfigure(1, weight=1)
+        parent.rowconfigure(0, weight=10)
         self.listbox.grid(
                 column=0,
-                columnspan= 9,
-                row= 1,
-                rowspan= 8,
-                padx=1,
-                pady=1,
+                # columnspan= 10,
+                row= 0,
+                # rowspan= 10,
+                padx=0,
+                pady=0,
                 sticky='swne'
                 )
 
@@ -409,7 +355,7 @@ class ListWidget():
                 takefocus= True
                 )
         # we just make it sticky on top-bottom to expand the list box
-        self.scrollbar.grid(column=9, row= 1, rowspan= 8, sticky='ns')
+        self.scrollbar.grid(column=1, row= 0, sticky='ns')
         self.listbox.config(yscrollcommand= self.scrollbar.set)
 
         self.listbox_fill()
@@ -543,7 +489,7 @@ class ListWidget():
         form = FormBuilder(
                 title= f'Form of {label}',
                 root_path= self.root_path,
-                parent= self.window,
+                parent= self.window.window,
                 template= template_dict,
                 config= self.config)
 
@@ -607,7 +553,7 @@ class ListWidget():
         form = FormBuilder(
             title= f'Form of {label}',
             root_path= self.root_path,
-            parent= self.window,
+            parent= self.window.window,
             template= form_data,
             config= self.config)
 
@@ -757,7 +703,7 @@ class ListWidget():
                 record,
                 self.config,
                 self.level,
-                self.window
+                self.window.window
                 )
     # end upload
 # end of class ListWidget

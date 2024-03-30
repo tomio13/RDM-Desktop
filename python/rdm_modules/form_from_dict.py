@@ -5,7 +5,7 @@
 """ a dialog to ask metadata from a user based on a template dict
     Author:     tomio
     License;    MIT
-    Date:       2023-02-08
+    Date:       2023-02-08 -
     Warranty:   None
 """
 import os
@@ -19,7 +19,8 @@ from .project_config import replace_text
 
 from .rdm_help import rdmHelp
 from .rdm_widgets import (EntryBox, MultilineText,
-    FilePickerTextField, CheckBox, MultiSelect, Select, DateRoller)
+                          FilePickerTextField, CheckBox, MultiSelect,
+                          Select, DateRoller, RdmWindow)
 
 
 class FormBuilder():
@@ -68,86 +69,14 @@ class FormBuilder():
 
         if not title:
             title='Form'
+        self.window = RdmWindow(self.parent, title, with_scrollbar= True)
 
-        if self.parent is None:
-            self.window = tk.Tk()
-        else:
-            self.window = tk.Toplevel(self.parent)
 
-        self.window.minsize(600,600)
-        # leave the size automatic
-        self.window.geometry('')
-        self.window.grid()
-        # to make the frame at 0,0 stick and scale with the window:
-        self.window.rowconfigure(0, weight=1)
-        self.window.columnconfigure(0, weight=1)
-        # bring the window to top as a start
-        self.window.lift()
-        # but do not force it to the top
-        # stacking order ==> always on top
-        # window.attributes('-topmost', 1)
-
-        self.window.title(title)
-        # with this, we have a nice, empty window with a title
-        #
-        # We need a scrollable container with flexible content
-        #
-        # Let us use the example at:
-        # https://blog.teclado.com/tkinter-scrollable-frames/
-        # well, a bit modified 8)
-        canvas = tk.Canvas(self.window)
-        canvas.grid(
-                column= 0,
-                row= 0,
-                padx= 10,
-                pady= 10,
-                sticky='snwe'
-                )
-        canvas.grid_columnconfigure(0, weight=10)
-        canvas.grid_rowconfigure(0, weight=1)
-
-        scrollbar = ttk.Scrollbar(self.window,
-                                  orient='vertical',
-                                  command= canvas.yview,
-                                  takefocus= True)
-
-        scrollbar.grid(column=1, row=0, padx=5, pady=5,  sticky='nse')
-        scrollbar.grid_columnconfigure(0, weight=1)
-        scrollbar.grid_rowconfigure(0, weight=1)
-        # add a frame
-
-        # autoupdate the scrollable size as soon as
-        # the area changed because we added sg.
-
-        self.scroll_frame= ttk.Frame(canvas)
-        canvas.create_window((0,0),
-                                  window= self.scroll_frame,
-                                  anchor='nw')
-
-        self.scroll_frame.bind(
-                "<Configure>",
-                lambda e: canvas.configure(
-                    scrollregion= canvas.bbox("all")
-                    )
-            )
-
-        self.scroll_frame.bind(
-                '<Enter>',
-                lambda event: self.bind_mousewheel(canvas)
-                )
-        self.scroll_frame.bind(
-                '<Leave>',
-                lambda event: self.unbind_mousewheel(canvas)
-                )
-
-        canvas.configure(yscrollcommand= scrollbar.set)
         # to destroy, we have to unbind the canvas first
-        self.window.bind('<Escape>', lambda event: self.destroy(canvas))
         self.window.bind('<Control-Return>', lambda event: self.collect_results())
         self.window.bind('<F1>',
                          lambda event: rdmHelp(self.window,
                                                        self.template))
-        # self.scroll_frame.grid(column=0, row=0, sticky='nsw')
         # with this, we have a window, containing a canvas,
         # in which we have frame
         # We can pack content into the frame, and it can be scrolled
@@ -164,48 +93,6 @@ class FormBuilder():
         # add a lot of frames into the frame
         self.add_content()
     # end init()
-
-
-    def bind_mousewheel(self, canvas):
-        """ bind the mouse wheel to the frame
-        """
-        canvas.bind_all('<MouseWheel>',
-                        lambda event: self.roll(event, canvas)
-                        )
-        canvas.bind_all('<4>',
-                        lambda event: self.roll(event, canvas),
-                        add='+')
-        canvas.bind_all('<5>',
-                        lambda event: self.roll(event, canvas),
-                        add='+')
-    # end of bind_mousewheel
-
-
-    def unbind_mousewheel(self, canvas):
-        """ release the binding
-        """
-        canvas.unbind_all('<MouseWheel>')
-        canvas.unbind_all('<4>')
-        canvas.unbind_all('<5>')
-    # end unbind_mousewheel
-
-
-    def roll(self, event, canvas):
-        """ what to do if scroll is done
-            From event we can figure out where it moved,
-            on canvas we can apply
-        """
-        if not canvas.winfo_exists():
-            return
-
-        # in windows, delta is nonzero
-        if event.delta != 0:
-            canvas.yview_scroll(int(-1*(event.delta/120)), 'units')
-
-        # on Linux, it is 0 but button 4/5 work
-        else:
-            sign = 1 if event.num == 5 else -1
-            canvas.yview_scroll(sign*2, 'units')
 
 
     def add_content(self) -> None:
@@ -234,7 +121,7 @@ class FormBuilder():
 
             # a local frame is used to pack everything in
             # the specific line
-            frame = ttk.Frame(self.scroll_frame, pad= 5)
+            frame = ttk.Frame(self.window.content, pad= 5)
 
             txt_label = str(i)
             label = ttk.Label(frame, text= txt_label, pad= 10)
@@ -439,14 +326,6 @@ class FormBuilder():
         self.window.destroy()
     # end collect_results
 
-
-    def destroy(self, canvas):
-        """ destroy the widget, but make sure the events are
-            freed from the canvas
-        """
-        self.unbind_mousewheel(canvas)
-        self.window.destroy()
-    # end destroy
 
 # end of class FormBuilder
 

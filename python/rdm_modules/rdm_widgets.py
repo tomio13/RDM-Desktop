@@ -692,7 +692,8 @@ class RdmWindow():
     def __init__(self, parent:tk.Misc= None,
                  title:str = 'window',
                  fontsize: int= -1,
-                 with_scrollbar: bool= False
+                 with_scrollbar: bool= False,
+                 min_size: tuple = (600,600)
                  ) -> None:
         """ do the window definition.
 
@@ -701,6 +702,7 @@ class RdmWindow():
             title:      the title to be shown on the window
             fontsize:   integer, wished for font size, if <0, do nothing
             with_scrollbar: bool, if set, make a canvas with a scrollbar in the middle
+            min_size:   tuple of two, minimum window size
         """
         # we have all configuration filled up,
         # generate the GUI:
@@ -724,7 +726,7 @@ class RdmWindow():
 
         # end looping for fonts
         # Configure the window
-        self.window.minsize(600,600)
+        self.window.minsize(min_size[0], min_size[1])
         # transparency:
         # self.window.attributes('-alpha', 0.9)
         # leave the size automatic
@@ -741,9 +743,11 @@ class RdmWindow():
         # make sure the children can inherit this icon
         # If I try running the same in a child window, I am getting
         # an error, so do it only at the top level
-        if parent is None:
-            icon = tk.PhotoImage(file='./icons/RDM_desktop.png')
-            self.window.iconphoto(True, icon)
+        #if parent is None:
+        #    iconpath = './icons/RDM_desktop.png'
+        #    if os.path.isfile(iconpath):
+        #        icon = tk.PhotoImage(file= iconpath)
+        #        self.window.iconphoto(True, icon)
 
         self.window.title(title)
         # we add a frame containing the list box and some buttons

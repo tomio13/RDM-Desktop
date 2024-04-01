@@ -354,6 +354,8 @@ class SubSet():
             and buttons to:
             - view the data
             - add new values
+            Information: how many columns (fields) are defined,
+            and how many rows (records) already exist.
 
             Use the FormBuilder to add new values
 
@@ -368,12 +370,16 @@ class SubSet():
             print('Nothing to do here!')
             return
 
-#        self.root_path = root_path
-#        self.title= title
-#        self.config = config
+        # to minimize internal variables, leave
+        # root_path, title and config as only passed on variables
+
+        # internals as for every other widgets in RDM we need
+        # required and error
         self.required= False
         self.error = False
+        # we need form to create the form when needed
         self.form = form
+        # if called out of context, it should still work:
         self.parent = tk.Tk() if parent is None else parent
 
         # about the data:
@@ -381,11 +387,14 @@ class SubSet():
         self.label_fields= []
 
         self.frame = ttk.Frame(self.parent)
-#        self.frame.grid(column= 0, row= 0, sticky= 'nsew')
+        # the placing of this frame is managed by the form builder
+        # normally...
 
         # to position the overview widget, use:
         self.grid = self.frame.grid
 
+        # within this frame we have a label and then
+        # the content: buttons and row/column information
         label = tk.Label(self.frame, text= title)
         label.grid(column= 0, row= 0)
         # now, we need some content...
@@ -397,8 +406,8 @@ class SubSet():
 
 
     def add_labels(self):
-        """ create the labels with row and column
-            numbers
+        """ create the labels with row and column numbers
+            These belong within the frame as dynamic content.
         """
         nrow = len(self.content)
         ncol = len(self.form)
@@ -472,7 +481,7 @@ class SubSet():
         """ add values to the lists
         """
         # since python 3.11 dict copy is a shallow copy
-        # this_template = self.form.copy()
+        # so we make a full copy for protecting the original
         this_template = self.form.copy()
         if self.content:
             row = self.content[-1]
@@ -532,15 +541,51 @@ class SubSet():
         """ make a tabulated list of the existing entries
         """
 
-        window= tk.Toplevel(self.parent)
-        window.title(title)
-        window.minsize(300,400)
-        window.grid()
-        window.columnconfigure(0, weight= 1)
-        window.rowconfigure(0, weight= 1)
-        window.lift()
+        window= RdmWindow(self.parent,
+                          title,
+                          min_size=(300, 400)
+                          )
         # ESC will close the window
-        window.bind('<Escape>', lambda event: window.destroy())
+
+        cols = tuple(self.form.keys())
+        tree_view = ttk.Treeview(window.content,
+                                 columns = cols,
+                                 show= 'headings')
+
+        for head in cols:
+            tree_view.heading(head, text= head)
+
+        for line in self.content:
+            # the str() originall has the annoying property to fill up None
+            # values with 'None' as text...
+            show_line = tuple((self.to_str(i) for i in line))
+            tree_view.insert('','end', values= show_line)
+
+        tree_view.grid(column=0,
+                       row=0,
+                       columnspan=2,
+                       sticky='news')
+
+        button_delete= ttk.Button(
+                window.command,
+                text= 'Delete',
+                command= lambda: self.delete_selected(tree_view)
+                )
+
+        button_delete.grid(column= 0, row= 1, sticky='sw')
+
+        button_edit= ttk.Button(
+                window.command,
+                text= 'Edit',
+                command= lambda: self.edit_selected(
+                    tree_view,
+                    title,
+                    root_path,
+                    config
+                    )
+                )
+
+        button_edit.grid(column= 1, row= 1, sticky='se')
         # add double click to edit:
         window.bind('<Double-Button-1>', lambda event: self.edit_selected(
                                         tree_view,
@@ -558,51 +603,8 @@ class SubSet():
                                         )
                     )
 
-        frame= ttk.Frame(window)
-        frame.grid(column=0, row=0, sticky='news')
-        frame.columnconfigure(0, weight=1)
-        frame.rowconfigure(0, weight=1)
-
-        cols = tuple(self.form.keys())
-        tree_view = ttk.Treeview(frame,
-                                 columns = cols,
-                                 show= 'headings')
-        for head in cols:
-            tree_view.heading(head, text= head)
-
-        for line in self.content:
-            # the str() originall has the annoying property to fill up None
-            # values with 'None' as text...
-            show_line = tuple((self.to_str(i) for i in line))
-            tree_view.insert('','end', values= show_line)
-
-        tree_view.grid(column=0,
-                       row=0,
-                       columnspan=2,
-                       sticky='news')
-
-        button_delete= ttk.Button(
-                frame,
-                text= 'Delete',
-                command= lambda: self.delete_selected(tree_view)
-                )
-
-        button_delete.grid(column= 0, row= 1, sticky='sw')
-
-        button_edit= ttk.Button(
-                frame,
-                text= 'Edit',
-                command= lambda: self.edit_selected(
-                    tree_view,
-                    title,
-                    root_path,
-                    config
-                    )
-                )
-        button_edit.grid(column= 1, row= 1, sticky='se')
 
         window.wait_window()
-
     # end show
 
 
@@ -654,6 +656,10 @@ class SubSet():
         keylist = list(this_template.keys())
         for i,j in enumerate(keylist):
             this_template[j]['value'] = row[i]
+
+        # debug:
+        # print('calling form with:')
+        # print(this_template)
 
         # now, we can call an editing form
         # print('calling FormBuilder with:\n', this_template)

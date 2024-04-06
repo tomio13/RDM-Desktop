@@ -280,11 +280,17 @@ class EntryBox():
 
         self.parent = tk.Tk() if parent is None else parent
         frame = tk.Frame(self.parent)
+        # balance a bit between label and the text field
+        frame.columnconfigure(0, weight=2)
+        frame.columnconfigure(1, weight= 10)
+        frame.columnconfigure(2, weight= 1)
+
+        # expose this to be able to position this element
+        # in the parent
         self.grid = frame.grid
 
         self.entry = ttk.Entry(frame,
                                textvariable= self.var,
-                               width= 10,
                                **kwarg)
         self.entry.grid(column=0, row=0)
 

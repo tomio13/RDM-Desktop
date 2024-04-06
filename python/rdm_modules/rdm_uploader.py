@@ -2,7 +2,7 @@
 """ Generic uploader tool for experiments.
     Author:     Tomio
     License:    MIT
-    Date:       20233-03-17
+    Date:       2023-03-17
     Warranty:   None
 """
 
@@ -11,7 +11,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter.messagebox import showerror
-from rdm_modules.rdm_widgets import (EntryBox, CheckBox)
+from rdm_modules.rdm_widgets import (EntryBox, CheckBox, RdmWindow)
 from rdm_modules.rdm_templates import (read_record, save_record)
 
 from rdm_modules.rdm_converters import convert_record_to_JSON
@@ -64,6 +64,7 @@ class rdmUploader():
             (These functions also do internal conversion of the record
             to match the requirements of the DB.)
         """
+        window = RdmWindow(parent, title='Upload record')
         if parent is None:
             window = tk.Tk()
         else:

@@ -766,6 +766,8 @@ class RdmWindow():
                 column= 0,
                 row= 0,
                 sticky= 'new')
+        self.header.columnconfigure(0, weight= 10)
+        self.header.columnconfigure(1, weight= 1)
         label= tk.Label(self.header, text= title)
         label.grid(column=0, row=0)
 

@@ -13,6 +13,7 @@ import os
 import tkinter as tk
 from  tkinter import ttk
 # from tkinter.filedialog import FileDialog
+from tkinter.filedialog import asksaveasfile
 from tkinter.messagebox import showerror
 
 from .project_config import replace_text
@@ -563,8 +564,17 @@ class SubSet():
 
         tree_view.grid(column=0,
                        row=0,
-                       columnspan=2,
+                       #columnspan=2,
                        sticky='news')
+
+        # csv_icon = tk.PhotoImage(file='./icons/csv.png')
+        button_csv = ttk.Button(
+                window.command,
+                text= 'to csv',
+                # image= csv_icon,
+                command= lambda: self.write_csv(folder= root_path)
+                )
+        button_csv.grid(column=0, row=1, sticky='sw')
 
         button_delete= ttk.Button(
                 window.command,
@@ -572,7 +582,7 @@ class SubSet():
                 command= lambda: self.delete_selected(tree_view)
                 )
 
-        button_delete.grid(column= 0, row= 1, sticky='sw')
+        button_delete.grid(column= 1, row= 1, sticky='sw')
 
         button_edit= ttk.Button(
                 window.command,
@@ -585,7 +595,8 @@ class SubSet():
                     )
                 )
 
-        button_edit.grid(column= 1, row= 1, sticky='se')
+        button_edit.grid(column= 2, row= 1, sticky='se')
+
         # add double click to edit:
         window.bind('<Double-Button-1>', lambda event: self.edit_selected(
                                         tree_view,
@@ -606,6 +617,56 @@ class SubSet():
 
         window.wait_window()
     # end show
+
+
+    def write_csv(self, folder) -> None:
+        """ get a file name, and dump the content to a CSV file.
+            For elements containing comma, quote them as strings.
+            Do a simple job, so we can live without the CSV class.
+            It is not really nice when one has many lists and subsets
+            to use this, but useful for simple subset tables.
+
+            Delimiter: ','
+            New line: '\n'
+            quote:      simple, when ',' is in the string
+        """
+
+        # get a file pointer in the current project folder
+        fp= asksaveasfile('wt',
+                      parent= self.parent,
+                      initialdir= folder,
+                      filetypes= [('.csv', '*.csv')],
+                      defaultextension= '.csv'
+                      )
+        if not fp:
+            # cancelled
+            # print('Something went wrong with opening the file!')
+            return
+
+        # for simple quoting:
+        def to_str(x):
+            if isinstance(x, str):
+                t = f'{x}'
+            else:
+                t = repr(x)
+            if ',' in t:
+                return f'"{x}"'
+            return t
+        # end define to_str
+
+        # create a header
+        txt = ', '.join([to_str(i) for i in self.form.keys()])
+        # print('header:\n', txt)
+        fp.write(f'{txt}\n')
+
+        for row in self.content:
+            txt = ', '.join([to_str(i) for i in row])
+            # print(txt)
+            fp.write(f'{txt}\n')
+
+        fp.close()
+        print('writing csv file is complete')
+    # end wirte_csv
 
 
     def delete_selected(self, tree_widget) -> None:

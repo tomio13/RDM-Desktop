@@ -135,6 +135,10 @@ This file defines several parameters, which will affect how the
 program works. Please do not alter the folder configuration except
 if you really know what you are doing.
 
+Now, there is a button on the main window to call an editor on this
+file, more the current version in memory. If the save config is disabled,
+this button does not show.
+
 However, you should change:
 - userID: the name saved to new entries
 - editor: it is Notepad on Windows, nano on other systems, change it

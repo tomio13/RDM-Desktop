@@ -7,12 +7,13 @@
     Author:     Tomio13
     License:    MIT
     Warranty:   None
-    Date:       2023-01-20
+    Date:       2024-04-06
 """
 
 import os
 import subprocess
 import tkinter as tk
+from tempfile import NamedTemporaryFile
 from tkinter import simpledialog as tksd
 from tkinter.filedialog import askopenfilename
 # from tkinter import font
@@ -21,7 +22,7 @@ import yaml
 
 # now the local elements:
 from .form_from_dict import FormBuilder, SubSet
-from .project_config import replace_text
+from .project_config import (replace_text, get_config, save_config)
 from .project_dir import make_dir
 from .rdm_uploader import rdmUploader
 
@@ -29,7 +30,7 @@ from .rdm_templates import (read_record, save_record)
 from .rdm_widgets   import RdmWindow
 
 # important global variables (within the package)
-__version__= '0.1.5'
+__version__= '0.5.0'
 
 
 class ListWidget():
@@ -128,7 +129,17 @@ class ListWidget():
         # destruction is defined in calling the class
         # self.window.bind('<Escape>', lambda event: self.window.destroy())
         self.window.bind('<Return>', lambda event: self.activate_item())
+        if ('save config' in self.config
+            and self.config['save config']):
+            config_button = tk.Button(
+                self.window.header,
+                text= 'config',
+                command= self.edit_config
+                )
+        config_button.grid(column= 1, row= 0)
 
+
+        # make the content
         self.make_listbox(self.window.content)
 
         if self.target=='file':
@@ -585,6 +596,37 @@ class ListWidget():
 
     #end edit_form
 
+
+    def edit_config(self):
+        """ call an editor on the configuration content...
+            For this, create a temporary file, let the user
+            edit it, then reload it.
+            """
+        # create a temporary file, and dump the config into it
+        fp = NamedTemporaryFile('wt', delete= False, encoding= 'UTF-8')
+        yaml.dump(self.config, fp)
+        fname = fp.name
+        fp.close()
+
+        # now, call an editor on it
+        print('Temp config file to edit', fname)
+        self.open_editor(fname)
+        # after done:
+        with open(fname,
+                  'rt',
+                  encoding= 'UTF-8') as fp:
+           this_config= yaml.safe_load(fp)
+        # end loading back
+        if this_config:
+            if ('save config' in this_config
+                and this_config['save config']):
+                # we write the config
+                save_config(this_config)
+                # then load it back, ensuring
+                # that defaults are in place
+                self.config = get_config()
+
+    # end edit_config
 
     def open_editor(self, full_path):
         """ Open a yaml file using the editor in config

@@ -101,6 +101,7 @@ class FormBuilder():
             main window accordingly.
         """
 
+        frame= self.window.content
         # make a static copy of keys,
         # so not problem comes if we change them
         keys = list(self.template.keys())
@@ -108,6 +109,7 @@ class FormBuilder():
         # go through the template
         for j,i in enumerate(keys):
             v = self.template[i]
+            txt_label= str(i)
 
             # no type field means it is not part of the form,
             # but we take it over
@@ -122,21 +124,13 @@ class FormBuilder():
 
             # a local frame is used to pack everything in
             # the specific line
-            frame = ttk.Frame(self.window.content, pad= 5)
-
-            txt_label = str(i)
-            label = ttk.Label(frame, text= txt_label, pad= 10)
-            label.grid(column= 0,
-                       row= 0,
-                       padx=(2,5),
-                       pady=(2,2),
-                       sticky='w')
 
             if v['type'] in ['text', 'url',
                              'numeric', 'integer',
                              'list', 'numericlist']:
                 # entry = ttk.Entry(frame, textvariable= var)
                 entry = EntryBox(frame,
+                                 txt_label,
                                  v['type'],
                                  units=(v['units'] if 'units' in v else None))
 
@@ -150,12 +144,13 @@ class FormBuilder():
                     entry.required = True
 
             elif v['type'] == 'date':
-                entry = DateRoller(frame)
+                entry = DateRoller(frame, label= txt_label)
+
                 if 'value' in v:
                     entry.set(v['value'])
 
             elif v['type'] == 'select':
-                entry = Select(frame, v['options'])
+                entry = Select(frame, txt_label, v['options'])
 
                 # make it read only, so user cannot insert new values
                 # alternative would be state 'normal'
@@ -167,7 +162,7 @@ class FormBuilder():
                     entry.required = True
 
             elif v['type'] == 'multiselect':
-                entry = MultiSelect(frame, v['options'])
+                entry = MultiSelect(frame, txt_label, v['options'])
                 if 'required' in v and v['required']:
                     entry.required = True
 
@@ -175,8 +170,14 @@ class FormBuilder():
                     entry.set(v['value'])
 
             elif v['type'] == 'multiline':
-                # another text widget
-                entry = MultilineText(frame)
+                # another text widget, with multiple lines
+                # if confit['editor'] is set, it has an edit button
+                # to allow for external editing
+                editor = self.config['editor'] if ('editor' in self.config
+                                    and self.config['editor']) else None
+
+                entry = MultilineText(frame, label= txt_label, editor= editor)
+
                 if 'value' in v:
                     # for some reason we can have some spaces...
                     vv = v['value'].strip()
@@ -194,6 +195,7 @@ class FormBuilder():
                 ext = v['extension'] if 'extension' in v else 'yaml'
                 entry = FilePickerTextField(
                         parent= frame,
+                        label= txt_label,
                         indir= self.root_path,
                         extension= ext
                         )
@@ -212,7 +214,7 @@ class FormBuilder():
                     entry.required = True
 
             elif v['type'] == 'checkbox':
-                entry = CheckBox(frame)
+                entry = CheckBox(frame, label= txt_label)
                 entry.required= False
                 entry.error = False
 
@@ -224,7 +226,7 @@ class FormBuilder():
                     and isinstance(v['form'], dict):
 
                 entry= SubSet(
-                    title= i,
+                    title= txt_label,
                     root_path= self.root_path,
                     parent= frame,
                     form= v['form'],
@@ -243,16 +245,16 @@ class FormBuilder():
             # end enumerating possible types
 
             # put the new entry in place
-            entry.grid(column= 1,
-                       row= 0,
+            entry.grid(column= 0,
+                       row= j,
                        padx= (5,2),
                        pady=(2,2),
-                       sticky='e')
+                       sticky='ew')
 
             # create a dict of text label:entry
             # archive the result
             self.entrydict[txt_label] = entry
-            frame.grid(column=0, row= j)
+            # frame.grid(column=0, row= j)
         # end looping for content
         #
         # we need a last button to submit the lot
@@ -388,6 +390,12 @@ class SubSet():
         self.label_fields= []
 
         self.frame = ttk.Frame(self.parent)
+        self.frame.rowconfigure(0, weight=1)
+        self.frame.rowconfigure(1, weight=10)
+        self.frame.columnconfigure(0, weight= 5)
+        self.frame.columnconfigure(1, weight= 5)
+        self.frame.columnconfigure(2, weight= 5)
+        self.frame.columnconfigure(3, weight= 5)
         # the placing of this frame is managed by the form builder
         # normally...
 
@@ -397,7 +405,7 @@ class SubSet():
         # within this frame we have a label and then
         # the content: buttons and row/column information
         label = tk.Label(self.frame, text= title)
-        label.grid(column= 0, row= 0)
+        label.grid(column= 0, row= 0, padx= 10)
         # now, we need some content...
         self.create_content(title= title,
                             root_path= root_path,

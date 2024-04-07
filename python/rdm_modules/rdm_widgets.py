@@ -8,6 +8,7 @@
     Warranty:   None
 """
 import os
+import subprocess
 import time
 import tkinter as tk
 from tkinter import ttk
@@ -15,6 +16,7 @@ from tkinter import font
 # from tkinter.filedialog import FileDialog
 from tkinter.filedialog import askopenfilenames
 from tkinter import StringVar
+from tempfile import NamedTemporaryFile
 
 
 class FilePickerTextField():
@@ -32,9 +34,16 @@ class FilePickerTextField():
 
     def __init__(self,
                  parent:tk.Misc= None,
+                 label:str='',
                  indir:str='.',
                  extension:str= 'yaml') -> None:
         """ Generate the widget and populate its settings
+
+            Parameters:
+            parent: parent window/object or None
+            label:  labe to be printed first
+            indir:  root path
+            extension: default extension to look for
         """
         if parent is None:
             self.parent = tk.Tk()
@@ -43,6 +52,9 @@ class FilePickerTextField():
             self.parent = parent
 
         frame= ttk.Frame(self.parent)
+        frame.columnconfigure(0, weight= 10)
+        frame.columnconfigure(1, weight= 10)
+        frame.columnconfigure(2, weight= 2)
         # allow positioning after called:
         self.grid = frame.grid
 
@@ -52,6 +64,9 @@ class FilePickerTextField():
         self.required= False
         self.error= False
 
+        label = ttk.Label(frame, text= label, pad= 10)
+        label.grid(column=0, row=0)
+
         entry = ttk.Entry(
                 frame,
                 width= 30,
@@ -59,7 +74,7 @@ class FilePickerTextField():
                 )
 
         entry.grid(
-                column= 0,
+                column= 1,
                 row= 0
                 )
 
@@ -71,7 +86,7 @@ class FilePickerTextField():
                     extension
                     )
                 )
-        button.grid(column= 1, row= 0)
+        button.grid(column= 2, row= 0)
     # end __init__
 
 
@@ -153,9 +168,16 @@ class MultilineText():
     """
 
     def __init__(self,
-                 parent:tk.Misc= None
+                 parent: tk.Misc|None = None,
+                 label: str= '',
+                 editor: str|None = None
                  )-> None:
         """ A Tk text area widget coupled to scroll bars in a frame
+
+            Parameters;
+            parent: a Tk object (window or frame) or None
+            label:  what label to be put up
+            editor: an editor program name
         """
 
         if parent is None:
@@ -166,15 +188,32 @@ class MultilineText():
 
         frame= ttk.Frame(self.parent)
 
-        frame.rowconfigure(0, weight=1)
-        frame.columnconfigure(0, weight=1)
+        frame.rowconfigure(0, weight= 2)
+        frame.rowconfigure(1, weight= 2)
+        frame.rowconfigure(2, weight= 10)
+        frame.rowconfigure(3, weight= 1)
+        frame.columnconfigure(0, weight= 3)
+        frame.columnconfigure(1, weight= 10)
+        frame.columnconfigure(2, weight=1)
+
+        label = ttk.Label(frame,
+                         text= label, pad= 10)
+        label.grid(column= 0, row=0)
+
+        if not editor is None:
+            edit_button = ttk.Button(frame,
+                                    text= 'edit',
+                                    command= lambda: self.edit(editor)
+                                    )
+            edit_button.grid(column=0, row=1)
 
         self.text = tk.Text(frame,
                             width= 50,
                             height= 10,
                             wrap= 'word')
 
-        self.text.grid(column=0, row=0, sticky='we')
+        self.text.grid(column=1, row=0, sticky='ew', rowspan= 3)
+
         self.required= False
         self.error = False
 
@@ -185,7 +224,8 @@ class MultilineText():
                                       takefocus= True
                                       )
         scroll_vertical.grid(row= 0,
-                                   column= 1,
+                                   column= 3,
+                                   rowspan= 3,
                                    sticky= 'ns')
         self.text.config(yscrollcommand= scroll_vertical.set)
 
@@ -195,8 +235,8 @@ class MultilineText():
                                         command= self.text.xview,
                                         takefocus= True
                                         )
-        scroll_horizontal.grid(row= 1,
-                                   column= 0,
+        scroll_horizontal.grid(row= 4,
+                                   column= 1,
                                    sticky= 'ew')
         self.text.config(xscrollcommand= scroll_horizontal.set)
 
@@ -222,6 +262,33 @@ class MultilineText():
             self.text.insert('END', content)
     # end set
 
+    def edit(self, editor)->None:
+        """ put content into a temporary file and call editor
+            on it.
+
+            Parameters:
+            editor: name of the editor program
+        """
+        fp= NamedTemporaryFile('wt', delete= False, encoding= 'UTF-8')
+        fp.write(self.text.get('1.0', 'end'))
+        fn = fp.name
+        fp.close()
+
+        # now, call the editor
+        subprocess.call((editor, fn))
+
+        # now, get the content back
+        txt =''
+        with open(fn, 'rt', encoding= 'UTF-8') as fp:
+            txt = fp.read()
+
+        os.unlink(fn)
+        if txt:
+            self.text.delete('1.0', 'end')
+            self.text.insert('end', txt)
+
+    # end edit
+
 # end of MultilineText
 
 
@@ -230,8 +297,16 @@ class CheckBox(tk.Checkbutton):
         read out the value.
     """
 
-    def __init__(self, parent:tk.Misc= None, **kwargs:dict) -> None:
+    def __init__(self,
+                 parent:tk.Misc= None,
+                 label:str='',
+                 **kwargs:dict) -> None:
         """ initialize a checkbox widget
+
+            parameters:
+            parent: parent window or object or None
+            label: text before the widget
+            kwargs: any labeled variable passed on
         """
 
         self.parent = parent
@@ -242,11 +317,20 @@ class CheckBox(tk.Checkbutton):
             self.parent = tk.Tk()
 
         self.value = tk.IntVar()
-        super().__init__(self.parent,
+        frame= ttk.Frame(self.parent)
+        frame.columnconfigure(0, weight= 5)
+        frame.columnconfigure(0, weight= 1)
+        self.grid= frame.grid
+
+        label = ttk.Label(frame, text= label, pad= 10)
+        label.grid(column=0, row= 0)
+
+        super().__init__(frame,
                          variable= self.value,
                          onvalue= 1,
                          offvalue= 0,
                          **kwargs)
+        super().grid(column= 1, row=0)
 
     def get(self)->str:
         """ return back the value of self.value
@@ -263,11 +347,18 @@ class EntryBox():
 
     def __init__(self,
                  parent:tk.Misc,
+                 label:str= '',
                  vartype:str='text',
                  units:list|None= None,
                  **kwarg:dict) -> None:
         """ Initiate an entry widget, based on its type
             units: a list of usable units
+
+            parameters:
+            parent:     parent object or None
+            label:      the text before the object
+            vartype:    type text, e.g. 'text', 'numeric'
+            units:      list of units as text
         """
         # internally we use strings for any variable
         self.var = tk.StringVar()
@@ -279,6 +370,7 @@ class EntryBox():
         self.required= False
 
         self.parent = tk.Tk() if parent is None else parent
+
         frame = tk.Frame(self.parent)
         # balance a bit between label and the text field
         frame.columnconfigure(0, weight=2)
@@ -289,10 +381,13 @@ class EntryBox():
         # in the parent
         self.grid = frame.grid
 
+        label = ttk.Label(frame, text=label, pad= 10)
+        label.grid(column= 0, row=0)
+
         self.entry = ttk.Entry(frame,
                                textvariable= self.var,
                                **kwarg)
-        self.entry.grid(column=0, row=0)
+        self.entry.grid(column=1, row=0)
 
         if units is not None:
             if not isinstance(units, list):
@@ -301,7 +396,7 @@ class EntryBox():
             self.units['values'] = units
             self.units['state'] = 'readonly'
             self.units.set(units[0])
-            self.units.grid(column=1, row=0)
+            self.units.grid(column=2, row=0)
         else:
             self.units= None
     # end __init__
@@ -442,9 +537,15 @@ class MultiSelect():
 
     def __init__(self,
                  parent:tk.Misc,
+                 label: str,
                  options:list) -> None:
         """ Create a a widget and list up the options
             in it.
+
+            parameters:
+            parent:     parent object or None
+            label:      string label
+            options:    list of option texts to select from
         """
         self.options = options
         self.parent = parent
@@ -454,7 +555,15 @@ class MultiSelect():
         if self.parent is None:
             self.parent = tk.Tk()
         # end empty window
-        self.select = tk.Listbox(self.parent,
+        frame= ttk.Frame(self.parent)
+        frame.columnconfigure(0, weight= 1)
+        frame.columnconfigure(1, weight= 5)
+        self.grid= frame.grid
+
+        label = ttk.Label(frame, text= label, pad=5)
+        label.grid(column=0, row=0)
+
+        self.select = tk.Listbox(frame,
                                  # selectmode='multiple')
                                  selectmode='extended')
 
@@ -501,6 +610,7 @@ class Select():
 
     def __init__(self,
                  parent:tk.Misc,
+                 label:str,
                  options:list) -> None:
         """ Create a combo box with the list of options
             in it.
@@ -516,7 +626,18 @@ class Select():
         if self.parent is None:
             self.parent = tk.Tk()
         # end empty window
-        self.select = ttk.Combobox(self.parent)
+
+        frame= ttk.Frame(self.parent)
+        self.grid= frame.grid
+
+        frame.columnconfigure(0, weight= 1)
+        frame.columnconfigure(1, weight= 5)
+        label= ttk.Label(frame, text= label, pad=5)
+        label.grid(column=0, row=0)
+
+        self.select = ttk.Combobox(frame)
+        self.select.grid(column=1, row=0, sticky='ew')
+
         self.select['values'] = options
         self.select['state'] = 'readonly'
         self.set(options[0])
@@ -529,10 +650,6 @@ class Select():
     def get(self):
         return self.select.get()
     # end of get
-
-    def grid(self, **kwargs):
-        self.select.grid(**kwargs)
-
 
 #end of class Select
 
@@ -550,7 +667,7 @@ class DateRoller():
         any time.
     """
 
-    def __init__(self, parent:tk.Misc= None, value:str='') -> None:
+    def __init__(self, parent:tk.Misc= None, label:str='', value:str='') -> None:
         """ set up the widget and its initial values
         """
         self.parent = parent
@@ -563,27 +680,30 @@ class DateRoller():
             now = time.strptime(value, '%Y-%m-%d %H:%M')
 
         if self.parent is None:
-            window= tk.Tk()
-            window.geometry('200x50')
+            self.parent= tk.Tk()
+            self.parent.geometry('200x50')
             window.grid()
             window.title('Date picker')
-            frame = tk.Frame(window)
-            frame.grid(column=0, row=0, sticky='news')
-            self.window = window
-        else:
-            #window = tk.Toplevel(self.parent)
-            frame = tk.Frame(self.parent)
-            # make grid availeble for external adjustments
-            self.grid = frame.grid
+
+        frame = tk.Frame(self.parent)
+        frame.columnconfigure(0, weight= 5)
+
+        for i in range(1,6):
+            frame.columnconfigure(i, weight= 1)
+
+        main_label= ttk.Label(frame, text= label, pad=5)
+        main_label.grid(column=0, row=0)
+
+        self.grid = frame.grid
 
         self.fieldlist=[]
         self.varlist=[]
         mins = [now[0]-5, 1, 1, 0, 0]
         maxs = [now[0]+5, 12, 31, 23, 59]
         for i,v in enumerate(['year','month','day', 'hour', 'minute']):
-            label = tk.Label(frame,
+            lbel = ttk.Label(frame,
                              text= v)
-            label.grid(column=i, row=0)
+            lbel.grid(column= i+1, row=0)
 
             newvar= tk.StringVar()
             newvar.set(str(now[i]))
@@ -597,9 +717,11 @@ class DateRoller():
                                  # command= lambda event: self.changed(event, i))
                                  )
             # we can directly trace the variables:
-            newvar.trace_add('write', lambda var, event, mode: self.changed(var, event, mode, i))
+            newvar.trace_add('write',
+                             lambda var, event, mode: self.changed(var, event, mode, i)
+                             )
 
-            spinner.grid(column= i, row=1)
+            spinner.grid(column= i+1, row=1)
 
             self.fieldlist.append(spinner)
             self.varlist.append(newvar)
@@ -683,6 +805,9 @@ class DateRoller():
 
 # end class datePicker
 
+
+#################### now, this is a more generic thing, the window with its
+#################### own basic frames
 
 class RdmWindow():
     """ make a default window, within define some frames:
@@ -797,7 +922,11 @@ class RdmWindow():
 
             # now the content is a part of this canvas
             self.content = tk.Frame(canvas)
-            self.content.grid(column=0, row=0, padx=10,pady= 10,sticky='nswe')
+            self.content.grid(column=0,
+                              row=0,
+                              padx=10,
+                              pady= 10,
+                              sticky='nswe')
 
             canvas.create_window((0,0),
                              window= self.content,
@@ -840,7 +969,7 @@ class RdmWindow():
                 row= 2,
                 padx= 10,
                 pady= 10,
-                sticky= 's')
+                sticky= 'sew')
 
         # the quit function is for sure:
         self.bind('<Escape>', lambda event: self.destroy())

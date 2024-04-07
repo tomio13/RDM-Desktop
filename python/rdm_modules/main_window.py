@@ -616,6 +616,8 @@ class ListWidget():
                   'rt',
                   encoding= 'UTF-8') as fp:
            this_config= yaml.safe_load(fp)
+
+        os.unlink(fname)
         # end loading back
         if this_config:
             if ('save config' in this_config

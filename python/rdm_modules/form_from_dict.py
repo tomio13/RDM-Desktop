@@ -1,6 +1,3 @@
-# problem: here the values come back flattened for
-# subsets... How can we put them back? The keys
-# do not match
 #!/usr/bin/env python
 """ a dialog to ask metadata from a user based on a template dict
     Author:     tomio
@@ -648,7 +645,7 @@ class SubSet():
                       )
         if not fp:
             # cancelled
-            # print('Something went wrong with opening the file!')
+            print('Save cancelled or write error!')
             return
 
         # for simple quoting:
@@ -664,12 +661,12 @@ class SubSet():
 
         # create a header
         txt = ', '.join([to_str(i) for i in self.form.keys()])
-        # print('header:\n', txt)
+        print('header:\n', txt)
         fp.write(f'{txt}\n')
 
         for row in self.content:
             txt = ', '.join([to_str(i) for i in row])
-            # print(txt)
+            print(txt)
             fp.write(f'{txt}\n')
 
         fp.close()

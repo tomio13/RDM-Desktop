@@ -10,7 +10,7 @@ import os
 import tkinter as tk
 from  tkinter import ttk
 # from tkinter.filedialog import FileDialog
-from tkinter.filedialog import asksaveasfile
+from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import showerror
 
 from .project_config import replace_text
@@ -637,16 +637,11 @@ class SubSet():
         """
 
         # get a file pointer in the current project folder
-        fp= asksaveasfile('wt',
-                      parent= self.parent,
+        fn= asksaveasfilename(parent= self.parent,
                       initialdir= folder,
                       filetypes= [('.csv', '*.csv')],
-                      defaultextension= '.csv'
+                      defaultextension= '.csv',
                       )
-        if not fp:
-            # cancelled
-            print('Save cancelled or write error!')
-            return
 
         # for simple quoting:
         def to_str(x):
@@ -659,17 +654,19 @@ class SubSet():
             return t
         # end define to_str
 
-        # create a header
-        txt = ', '.join([to_str(i) for i in self.form.keys()])
-        print('header:\n', txt)
-        fp.write(f'{txt}\n')
-
-        for row in self.content:
-            txt = ', '.join([to_str(i) for i in row])
-            print(txt)
+        with open(fn, 'wt', encoding='UTF-8') as fp:
+            # create a header
+            txt = ', '.join([to_str(i) for i in self.form.keys()])
+            print('header:\n', txt)
             fp.write(f'{txt}\n')
 
-        fp.close()
+            for row in self.content:
+                txt = ', '.join([to_str(i) for i in row])
+                print(txt)
+                fp.write(f'{txt}\n')
+            # with takes care of this
+            # fp.close()
+
         print('writing csv file is complete')
     # end wirte_csv
 

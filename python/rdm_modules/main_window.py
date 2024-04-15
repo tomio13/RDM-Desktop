@@ -635,8 +635,7 @@ class ListWidget():
         """
         ed = self.get_config_element('editor')
         if ed:
-            cmd= (ed, full_path)
-            subprocess.call(cmd)
+            subprocess.call(ed.split(' ') + [full_path])
     # end open_editor
 
 

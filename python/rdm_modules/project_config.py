@@ -75,16 +75,16 @@ def get_default_config() -> dict:
     # - readme template (MD files)
     # - default template for forms
     default_config= {
-            'homeDir': home_dir,
-            'save config': True,
-            'userID': userID,
+            'userID':       userID,
+            'editor':       editor,
+            'version':      version,
+            'homeDir':      home_dir,
+            'save config':  True,
             'templateDir':  template_dir,
             'projectDir':   'Projects',
             'readme':       'readme.md',
             'filemanager':  filemanager,
-            'version':      version,
             'use form':     True,
-            'editor':       editor,
             'chemicals':    'Chemicals',
             'equipment':    'Equipment',
             'ignore':       ['References', 'Chemicals', 'Equipment'],

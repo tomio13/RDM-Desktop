@@ -275,7 +275,7 @@ class MultilineText():
         fp.close()
 
         # now, call the editor
-        subprocess.call((editor, fn))
+        subprocess.call(editor.split(' ') + [fn])
 
         # now, get the content back
         txt =''

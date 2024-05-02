@@ -453,8 +453,7 @@ class ListWidget():
         ed = self.get_config_element('editor')
 
         if ed :
-            cmd= (ed, os.path.join(new_path, readme_path))
-            subprocess.call(cmd)
+            self.open_editor(os.path.join(new_path, readme_path))
     # end make_readme
 
 
@@ -635,6 +634,8 @@ class ListWidget():
         """
         ed = self.get_config_element('editor')
         if ed:
+            cmd = ed.split(' ')
+            print('calling editor as:', cmd + [full_path])
             subprocess.call(ed.split(' ') + [full_path])
     # end open_editor
 

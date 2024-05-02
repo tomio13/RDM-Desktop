@@ -103,6 +103,11 @@ class ListWidget():
         # use the projects title:
         if not title:
             title = self.get_config_element('projectsTitle')
+        else:
+
+            # get what is selected:
+            item_name = self.get_config_element('searchNames')
+            title = f'{title} - {item_name} list'
 
         # at each level we may ask for a directory listing or
         # searching for files
@@ -230,7 +235,6 @@ class ListWidget():
             print('Nothing was selected')
             return
 
-        # get what is selected:
         item = self.listbox.get(indx)
 
         # turn it to a full path:

@@ -13,6 +13,8 @@ from tkinter import ttk
 class rdmHelp():
     """ a multiline text widget to show help
         Use <ESC> (<Escape>) to close
+        It is an exception made very simple only to display a read-only
+        text extracted from the doc fleids of a record.
     """
 
     def __init__(self,

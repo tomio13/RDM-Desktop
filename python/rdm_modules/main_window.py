@@ -84,6 +84,9 @@ class ListWidget():
                     )
                 )
 
+        # store the root path for accessing the readme:
+        original_path = self.root_path
+
         if self.level >0:
             # searchFolders should hold which subdir to use
             # in creating the content of the list box
@@ -134,6 +137,15 @@ class ListWidget():
         # destruction is defined in calling the class
         # self.window.bind('<Escape>', lambda event: self.window.destroy())
         self.window.bind('<Return>', lambda event: self.activate_item())
+        # attach F1 to the local read-me editor command
+        readme_path = os.path.join(original_path,
+                                   self.get_config_element('readme'))
+        if os.path.isfile(readme_path):
+            self.window.bind('<F1>',
+                         lambda event:
+                            self.open_editor(readme_path)
+                        )
+
         if ('save config' in self.config
             and self.config['save config']):
             config_button = tk.Button(

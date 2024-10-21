@@ -130,6 +130,18 @@ Thus, a simple tool that ensures folder trees are generated according to
 templates also enables maintaining a uniform structure across a whole
 organization.
 
+### making a folder tree in BASH
+a simplified version without handling comments can be, assuming you are in your
+Projects folder and want to make a New_project from a folder tree that contains
+paths such as:
+- project_name/Data
+- project_name/Organizational/Travel_expenses
+etc. in a file calles filelist.
+
+```BASH
+sed 's/project_name/New_project/g' filelist |xargs -I {} mkdir -pv {}
+```
+
 ## common content
 Recording experiments, project ideas, summaries, etc. is a common task in
 scientific work. Many turn for such cases to tools like MS WORD or MS EXCEL

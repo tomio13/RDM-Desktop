@@ -365,7 +365,6 @@ class EntryBox():
 
         self.type = vartype
         self.error = False
-        self.error = False
 
         self.required= False
 
@@ -446,7 +445,7 @@ class EntryBox():
             numeric     --> convert to float
             list        --> split by comma and strip
             numericlist --> split, conver to float, use N/A
-            url         --> check and add missing https://
+            url         --> check and add missing httpgrep -A 5 -ie 'init__(' rdm_widgets.pys://
 
             Return
                 the value obtained or None if there was no entry
@@ -528,7 +527,7 @@ class EntryBox():
             widget
         """
         self.entry.grid(**kwargs)
-# end class EntryBox
+# end of EntryBox
 
 
 class MultiSelect():
@@ -599,7 +598,7 @@ class MultiSelect():
             # not in the option list
             self.select.select_set(self.options.index(i))
     # end set
-# end class MultiSelect
+# end of MultiSelect
 
 
 class Select():
@@ -651,7 +650,7 @@ class Select():
         return self.select.get()
     # end of get
 
-#end of class Select
+#end of Select
 
 
 class DateRoller():
@@ -672,6 +671,7 @@ class DateRoller():
         """
         self.parent = parent
         self.value = None
+        self.error = False
         # get the time tuple
         # (year, month, day, hour,
         # min, sec, wday, yday, isdst)
@@ -803,7 +803,7 @@ class DateRoller():
         return self.value
     # end of get
 
-# end class datePicker
+# end datePicker
 
 
 #################### now, this is a more generic thing, the window with its
@@ -1039,6 +1039,10 @@ class RdmWindow():
         else:
             sign = 1 if event.num == 5 else -1
             canvas.yview_scroll(sign*2, 'units')
+
+    def lift(self):
+        self.window.lift()
+    # end of lift
 
     def destroy(self):
         if self.canvas:

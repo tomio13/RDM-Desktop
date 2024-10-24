@@ -76,16 +76,19 @@ class FormBuilder():
                          lambda event: rdmHelp(self.window,
                                                        self.template))
         # with this, we have a window, containing a canvas,
-        # in which we have frame
+        # in which we have frame (actually two: content and command)
         # We can pack content into the frame, and it can be scrolled
 
         # Let us define some containers:
         # frames will contain labels and entries
+        # frames are not that important, they may contain a label
+        # for groupping entries, but nothing more
+        # however, entries contain the user input!
         # collect them dynamically
-        self.framelist= []
-        # these are the entries we will have to collect
         self.entrydict= {}
-        # and we have a result dict:
+        # and we have a result dict filled in from
+        # the entries when collect_results() run
+        # it is available even when the window is destroyed
         self.result = {}
         self.default_result = {}
         # add a lot of frames into the frame
@@ -98,7 +101,13 @@ class FormBuilder():
             main window accordingly.
         """
 
-        frame= self.window.content
+        # frame= self.window.content
+        frame= tk.Frame(self.window.content)
+        frame.grid(column= 0, row= 0)
+        # if we have group labels, we add frames in a grid
+        # this grid needs to go one by one
+        level = 1
+
         # make a static copy of keys,
         # so not problem comes if we change them
         keys = list(self.template.keys())
@@ -108,11 +117,22 @@ class FormBuilder():
             v = self.template[i]
             txt_label= str(i)
 
-            # no type field means it is not part of the form,
+            # no type field means it is not editable part of the form,
             # but we take it over
             # Texts may have substituted parts (e.g. user ID)
             if not isinstance(v, dict) or 'type' not in v:
+                # if the dict is a keyword and value: group or group_id,
+                # then make it a new label on the form
+                #
+                # also store it, so we can propagate it for future edition
+                # or for uploads
+
                 if isinstance(v, str):
+                    if v.lower() in ['group', 'group_id']:
+                        frame = tk.LabelFrame(self.window.content, text= txt_label)
+                        frame.grid(column=0, row= level, sticky='news')
+                        level += 1
+
                     self.default_result[i] = replace_text(v, self.config, self.root_path)
                 else:
                     self.default_result[i] = v
@@ -121,6 +141,14 @@ class FormBuilder():
 
             # a local frame is used to pack everything in
             # the specific line
+            # turn to using a match structure with all its
+            # complex possibilities
+            # this should make the whole procedure somewhat simpler looking
+            # testing match:
+            #match v:
+            #    case {'type':'text'|'url'|'numeric'|'integer'|'list'|'numericlist'}:
+            #        print ('found a field!', v['type'])
+
 
             if v['type'] in ['text', 'url',
                              'numeric', 'integer',
@@ -256,7 +284,7 @@ class FormBuilder():
         #
         # we need a last button to submit the lot
         self.submit_button = ttk.Button(
-                frame,
+                self.window.content,
                 text= 'Submit',
                 command = self.collect_results
                 )
@@ -296,7 +324,7 @@ class FormBuilder():
             # widget, inform the user
             if val is None:
                 if v.error:
-                    showerror(master= self.window,
+                    showerror(master= self.window.window,
                           title='Invalid value!',
                           message=f'Invalid value in {i} {typ}')
                     # erase our content
@@ -305,7 +333,7 @@ class FormBuilder():
                     return
 
                 if v.required:
-                    showerror(master= self.window,
+                    showerror(master= self.window.window,
                           title='Error',
                           message=f'{i} is required!')
                     # erase our content

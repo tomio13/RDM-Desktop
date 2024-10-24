@@ -1,5 +1,4 @@
 # a form to be used for every experiment
-default values: group
 
 user: "%u"
 created: "%D"

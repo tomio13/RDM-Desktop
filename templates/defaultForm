@@ -1,19 +1,20 @@
 # a form to be used for every experiment
+default values: group
 
 user: "%u"
 created: "%D"
 sample ID: "%3"
 
 aim:
-  type: "multiline"
+  type: multiline
   doc: "What is the aim of this experiment?"
 
 observation:
-  type: "multiline"
+  type: multiline
   doc: "free text observations beyond the measurement"
 
 sample preparation log:
-    type: "file"
+    type: file
     doc: "link to the sample synthesis or readme file"
 
 sample description:

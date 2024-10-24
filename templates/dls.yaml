@@ -8,7 +8,7 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: dls.yaml
-template version: 2023-11-16
+template version: 2024-10-24
 
 DLS device:
   type: select
@@ -65,6 +65,10 @@ first correlation delay:
   unit: "ms"
   required: false
 
+# we can use group or group_id as value of a simple label
+# to define grouping of the fields
+software parameters: group
+
 software:
   type: text
   doc: "Which sofrtware was used for the experiment / default evaluation?"
@@ -75,6 +79,8 @@ software version:
   doc: "version of the software used"
   required: true
 
+
+parameters: group
 
 parameters of runs:
   type: "subset"

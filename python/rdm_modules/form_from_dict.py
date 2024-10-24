@@ -106,7 +106,7 @@ class FormBuilder():
         frame.grid(column= 0, row= 0)
         # if we have group labels, we add frames in a grid
         # this grid needs to go one by one
-        level = 1
+        group_level = 1
 
         # make a static copy of keys,
         # so not problem comes if we change them
@@ -129,14 +129,20 @@ class FormBuilder():
 
                 if isinstance(v, str):
                     if v.lower() in ['group', 'group_id']:
-                        frame = tk.LabelFrame(self.window.content, text= txt_label)
-                        frame.grid(column=0, row= level, sticky='news')
-                        level += 1
+                        frame = tk.LabelFrame(self.window.content,
+                                              text= txt_label)
+                        frame.grid(column=0,
+                                   row= group_level,
+                                   sticky='news')
+                        group_level += 1
+                    # end if new group
 
                     self.default_result[i] = replace_text(v, self.config, self.root_path)
                 else:
                     self.default_result[i] = v
 
+                # too lazy to indent everything below within the loop?
+                # then use continue to skip the rest:
                 continue
 
             # a local frame is used to pack everything in
@@ -148,6 +154,9 @@ class FormBuilder():
             #match v:
             #    case {'type':'text'|'url'|'numeric'|'integer'|'list'|'numericlist'}:
             #        print ('found a field!', v['type'])
+            #
+            # problem: python < 3.10 does not support match / case
+            # and python > 3.10 cannot run on older windows
 
 
             if v['type'] in ['text', 'url',
@@ -159,40 +168,22 @@ class FormBuilder():
                                  v['type'],
                                  units=(v['units'] if 'units' in v else None))
 
-                if 'value' in v:
-                    entry.set(v['value'])
-
+                # set is managed for all later
                 if 'unit' in v:
                     entry.unit= v['unit']
 
-                if 'required' in v and v['required']:
-                    entry.required = True
 
             elif v['type'] == 'date':
                 entry = DateRoller(frame, label= txt_label)
-
-                if 'value' in v:
-                    entry.set(v['value'])
 
             elif v['type'] == 'select':
                 entry = Select(frame, txt_label, v['options'])
 
                 # make it read only, so user cannot insert new values
                 # alternative would be state 'normal'
-                if 'value' in v:
-                    entry.set(v['value'])
-
-                # required makes no sense here, but let it be:
-                if 'required' in v and v['required']:
-                    entry.required = True
 
             elif v['type'] == 'multiselect':
                 entry = MultiSelect(frame, txt_label, v['options'])
-                if 'required' in v and v['required']:
-                    entry.required = True
-
-                if 'value' in v:
-                    entry.set(v['value'])
 
             elif v['type'] == 'multiline':
                 # another text widget, with multiple lines
@@ -202,16 +193,6 @@ class FormBuilder():
                                     and self.config['editor']) else None
 
                 entry = MultilineText(frame, label= txt_label, editor= editor)
-
-                if 'value' in v:
-                    # for some reason we can have some spaces...
-                    vv = v['value'].strip()
-                    if vv:
-                        # the first point is a position as 'line.column'
-                        entry.text.insert('1.0', v['value'])
-
-                if 'required' in v and v['required']:
-                    entry.required = True
 
             elif v['type'] == 'file':
                 # files we are seeking contain other
@@ -224,27 +205,9 @@ class FormBuilder():
                         indir= self.root_path,
                         extension= ext
                         )
-                if 'value' in v and v['value'] is not None:
-                    this_value = v['value']
-                    if isinstance(this_value, list):
-                        this_value = ', '.join([i.split('file:',1)[-1]\
-                                for i in this_value if i != 'file:None'])
-
-                    else:
-                        this_value = this_value.split('file:', 1)[-1]
-
-                    entry.content.set(this_value)
-
-                if 'required' in v and v['required']:
-                    entry.required = True
 
             elif v['type'] == 'checkbox':
                 entry = CheckBox(frame, label= txt_label)
-                entry.required= False
-                entry.error = False
-
-                if 'value' in v and v['value'] is True:
-                    entry.select()
 
             elif v['type'] == 'subset' \
                     and 'form' in v \
@@ -257,17 +220,20 @@ class FormBuilder():
                     form= v['form'],
                     config= self.config
                     )
-
-                if 'value' in v\
-                        and v['value'] is not None:
-                    # set gives messges if there is
-                    # a trivial mismatch, but no single
-                    # point tests are done
-                    entry.set(v['value'])
-
-                if 'required' in v and v['required']:
-                    entry.required = True
             # end enumerating possible types
+
+            # error and required should be initialized for
+            # every widget as false
+            # we run this, though not every widget will
+            # have it (e.g. in a selection or a radio button
+            # it has no meaning)
+            if 'required' in v and v['required']:
+                entry.required = True
+
+            # is there a default value requested,
+            # and can the widget take it?
+            if 'value' in v and v['value'] is not None:
+                entry.set(v['value'])
 
             # put the new entry in place
             entry.grid(column= 0,
@@ -281,8 +247,10 @@ class FormBuilder():
             self.entrydict[txt_label] = entry
             # frame.grid(column=0, row= j)
         # end looping for content
-        #
+
         # we need a last button to submit the lot
+        # it goes outside of the above frames, to the end
+        # of the window content frame
         self.submit_button = ttk.Button(
                 self.window.content,
                 text= 'Submit',

@@ -150,15 +150,28 @@ class FilePickerTextField():
         return fn
     # end get
 
-    def set(self, data:list)->None:
+    def set(self, data:str|list)->None:
         """ set the content from a list of file names
+            A list can be a comma delimited text or
+            a python list
+
+            The raw file may contain file names as:
+            file: file.dat
+            or similar, so split those file: parts off.
         """
 
         if not data:
             return
 
-        text = ', '.join(data)
-        self.content.set(text)
+        if isinstance(data, list):
+            data = ', '.join([i.split('file', 1)[-1]\
+                    for i in data if i != 'file:None'])
+        else:
+            data = data.split('file:', 1)[-1]
+
+        # end if list
+
+        self.content.set(data)
     # end of set
 # end FilePickerTextField
 
@@ -258,8 +271,8 @@ class MultilineText():
     def set(self, content)->None:
         """ set the content of the widget
         """
-        if text:
-            self.text.insert('END', content)
+        if self.text:
+            self.text.insert('end', content.strip())
     # end set
 
     def edit(self, editor)->None:
@@ -331,6 +344,11 @@ class CheckBox(tk.Checkbutton):
                          offvalue= 0,
                          **kwargs)
         super().grid(column= 1, row=0)
+
+    def set(self, value):
+        if value is True:
+            self.selec()
+    # end set
 
     def get(self)->str:
         """ return back the value of self.value

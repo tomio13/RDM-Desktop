@@ -9,7 +9,7 @@ import json
 import os
 from rdm_modules.rdm_templates import find_in_record
 from rdm_modules.rdm_converters import is_record
-from requests import request
+from requests import (request, ConnectionError)
 from tkinter.messagebox import showerror, askyesno
 import time
 import yaml
@@ -78,7 +78,8 @@ def upload_record(
                    }
 
     # create the experiment
-    rep = request('POST',
+    try:
+        rep = request('POST',
                    f'{server}/api/v2/experiments',
                    headers= header,
                   json= empty_content,
@@ -86,6 +87,10 @@ def upload_record(
                   # set a default 10 seconds timout
                   # for connect, 30 for read
                   timeout= (10, 30))
+
+    except ConnectionError:
+        showerror('Server error', 'Server connection was refused!')
+        return None
 
     if rep.ok and rep.status_code == 201:
         print('experiment is created')
@@ -188,6 +193,20 @@ def body_meta_from_record(record:dict)->tuple:
     body = ''
     meta = {}
     extra = {}
+    # ElabFTW has now groups to put fields under a single label
+    # this works in two steps:
+    # one adds a label to the group id list, and an index
+    # to every item under that label
+    #
+    # Here we have labels with a value of group or group_id,
+    # every field under them becomes packed into that group like
+    # HTML forms do with field sets.
+    #
+    # this is under key: 'elabftw':{'extra_fields_groups': [{'id': 1, 'name': 'group 1'},
+    # {'id': 2, 'name': 'whatever'}, ...]}
+
+    groups = []
+    group_id = 0
     filelist = find_in_record(record, 'file')
 
     j = 1
@@ -324,7 +343,13 @@ def body_meta_from_record(record:dict)->tuple:
                             v['value'] = ''
 
                     v['position'] = j
+
+                    # do we have groups?
+                    if group_id > 0:
+                        v['group_id'] = group_id
+
                     extra[k] = v
+
                     j += 1
             else:
                 # we have no type in v, but v is a dict...
@@ -335,15 +360,29 @@ def body_meta_from_record(record:dict)->tuple:
             # it is not a dict, some key/value pair,
             # so we keep it around... if it is a multiline text,
             # add to the body
-            if isinstance(v, str) and '\n' in v:
-                #body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
-                body= f'{body}# {k}\n{v}\n\n'
+            if isinstance(v, str):
+
+                if '\n' in v:
+                    #body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
+                    body= f'{body}# {k}\n{v}\n\n'
+
+                elif v.lower() in ['group', 'group_id']:
+                    # we have a new group
+                    group_id += 1
+                    groups.append({'id': group_id, 'name': k})
+
             else:
                 meta[k] = v
+    # end for in the record
 
+    # we are done interpreting the YAML form,
+    # do we have extra fields (extra not empty):
     if extra:
         # meta['extra_fields'] = json.dumps(extra)
         meta['extra_fields'] = extra
+
+    if groups:
+        meta['elabftw']= {'extra_fields_groups': groups}
 
     if meta:
         meta = json.dumps(meta)

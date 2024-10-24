@@ -130,7 +130,10 @@ class FormBuilder():
                 if isinstance(v, str):
                     if v.lower() in ['group', 'group_id']:
                         frame = tk.LabelFrame(self.window.content,
-                                              text= txt_label)
+                                              text= txt_label,
+                                              padx= 10,
+                                              pady= 10,
+                                              labelanchor='nw')
                         frame.grid(column=0,
                                    row= group_level,
                                    sticky='news')

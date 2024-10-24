@@ -64,9 +64,8 @@ class rdmUploader():
             (These functions also do internal conversion of the record
             to match the requirements of the DB.)
         """
-        window = RdmWindow(parent, title='Upload record')
         if parent is None:
-            window = tk.Tk()
+            window = RdmWindow(parent, title='Upload record')
         else:
             window = tk.Toplevel(parent)
         window.lift()

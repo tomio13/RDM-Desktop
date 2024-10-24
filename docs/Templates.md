@@ -96,6 +96,12 @@ If units is provided, it is displayed and one is selectable.
 
 The units field lists the possibilities, unit field specifies what is selected.
 
+## groups
+if there is a key with the only value 'group' or 'group_id', then a new group
+is defined around the subsequent fields. This way we can get some structure in a large form.
+This group definition is kept in the YAML structure.
+(It has to be the value, because unique keys are required in a dict of python)
+
 # examples
 A couple of example templates are available in the templates folder,
 you can copy them for starting a new one.

@@ -8,7 +8,9 @@ doc: |
 
 # specify a template version so one can compare if needed
 template: dls.yaml
-template version: 2024-10-24
+template version: 2024-10-25
+
+dynamic light scattering: group_id
 
 DLS device:
   type: select
@@ -67,7 +69,7 @@ first correlation delay:
 
 # we can use group or group_id as value of a simple label
 # to define grouping of the fields
-software parameters: group
+software information: group
 
 software:
   type: text
@@ -80,9 +82,9 @@ software version:
   required: true
 
 
-parameters: group
+runs: group
 
-parameters of runs:
+individual runs:
   type: "subset"
   required: true
   form:

@@ -4,13 +4,9 @@ user: "%u"
 created: "%D"
 sample ID: "%3"
 
-aim:
-  type: multiline
-  doc: "What is the aim of this experiment?"
+# use groups for better structuring
+sample information: group_id
 
-observation:
-  type: multiline
-  doc: "free text observations beyond the measurement"
 
 sample preparation log:
     type: file
@@ -21,10 +17,22 @@ sample description:
   doc: "a short description of the sample"
   required: true
 
+# this is general, it can be extended by the general part
+# of any specific templates
+general: group_id
+
 experiment start:
     type: date
     doc: "Experiment starting date and time in ISO 8601 format"
     required: true
+
+aim:
+  type: multiline
+  doc: "What is the aim of this experiment?"
+
+observation:
+  type: multiline
+  doc: "free text observations beyond the measurement"
 
 attachments / links:
     type: file

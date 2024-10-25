@@ -204,6 +204,10 @@ def body_meta_from_record(record:dict)->tuple:
     #
     # this is under key: 'elabftw':{'extra_fields_groups': [{'id': 1, 'name': 'group 1'},
     # {'id': 2, 'name': 'whatever'}, ...]}
+    # Since about 5.0 ElabFTW assigns groups even if we did not, it shall be
+    # called 'UNKNOWN GROUP' I do not like it
+    #
+    # Let us make a default: 'general description'
 
     groups = []
     group_id = 0
@@ -212,9 +216,16 @@ def body_meta_from_record(record:dict)->tuple:
     j = 1
     for k,v in record.items():
         # exception:
-        if k == 'doc':
-            k = 'description'
+        #if k == 'doc':
+        #    body = f'{body}\n\n # Description \n{v}\n\n'
+        #    continue
 
+        # elements to skip:
+        if k.lower() in ['doc', 'full record']:
+            continue
+
+
+        # handle the rest
         if isinstance(v, dict):
             # Elab has description fields where we have 'doc':
             if 'doc' in v:
@@ -297,8 +308,10 @@ def body_meta_from_record(record:dict)->tuple:
                         # general metadata
                     #   meta[k] = v
 
-                    # drop the rest into the metadata
-                    meta[k] = v
+                    # stop dropping, because it may break Elab and
+                    # the record looks overly complex
+                    ## drop the rest into the metadata
+                    # meta[k] = v
 
                 elif v['type'] == 'multiline' and 'value' in v:
                     body = f'{body}# {k}\n{v["value"]}\n\n'
@@ -345,8 +358,14 @@ def body_meta_from_record(record:dict)->tuple:
                     v['position'] = j
 
                     # do we have groups?
-                    if group_id > 0:
-                        v['group_id'] = group_id
+                    if group_id < 1:
+                        # we have fields without group, so we make
+                        # a default group:
+                        group_id += 1
+                        groups = [{'id':group_id, 'name':'general description'}]
+
+                    # now, in all case, add the group to the record:
+                    v['group_id'] = group_id
 
                     extra[k] = v
 
@@ -371,7 +390,12 @@ def body_meta_from_record(record:dict)->tuple:
                     group_id += 1
                     groups.append({'id': group_id, 'name': k})
 
+                else:
+                    print('simple string special case', k, ':', v)
+                    meta[k] = v
+
             else:
+                print('special case', k,':', v)
                 meta[k] = v
     # end for in the record
 

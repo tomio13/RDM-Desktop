@@ -103,7 +103,7 @@ class FormBuilder():
 
         # frame= self.window.content
         frame= tk.Frame(self.window.content)
-        frame.grid(column= 0, row= 0)
+        frame.grid(column= 0, row= 0, sticky='news')
         # if we have group labels, we add frames in a grid
         # this grid needs to go one by one
         group_level = 1
@@ -129,6 +129,8 @@ class FormBuilder():
 
                 if isinstance(v, str):
                     if v.lower() in ['group', 'group_id']:
+                        print('found group', txt_label)
+
                         frame = tk.LabelFrame(self.window.content,
                                               text= txt_label,
                                               padx= 10,

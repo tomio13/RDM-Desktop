@@ -880,7 +880,7 @@ class RdmWindow():
         # self.window.attributes('-alpha', 0.9)
         # leave the size automatic
         self.window.geometry('')
-        #self.window.grid()
+        # self.window.grid()
         # bring the window to top as a start
         self.window.lift()
         # we could force it always on top, but that
@@ -917,8 +917,9 @@ class RdmWindow():
                 sticky= 'new')
         self.header.columnconfigure(0, weight= 10)
         self.header.columnconfigure(1, weight= 1)
-        label= tk.Label(self.header, text= title)
-        label.grid(column=0, row=0)
+        #if title:
+        #    label= tk.Label(self.header, text= title)
+        #    label.grid(column=0, row=0)
 
         # define the content frame:
 
@@ -944,7 +945,7 @@ class RdmWindow():
                               row=0,
                               padx=10,
                               pady= 10,
-                              sticky='nswe')
+                              sticky='nesw')
 
             canvas.create_window((0,0),
                              window= self.content,

@@ -75,3 +75,8 @@ for numeric elements we can have units defined as:
 
 Here the unit is the default value, it has to be one in the list of units.
 
+# groups
+You can add keys with a value of 'group' or 'group_id', which will make a grouping
+frame around the fields until the next occurrence of a new group.
+
+This is a similar behavior to HTML form fieldsets.

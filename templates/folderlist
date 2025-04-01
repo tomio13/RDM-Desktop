@@ -8,20 +8,25 @@ Data
 # Data/Example_sample/Example_analysis_0
 # Data/Example_sample/Example_analysis_1
 Figures
-Organizational
 Publications
 # for manuscripts
 # e.g. Publications/Papers/1_NanoLetters
 Publications/Papers
 # for conference or seminar slides
 Publications/Presentations
-Sample_storage
+# In some cases it maybe interesting to have this:
+# Sample_storage
 # e.g. Sample_storage/1_TH22-001
 Source_code
 Figures/Drawings
 Figures/Movies
 Figures/Photos
 Figures/Schemas
+#
+# Project organization covers many things
+# like meeting presentations, travel costs
+# personnel contract information
+Organizational
 Organizational/Budget
 Organizational/Personnel
 #Organizational/Personnel/Mark_Mustermann

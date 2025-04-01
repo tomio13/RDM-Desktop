@@ -390,6 +390,7 @@ class EntryBox():
 
         frame = tk.Frame(self.parent)
         # balance a bit between label and the text field
+        # label, text, unit -> 0, 1, 2
         frame.columnconfigure(0, weight=2)
         frame.columnconfigure(1, weight= 10)
         frame.columnconfigure(2, weight= 1)
@@ -584,15 +585,12 @@ class MultiSelect():
                                  # selectmode='multiple')
                                  selectmode='extended')
 
+        self.select.grid(column=1, row=1)
         for i,j in enumerate(options):
             self.select.insert(i,j)
+
     # end __init__
 
-    def grid(self, **kwargs):
-        """ specify the grid() method for the whole calss
-        """
-        self.select.grid(**kwargs)
-    # end grid
 
     def get(self) -> list:
         """ return a list of selected values
@@ -771,9 +769,10 @@ class DateRoller():
                           31, 31, 30, 31, 30, 31]
         try:
             self.error= False
-            year = int(self.varlist[0].get())
-            month = int(self.varlist[1].get())
-            day = int(self.varlist[2].get())
+            int_varlist = [int(i.get()) for i in self.varlist]
+            #year = int(self.varlist[0].get())
+            #month = int(self.varlist[1].get())
+            #day = int(self.varlist[2].get())
 
         except ValueError:
             print('invalid value entered!')
@@ -781,15 +780,24 @@ class DateRoller():
             self.value= None
             return
 
-
+        year, month, *_ = int_varlist
         if year%4 == 0 and year%100 != 0:
             month_max_list[1] = 29
 
         # limit the month days up to what the month allows
         self.fieldlist[2].configure(to = month_max_list[month-1])
-        if day > month_max_list[month-1]:
-            day = month_max_list[month-1]
-        self.varlist[2].set(str(day))
+        # [year, month, day, hour, minute]
+        maxlist = [0,0, month_max_list[month-1], 23, 59]
+
+        for i in (2,3,4):
+            if int_varlist[i] < 0:
+                int_varlist[i] = 0
+
+            elif int_varlist[i] > maxlist[i]:
+                int_varlist[i] = maxlist[i]
+
+        for i,v in enumerate(int_varlist):
+            self.varlist[i].set(str(v))
 
         # record the curernt value
         self.value_set()
@@ -904,11 +912,11 @@ class RdmWindow():
         # Frame is at grid 0,0 make it size count 100% into sizing:
         # we can define weights for the size ratios
         # self.window.columnconfigure(0, weight= 1)
-        self.window.columnconfigure(0, weight=20)
-        self.window.columnconfigure(1, weight=1)
-        self.window.rowconfigure(0, weight= 1)
-        self.window.rowconfigure(1, weight= 20)
-        self.window.rowconfigure(2, weight= 1)
+        self.window.columnconfigure(0, weight=10)
+        self.window.columnconfigure(1, weight=0)
+        self.window.rowconfigure(0, weight= 0)
+        self.window.rowconfigure(1, weight= 10)
+        self.window.rowconfigure(2, weight= 0)
         # header frame:
         self.header = tk.Frame(self.window)
         self.header.grid(
@@ -917,6 +925,7 @@ class RdmWindow():
                 sticky= 'new')
         self.header.columnconfigure(0, weight= 10)
         self.header.columnconfigure(1, weight= 1)
+        self.header.rowconfigure(0, weight=0)
         #if title:
         #    label= tk.Label(self.header, text= title)
         #    label.grid(column=0, row=0)
@@ -925,6 +934,10 @@ class RdmWindow():
 
         if with_scrollbar:
             canvas= tk.Canvas(self.window, bg='grey')
+            # inside the canvas we have 1 row, 1 column and it should
+            # scale with the window
+            canvas.rowconfigure(0, weight=10)
+            canvas.columnconfigure(0, weight=10)
             # config the canvas within the window:
             canvas.grid(column= 0,
                         row= 1,
@@ -940,24 +953,21 @@ class RdmWindow():
             scrollbar.grid(column= 1, row= 1, padx=5, pady= 5, sticky='ns')
 
             # now the content is a part of this canvas
+            # this is the container for further content later
             self.content = tk.Frame(canvas)
-            self.content.grid(column=0,
-                              row=0,
-                              padx=10,
-                              pady= 10,
-                              sticky='nesw')
+            self.content.columnconfigure(0, weight=10)
+            self.content.rowconfigure(0, weight= 10)
 
-            canvas.create_window((0,0),
+            self.canvas_frame = canvas.create_window((0,0),
                              window= self.content,
                              # this is not the same as the sticky above!
                              anchor='nw')
 
             self.content.bind(
                             "<Configure>",
-                            lambda e: canvas.configure(
-                                scrollregion= canvas.bbox('all')
-                             )
+                            self.configure_content
                           )
+            canvas.bind("<Configure>", self.configure_canvas)
 
             self.content.bind(
                     '<Enter>',
@@ -967,12 +977,19 @@ class RdmWindow():
                     '<Leave>',
                     lambda event: self.unbind_mousewheel(canvas)
                     )
+
             canvas.config(yscrollcommand= scrollbar.set)
             self.canvas= canvas
+            # do not use sticky on the content, because now the
+            # callbacks are managing the resize with canvas,
+            # but sticky would block the scrolling of the content
+
 
         # we expect anything scrolled within the content e.g. listbox
         else:
             self.content = tk.Frame(self.window)
+            self.content.columnconfigure(0, weight=20)
+            self.content.rowconfigure(0, weight=20)
             self.content.grid(
                 column= 0,
                 row= 1,
@@ -982,7 +999,10 @@ class RdmWindow():
             self.canvas= None
 
 
+        # the third row is place for command icons
         self.command = tk.Frame(self.window)
+        self.command.rowconfigure(0, weight=20)
+        self.command.columnconfigure(0, weight=20)
         self.command.grid(
                 column= 0,
                 row= 2,
@@ -993,6 +1013,28 @@ class RdmWindow():
         # the quit function is for sure:
         self.bind('<Escape>', lambda event: self.destroy())
     # end of __init__
+
+
+    def configure_canvas(self, event):
+        """ bind configuration for rescaling frame in canvas"""
+        self.canvas.configure(scrollregion= self.canvas.bbox('all'))
+        self.canvas.itemconfigure(self.canvas_frame, width=self.canvas.winfo_width())
+
+#        if self.content.winfo_reqwidth() != self.canvas.winfo_width():
+#            self.canvas.config(width= self.content.winfo_width())
+#
+#        if self.content.winfo_reqheight() != self.canvas.winfo_height():
+#            self.canvas.config(height= self.content.winfo_height())
+
+
+    def configure_content(self, event):
+        """ feed back to the frame from canvas
+            from: https://coderslegacy.com/python/make-scrollable-frame-in-tkinter/
+        """
+        scrollregion = (0,0, self.content.winfo_reqwidth(), self.content.winfo_reqheight())
+        self.canvas.config(scrollregion= scrollregion)
+        if self.canvas.winfo_width() != scrollregion[2]:
+            self.canvas.config(width= scrollregion[2])
 
 
     def bind(self, command:str, func):
@@ -1059,9 +1101,11 @@ class RdmWindow():
             sign = 1 if event.num == 5 else -1
             canvas.yview_scroll(sign*2, 'units')
 
+
     def lift(self):
         self.window.lift()
     # end of lift
+
 
     def destroy(self):
         if self.canvas:

@@ -5,6 +5,7 @@
     Date:       2023-02-08 -
     Warranty:   None
 """
+from dictDigUtils import dict_disp
 import os
 
 import tkinter as tk
@@ -101,12 +102,15 @@ class FormBuilder():
             main window accordingly.
         """
 
-        # frame= self.window.content
-        frame= tk.Frame(self.window.content)
-        frame.grid(column= 0, row= 0, sticky='news')
+        dict_disp(self.template)
+        frame= self.window.content
+        # frame= tk.Frame(self.window.content)
+        # frame.rowconfigure(0, weight=20)
+        # frame.columnconfigure(0, weight=20)
+        # frame.grid(column= 0, row= 0, sticky='nsew')
         # if we have group labels, we add frames in a grid
         # this grid needs to go one by one
-        group_level = 1
+        group_level = 0
 
         # make a static copy of keys,
         # so not problem comes if we change them
@@ -129,16 +133,18 @@ class FormBuilder():
 
                 if isinstance(v, str):
                     if v.lower() in ['group', 'group_id']:
-                        print('found group', txt_label)
+                        # print('found group', txt_label)
 
                         frame = tk.LabelFrame(self.window.content,
                                               text= txt_label,
                                               padx= 10,
                                               pady= 10,
                                               labelanchor='nw')
+                        frame.columnconfigure(0, weight=20)
+                        frame.rowconfigure(group_level, weight=20)
                         frame.grid(column=0,
                                    row= group_level,
-                                   sticky='news')
+                                   sticky='nsew')
                         group_level += 1
                     # end if new group
 
@@ -163,7 +169,8 @@ class FormBuilder():
             # problem: python < 3.10 does not support match / case
             # and python > 3.10 cannot run on older windows
 
-
+            # end if not a dict or has no type...
+            # handle those which have type and are dicts
             if v['type'] in ['text', 'url',
                              'numeric', 'integer',
                              'list', 'numericlist']:
@@ -238,6 +245,7 @@ class FormBuilder():
             # is there a default value requested,
             # and can the widget take it?
             if 'value' in v and v['value'] is not None:
+                # print(v)
                 entry.set(v['value'])
 
             # put the new entry in place
@@ -322,7 +330,7 @@ class FormBuilder():
             # print('resulting in:', i, ':', self.result[i])
 
         # end pulling results
-        print('Resulted in:\n', self.result)
+        # print('Resulted in:\n', self.result)
         # if all good, close:
         self.window.destroy()
     # end collect_results
@@ -550,6 +558,7 @@ class SubSet():
 
         window= RdmWindow(self.parent,
                           title,
+                          with_scrollbar= True,
                           min_size=(300, 400)
                           )
         # ESC will close the window
@@ -558,6 +567,8 @@ class SubSet():
         tree_view = ttk.Treeview(window.content,
                                  columns = cols,
                                  show= 'headings')
+        tree_view.columnconfigure(0, weight=10)
+        tree_view.rowconfigure(0, weight=10)
 
         for head in cols:
             tree_view.heading(head, text= head)
@@ -663,7 +674,7 @@ class SubSet():
 
             for row in self.content:
                 txt = ', '.join([to_str(i) for i in row])
-                print(txt)
+                # print(txt)
                 fp.write(f'{txt}\n')
             # with takes care of this
             # fp.close()
@@ -799,7 +810,7 @@ class SubSet():
             row = dict(zip(*list([keys, val_row])))
             res.append(row)
 
-        print('\nContent:', res)
+        # print('\nContent:', res)
         return res
     # end of get
 

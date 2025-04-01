@@ -153,7 +153,7 @@ class ListWidget():
                 text= 'config',
                 command= self.edit_config
                 )
-        config_button.grid(column= 1, row= 0)
+            config_button.grid(column= 1, row= 0)
 
 
         # make the content

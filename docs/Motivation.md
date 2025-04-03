@@ -3,8 +3,9 @@ This project aims to develop a research data management (RDM) toolkit for
 desktop computers following the KISS principles.
 
 ## what is KISS?
-[Keep is simple and stupid](https://en.wikipedia.org/wiki/KISS\_principle), a very well working fundamental principle originating
-in software tools of Unix operating systems.
+[Keep is simple and stupid](https://en.wikipedia.org/wiki/KISS\_principle),
+a very well working fundamental principle originating in software tools of
+Unix operating systems.
 
 Spelling it out in a more detailed way: write small programs which do a single
 job, but do that right, being light weight as much as possible and also fast.
@@ -91,7 +92,7 @@ This however also has some issues:
     to your data (e.g. analysis, plotting)
 
 ### Issue 3: templates
-Most of the available solutions are databases, which can take literally anything.
+Most of the available solutions are databases, which can take literally any content.
 However, to achieve anything close to FAIR, we need templates, and we need them
 such that they are common within institutes and then align to international
 standards, such as [NeXuS](https://manual.nexusformat.org/), or requirements of
@@ -120,7 +121,8 @@ uploaded / synchronized to the ELN or data repository server.
 
 ## folder tree
 Research data management starts at the file system level ([see for example
-this summary at Longwood Research Data Management](https://datamanagement.hms.harvard.edu/collect/directory-structure) or
+this summary at Longwood Research Data Management](https://datamanagement.hms.harvard.edu/collect/directory-structure)
+or
 [this summary at the Data Management Expert Guide](https://dmeg.cessda.eu/Data-Management-Expert-Guide/2.-Organise-Document/File-naming-and-folder-structure)).
 
 If data is stored in a well defined folder tree and using some, also well

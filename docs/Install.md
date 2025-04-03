@@ -18,7 +18,12 @@ type cmd or powershell, then ENTER), run
 ```
 pip install pyyaml
 pip install requests
+pip intall dictDigUtils
 ```
+### Role of the packages
+- pyyaml to handle yaml text files we use as templates and documents
+- requests is a high level HTTP(S) protocol handler used for upload
+- dictDigUtils used to give some feedback about the record in the console
 
 ## alternatively: use the exe
 An executable is generated packing together the python interpreted and
@@ -36,7 +41,7 @@ the resulted program as is.
 
 ## On Linux
 python is most probably installed by your system, just make sure you
-also have pyyaml and requests installed.
+also have the above packages installed (with pip if needed).
 
 ## get the source
 simply in the main repository, get the code as a zip file, and unpack it
@@ -50,6 +55,7 @@ cd To_your_folder
 cd python
 python ./RDM_project.py
 ```
+or just convert it to a bash starter script.
 
 # C part
 this is completely experimental, and in a very early stage, most

@@ -42,7 +42,7 @@ class rdmHelp():
                            # tk.Text can have its own scrollbar attached, we are
                            # not scrolling the frame directly
                            with_scrollbar= False,
-                           min_size=(600, 300))
+                           min_size=(400, 600))
 
         # the whole window is a text widget:
         # for width we include place for a TAB.

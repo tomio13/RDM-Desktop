@@ -8,6 +8,7 @@
 """
 import tkinter as tk
 from tkinter import ttk
+from . rdm_widgets import (RdmWindow)
 
 
 class rdmHelp():
@@ -34,56 +35,40 @@ class rdmHelp():
         if not form:
             return
         self.form = form
-
-        # we make a new window:
-        if parent is None:
-            window = tk.Tk()
-
-        else:
-            # this can be a frame or similar, we embed into
-            self.parent = parent
-            window = tk.Toplevel(self.parent)
-
-        #window.geometry('650x600')
-        window.minsize(600,300)
-        window.geometry('')
-        # leave the size automatic
-        window.grid()
-        # to make the frame at 0,0 stick and scale with the window:
-        window.rowconfigure(0, weight=1)
-        window.columnconfigure(0, weight=1)
-        # bring the window to top as a start
-        window.lift()
-        # but do not force it to the top
-        # stacking order ==> always on top
-        # window.attributes('-topmost', 1)
-
-        window.title('Template information')
-        window.bind('<Escape>',
-                         lambda event: window.destroy())
-
+        # the RdmWindow comes with all standard decorators
+        # and ESC bound to destroy
+        window = RdmWindow(parent,
+                           'Template information',
+                           # tk.Text can have its own scrollbar attached, we are
+                           # not scrolling the frame directly
+                           with_scrollbar= False,
+                           min_size=(600, 300))
 
         # the whole window is a text widget:
         # for width we include place for a TAB.
-        self.text = tk.Text(window,
+        self.text = tk.Text(window.content,
                             width= 85,
                             height= 15,
                             wrap='word')
-        self.text.grid(column=0, row=0, sticky='news')
+
+        self.text.rowconfigure(0, weight= 20)
+        self.text.columnconfigure(0, weight=20)
+        self.text.grid(column=0, row=0, sticky='nsew')
 
         # with scroll-bars:
-        scroll_vertical= tk.Scrollbar(window,
+        scroll_vertical= tk.Scrollbar(window.content,
                                       bg= 'grey',
                                       orient= 'vertical',
                                       command= self.text.yview,
                                       takefocus= True
                                       )
+
         scroll_vertical.grid(row= 0,
                                    column= 1,
                                    sticky= 'ns')
         self.text.config(yscrollcommand= scroll_vertical.set)
 
-        scroll_horizontal= tk.Scrollbar(window,
+        scroll_horizontal= tk.Scrollbar(window.content,
                                         bg= 'grey',
                                         orient= 'horizontal',
                                         command= self.text.xview,

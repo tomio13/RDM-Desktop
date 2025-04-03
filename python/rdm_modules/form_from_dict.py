@@ -74,7 +74,7 @@ class FormBuilder():
         # to destroy, we have to unbind the canvas first
         self.window.bind('<Control-Return>', lambda event: self.collect_results())
         self.window.bind('<F1>',
-                         lambda event: rdmHelp(self.window,
+                         lambda event: rdmHelp(self.window.window,
                                                        self.template))
         # with this, we have a window, containing a canvas,
         # in which we have frame (actually two: content and command)

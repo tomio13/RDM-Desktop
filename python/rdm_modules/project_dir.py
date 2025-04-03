@@ -12,7 +12,7 @@ import os
 import sys
 __all__ = ['make_dir']
 
-list_file = 'templates/folder.txt'
+list_file = '../../templates/folder.txt'
 
 def make_dir(folder_name:str, list_file_path:str) -> None:
     """ Create a folder directory and all its subdirectories

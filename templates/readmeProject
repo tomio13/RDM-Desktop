@@ -4,11 +4,17 @@ Please describe the project shortly here...
 # Abbreviated name
 %1
 
+# Description
+- Principal investigator:
+- Othe authors:
+  - ...
+- project website (%1):
+- submission date:
+- starting date:
+- end date:
+- funding agency:
+- cooperating partners:
+  - ...
+
 created: %D
 created by: %u
-
-# duration
-yyyy-mm-dd - yyyy-mm-dd
-
-# Link to description
-External link [%1]()

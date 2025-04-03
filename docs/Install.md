@@ -18,12 +18,10 @@ type cmd or powershell, then ENTER), run
 ```
 pip install pyyaml
 pip install requests
-pip intall dictDigUtils
 ```
 ### Role of the packages
 - pyyaml to handle yaml text files we use as templates and documents
 - requests is a high level HTTP(S) protocol handler used for upload
-- dictDigUtils used to give some feedback about the record in the console
 
 ## alternatively: use the exe
 An executable is generated packing together the python interpreted and

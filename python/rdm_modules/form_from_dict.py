@@ -5,7 +5,7 @@
     Date:       2023-02-08 -
     Warranty:   None
 """
-from dictDigUtils import dict_disp
+# from dictDigUtils import dict_disp
 import os
 
 import tkinter as tk
@@ -102,7 +102,7 @@ class FormBuilder():
             main window accordingly.
         """
 
-        dict_disp(self.template)
+        # dict_disp(self.template)
         frame= self.window.content
         # frame= tk.Frame(self.window.content)
         # frame.rowconfigure(0, weight=20)

@@ -233,6 +233,7 @@ def body_meta_from_record(record:dict)->tuple:
 
             if 'type' in v:
                 if v['type'] == 'subset':
+                    print('subset:')
                     # Subsets are lists of dicts,
                     # if extraction was simple, value is a list of dicts too
                     #
@@ -248,16 +249,23 @@ def body_meta_from_record(record:dict)->tuple:
                         table = f'# {k}\n'
 
                         # with lists for values (simple= True)
+                        # this value list contains dicts of key : value pairs,
+                        # where the latter value still can be a list...
                         if isinstance(val, list):
                             table_keys = list(val[0].keys())
                             table_vals = []
                             for row in val:
-                                # using list(row.vals()) is not good for deeper dicts
+                                # using list(row.values()) is not good for deeper dicts
                                 table_row = [i for i in row.values()]
                                 table_vals.append(table_row)
 
                             print('keys:', table_keys)
                             print('got values:', table_vals)
+                        else:
+                            # this means an invalid structure!
+                            print('Unknown structure!')
+                            print('we got:', val)
+                            continue
 
 
                         # common table writing:

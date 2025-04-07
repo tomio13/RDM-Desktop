@@ -33,15 +33,15 @@ If a new YAML file is created (on the bottom level of the folder tree),
 a template has to be selected after defining the name of the new file.
 The form editor is opened with this template, and once the content is
 submitted, the YAML file is created.
-The resulted YAML file does not contain the field definition and documentation,
-in order to minimize storage. However, these are needed for future editing or
-uploading / publishing, to provide there a full record, which can be tested
-against expectations (standards).
+If the configuration is set so, the resulted YAML file does not contain the
+field definition and documentation, in order to minimize storage.
+However, these are needed for future editing or uploading / publishing, to
+provide there a full record, which can be tested against expectations (standards).
 
 If the configuration setting 'full record' exists and is set to true,
 then every detail is saved in the file, and it can be used without the template.
-The resulted file is more complicated looking, so this setting is not set by
-default.
+The resulted file is more complicated looking, but more self-standing, so this setting
+is set by default.
 The same setting gets saved into the file as well, to ensure the program recognizes
 this state even when the configuraiton is changed later.
 

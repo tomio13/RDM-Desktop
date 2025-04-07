@@ -174,8 +174,8 @@ def upload_record(
 def body_meta_from_record(record:dict)->tuple:
     """ Split up a record to meta data and body parts, ready
         to be uploaded to an ElabFTW server.
-        The body is in HTML (markdown needs an editing step
-        in Elab to be compiled), containing all multiline entries.
+        The body is in markdown (the uploader has to set the
+        content_type to 2) containing all multiline entries.
 
         parameters:
         record      a dict with the complete record (merged with its template)
@@ -209,21 +209,47 @@ def body_meta_from_record(record:dict)->tuple:
     #
     # Let us make a default: 'general description'
 
+    # since about end of 2024 there are read-only fields possible,
+    # which is an excellent way of storing the default, read-only key-value
+    # pairs of RDM-desktop
+
+    # key translation between RDM-desktop and ElabFTW
+    # these are only the types, there are other factors to consider
+    type_translation = {
+            'text': 'text',
+            'multiline': 'text',
+            'numeric': 'number',
+            'integer': 'number',
+            'list': 'text',
+            'numericlist': 'text',
+            'select': 'select',
+            'multiselect': 'select',
+            'checkbox': 'checkbox',
+            'url': 'url',
+            'date': 'datetime-local',
+            'file': 'text'
+            }
+
     groups = []
     group_id = 0
     filelist = find_in_record(record, 'file')
 
-    j = 1
-    for k,v in record.items():
+    # handle the record content extracting files and body elements,
+    # converting types to those usable in ElabFTW
+    # the metadata part is the original record corrected
+    j = 0
+    keylist = list(record.keys())
+    for k in keylist:
+        v = record[k]
         # exception:
         #if k == 'doc':
         #    body = f'{body}\n\n # Description \n{v}\n\n'
         #    continue
 
         # elements to skip:
-        if k.lower() in ['doc', 'full record']:
+        if k.lower() in ['doc', 'full record', 'uploaded']:
+            record.pop(k)
             continue
-
 
         # handle the rest
         if isinstance(v, dict):
@@ -235,6 +261,10 @@ def body_meta_from_record(record:dict)->tuple:
                 if v['type'] == 'subset':
                     print('subset:')
                     # Subsets are lists of dicts,
+                    #
+                    # since we do not have anything similar in ElabFTW,
+                    # we convert them to tables in the body
+                    #
                     # if extraction was simple, value is a list of dicts too
                     #
                     # but now since numeric values are presented as lists,
@@ -321,90 +351,114 @@ def body_meta_from_record(record:dict)->tuple:
                     ## drop the rest into the metadata
                     # meta[k] = v
 
-                elif v['type'] == 'multiline' and 'value' in v:
-                    body = f'{body}# {k}\n{v["value"]}\n\n'
+                # which types need special attention?
+                # multiline, list, numericlist, file
+                    continue
 
-                # optional text may be None
-                elif (v['type'] == 'text'
-                      and 'value' in v
-                      and v['value'] is not None
-                      and '\n' in v['value']):
+                # because of continue, we start with an if
+                # instead of elif
+                if v['type'] == 'multiline' and 'value' in v:
+                    # add key as a new header, and value as its content
                     body = f'{body}# {k}\n{v["value"]}\n\n'
+                    continue
 
-                else:
-                    if v['type'] in ['list', 'numericlist']:
-                        v['type'] = 'text'
-                        if 'value' in v:
-                            if v['value'] is None:
-                                v['value'] = ''
-                            else:
-                                v['value'] = ', '.join(str(v['value']))
-                        else:
-                            v['value'] = ''
+                if v['type'] in ['list', 'numericlist']:
+                    # lists are converted to comma separated text
+                    # because ElabFTW cannot handle list variables properly
+                    if 'value' in v and v['value'] is not None:
+                        # str(v) produces something like '[1, 2, 2.2, ...]'
+                        # then join() messes it up. So use the proper conversion
+                        v['value'] = ', '.join([str(i) for i in v['value']])
 
                     # a file list is something we can use for adding
                     # attachments in the future
-                    elif v['type'] == 'file':
-                        if 'value' in v and v['value'] is not None:
-                            fl = [i.replace('file:', '') for i in v]
+                elif v['type'] == 'file':
+                    if 'value' in v and v['value'] is not None:
+                        # for a single filename we have a text,
+                        # for multiple ones a list
+                        if isinstance(v['value'], list):
+                            # file names may start as file:...
+                            fl = [i.replace('file:', '') for i in v['value']]
                             v['value'] = ', '.join(fl)
+
                         else:
-                            v['value'] = ''
+                            v['value'] = v['value'].replace('file:', '')
+                # if type...
+                # all critical types are sorted out
+                elif v['type'] == 'multiselect':
+                    v['allow_multi_values'] = True
 
+                # clean up value
+                if 'value' not in v or v['value'] is None:
+                    v['value'] = ''
 
-                    # change in ElabFTW, now there is a datetime-local type
-                    elif v['type'] == 'date':
-                        #if 'value' in v and v['value']:
-                        #    # cut the date time to date only (yyyy-mm-dd HH:MM -> yyyy-mm-dd)
-                        #    v['value'] = v['value'].split(' ',1)[0]
-                        v['type'] = 'datetime-local'
-
-                    else:
-                        if 'value' not in v or v['value'] is None:
-                            v['value'] = ''
-
-                    v['position'] = j
-
-                    # do we have groups?
-                    if group_id < 1:
-                        # we have fields without group, so we make
-                        # a default group:
-                        group_id += 1
-                        groups = [{'id':group_id, 'name':'general description'}]
-
-                    # now, in all case, add the group to the record:
-                    v['group_id'] = group_id
-
-                    extra[k] = v
-
-                    j += 1
+                # the rest is common to all
+                # add field to the extra dict...
             else:
                 # we have no type in v, but v is a dict...
+                #
+                # this is not a standard record! Something different!
                 # best is to keep it as a non form meta element
                 meta[k] = v
+                continue
+
+            # all had a type, this we translate for ElabFWT
+            v['type'] = type_translation[v['type']]
 
         else:
             # it is not a dict, some key/value pair,
             # so we keep it around... if it is a multiline text,
             # add to the body
             if isinstance(v, str):
-
+                # if one left a multiline text as read-only field,
+                # we put it to body
+                # if single line text or list, put it to a read-only
+                # field
                 if '\n' in v:
                     #body= f'{body}\n\n<h1>{k}</h1>\n<p>{v}'
                     body= f'{body}# {k}\n{v}\n\n'
+                    continue
 
                 elif v.lower() in ['group', 'group_id']:
                     # we have a new group
                     group_id += 1
                     groups.append({'id': group_id, 'name': k})
+                    continue
 
-                else:
-                    print('simple string special case', k, ':', v)
-                    meta[k] = v
+                print('simple string special case', k, ':', v)
+                v = {'type': 'text', 'value': v}
 
-            else:
-                print('special case', k,':', v)
-                meta[k] = v
+            elif isinstance(v, (int, float)):
+                v = {'type': 'number', 'value': v}
+
+            else :
+                v = {'type': 'text', 'value': str(v)}
+
+            # we can add non standard form elements are read-only information
+            v['readonly'] = True
+
+        # end if v type was detected or a readonly one
+        # every extra form element needs position or group ID
+        # (all others jumped out using continue above)
+
+        v['position'] = j
+
+        # do we have groups?
+        if group_id < 1:
+            # we have fields without group, so we make
+            # a default group:
+            group_id += 1
+            groups = [{'id':group_id, 'name':'general description'}]
+
+        ################### define the new record in metadata
+        # now, in all case, add the group to the record:
+        v['group_id'] = group_id
+
+        extra[k] = v
+
+        j += 1
+
+
     # end for in the record
 
     # we are done interpreting the YAML form,

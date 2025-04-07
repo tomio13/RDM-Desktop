@@ -87,6 +87,10 @@ class rdmHelp():
     def add_content(self):
         """ extract the content from form and
             add it to the text widget
+
+            Every dict generates a text as:
+            key
+                content...
         """
         text = ''
         for k, v in self.form.items():
@@ -95,6 +99,8 @@ class rdmHelp():
                 lines = v['doc'].split('\n')
             elif k == 'doc':
                 lines = v.split('\n')
+            else:
+                lines = [f'(read only value) {v}']
 
             if lines:
                 # instead of TAB, 4 spaces

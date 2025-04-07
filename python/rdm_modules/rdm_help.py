@@ -94,9 +94,13 @@ class rdmHelp():
         """
         text = ''
         for k, v in self.form.items():
+            if k.lower() in ('uploaded', 'full record'):
+                continue
+
             lines = []
-            if isinstance(v, dict) and 'doc' in v:
-                lines = v['doc'].split('\n')
+            if isinstance(v, dict):
+                if 'doc' in v:
+                    lines = v['doc'].split('\n')
             elif k == 'doc':
                 lines = v.split('\n')
             else:

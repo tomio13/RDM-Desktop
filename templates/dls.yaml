@@ -86,6 +86,9 @@ runs: group
 
 individual runs:
   type: "subset"
+  doc: |
+    Here describe the necessary parameters of each measurement runs
+
   required: true
   form:
     relative time point:

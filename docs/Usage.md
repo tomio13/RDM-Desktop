@@ -27,9 +27,11 @@ so the user can browse and work on the content of the files.
 First a name is requested for the new folder, then a read-me is created
 based on the corresponding template. This file is opened in the default editor
 (nano for non Windows, Notepad for Windows) for being filled out by the user.
+The template only defines some kind of initial value and form.
+The user is free to edit thie file and use it in any sinful way.
 
 # working on YAML files
-If a new YAML file is created (on the bottom level of the folder tree),
+If a new YAML file is to be created (on the bottom level of the folder tree),
 a template has to be selected after defining the name of the new file.
 The form editor is opened with this template, and once the content is
 submitted, the YAML file is created.
@@ -44,6 +46,11 @@ The resulted file is more complicated looking, but more self-standing, so this s
 is set by default.
 The same setting gets saved into the file as well, to ensure the program recognizes
 this state even when the configuraiton is changed later.
+
+## help
+if F1 is pressed when working with the form widget, a help window will pop up,
+containing every read-only field (not displayed in the form) and all doc-strings
+from the template to help understanding the form.
 
 ## Opening a recorded experiment
 The configuration file contains a field: 'use form' set true. This instructs

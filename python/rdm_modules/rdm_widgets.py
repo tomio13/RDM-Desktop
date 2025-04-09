@@ -347,7 +347,7 @@ class CheckBox(tk.Checkbutton):
 
     def set(self, value):
         if value is True:
-            self.selec()
+            self.select()
     # end set
 
     def get(self)->str:

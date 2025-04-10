@@ -2,7 +2,9 @@
 
 user: "%u"
 created: "%D"
-sample ID: "%3"
+# rename from sample ID, because it may be that the experiment has an ID
+# depending on how the records are organized
+experiment ID: "%3"
 
 # use groups for better structuring
 sample information: group_id

@@ -247,7 +247,7 @@ def body_meta_from_record(record:dict)->tuple:
         #    continue
 
         # elements to skip:
-        if k.lower() in ['doc', 'full record', 'uploaded']:
+        if k.lower() in ['doc', 'full record', 'uploaded', 'no_default']:
             record.pop(k)
             continue
 

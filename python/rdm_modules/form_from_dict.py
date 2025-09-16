@@ -224,6 +224,8 @@ class FormBuilder():
             elif v['type'] == 'subset' \
                     and 'form' in v \
                     and isinstance(v['form'], dict):
+                # we leave it in its own lower level frame
+                # so it can be part of other settings like measurement
 
                 entry= SubSet(
                     title= txt_label,
@@ -395,7 +397,9 @@ class SubSet():
         self.content = []
         self.label_fields= []
 
-        self.frame = ttk.Frame(self.parent)
+        # use this frame to indicate the whole group as a whole
+        self.frame = tk.LabelFrame(self.parent, text= title)
+        # self.frame = tk.Frame(self.parent)
         self.frame.rowconfigure(0, weight=1)
         self.frame.rowconfigure(1, weight=10)
         self.frame.columnconfigure(0, weight= 5)
@@ -410,8 +414,8 @@ class SubSet():
 
         # within this frame we have a label and then
         # the content: buttons and row/column information
-        label = tk.Label(self.frame, text= title)
-        label.grid(column= 0, row= 0, padx= 10)
+        # label = tk.Label(self.frame, text= title)
+        # label.grid(column= 0, row= 0, padx= 10)
         # now, we need some content...
         self.create_content(title= title,
                             root_path= root_path,

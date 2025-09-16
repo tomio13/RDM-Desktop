@@ -104,7 +104,8 @@ class rdmHelp():
             elif k == 'doc':
                 lines = v.split('\n')
             else:
-                lines = [f'(read only value) {v}']
+                if v not in ['group_id', 'group']:
+                    lines = [f'(read only value) {v}']
 
             if lines:
                 # instead of TAB, 4 spaces

@@ -233,6 +233,7 @@ def body_meta_from_record(record:dict)->tuple:
     groups = []
     group_id = 0
     filelist = find_in_record(record, 'file')
+    # print('Files:', filelist)
 
     # handle the record content extracting files and body elements,
     # converting types to those usable in ElabFTW

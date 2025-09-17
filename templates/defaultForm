@@ -9,14 +9,18 @@ experiment ID: "%3"
 # use groups for better structuring
 sample information: group_id
 
-
 sample preparation log:
     type: file
     doc: "link to the sample synthesis or readme file"
 
-sample description:
+generic sample description:
   type: text
-  doc: "a short description of the sample"
+  doc: |
+    a short description of the sample, if multiple samples are used, this is the common
+    description of them. For example a set of electrode materials are investigated,
+    then the specific sample is defined in a subset later.
+    If there is only one sample, you can say all about it here.
+
   required: true
 
 # this is general, it can be extended by the general part

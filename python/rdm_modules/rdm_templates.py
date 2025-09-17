@@ -246,10 +246,11 @@ def find_in_record(data:dict, search:str='file')->list:
             if 'type' in v:
                 if v['type'].lower() == search:
                     if 'value' in v:
-                        if isinstance(v, list):
-                            res += v['value']
+                        vv = v['value']
+                        if isinstance(vv, list):
+                            res += vv
                         else:
-                            res.append(v['value'])
+                            res.append(vv)
                     else:
                         print(f'key found without value in {k}')
 
@@ -258,13 +259,12 @@ def find_in_record(data:dict, search:str='file')->list:
                       and 'value' in v):
                     # now, it gets tricky, because here
                     # form contains types under keys,
-                    # value contains a list of dicts
+                    # value contains a list of dicts with
+                    # key: value pairs only
                     klist = find_key_in_record(v['form'], search)
 
                     if klist:
-                        vv = v['value']
                         for kk in klist:
-                            # vv = v['value'] is a list of dicts
                             for this_vv in v['value']:
                                 if not this_vv[kk] or this_vv[kk] is None:
                                     continue
